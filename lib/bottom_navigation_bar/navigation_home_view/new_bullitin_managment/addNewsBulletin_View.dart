@@ -164,6 +164,9 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                         TextFormField(
                           controller: _titleControler,
                           focusNode: _titleFousNode,
+                          onTap: () {
+                            FocusScope.of(context).requestFocus(_titleFousNode);
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a title';
@@ -234,6 +237,9 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                               TextFormField(
                                 controller: _contentControler,
                                 focusNode: _contentFocusNode,
+                                onTap: () {
+                                  FocusScope.of(context).requestFocus(_contentFocusNode);
+                                },
                                 maxLines: null,
                                 expands: true,
                                 keyboardType: TextInputType.multiline,
@@ -494,6 +500,10 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                 right: MediaQuery.of(context).size.width * 0.1,
                 child: GestureDetector(
                   onTap: () {
+                    FocusScope.of(context).unfocus();
+                    if (FocusScope.of(context).hasFocus) {
+                      return; // Do not proceed if any text field is focused
+                    }
                     if (_formKey.currentState!.validate()) {
                       setState(() {
                         _isLoading = true;
@@ -506,6 +516,10 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                           _startTimeController.text,
                           _dobControler.text);
 
+                      _titleControler.clear();
+                      _contentControler.clear();
+                      _startTimeController.clear();
+                      _dobControler.clear();
                     }
                   },
                   child: Container(

@@ -15,7 +15,7 @@ void showErrorDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Error'),
+        title: Text('Error',style: TextStyle(color: Colors.red),),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -72,9 +72,10 @@ void showSuccessDialog<T>(
           TextButton(
             child: Text('OK'),
             onPressed: () {
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
                 FadePageRouteBuilder(widget: navigateTo as Widget),
+                    (Route<dynamic> route) => false,
               );
             },
           ),

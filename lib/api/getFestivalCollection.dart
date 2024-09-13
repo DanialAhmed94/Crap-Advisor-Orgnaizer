@@ -29,10 +29,10 @@ Future<FestivalResponse?> getFestivalCollection(BuildContext context) async {
       showErrorDialog(context, data['message'], data['errors']);
     }
   }
-  on TimeoutException catch (_) {
+   on TimeoutException catch (_) {
     showErrorDialog(context, "Request timed out. Please try again later.", []);
   } catch (error) {
-    showErrorDialog(context, "Operation failed with: $error", []);
-    print("error: $error");
+    showErrorDialog(context, "Operation failed with while fetching festivals: $error", []);
+    print("error123: $error");
   }
 }

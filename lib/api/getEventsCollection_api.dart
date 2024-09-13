@@ -29,7 +29,7 @@ Future<EventResponse?> getEventsCollection(BuildContext context) async {
   } on TimeoutException catch (_) {
     showErrorDialog(context, "Request timed out. Please try again later.", []); // Handle timeout
   } catch (error) {
-    showErrorDialog(context, "Operation failed with: $error", []); // Handle other errors
+    showErrorDialog(context, "Operation failed with while fetching events: $error", []); // Handle other errors
     print("error: $error"); // Print the error for debugging
   }
   return null;

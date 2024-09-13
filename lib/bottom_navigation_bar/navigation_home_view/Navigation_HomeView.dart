@@ -14,9 +14,24 @@ import 'eventMangement_view/eventManagement_homeView.dart';
 import 'festival_managment/festival_managment_homeView.dart';
 import 'kidsManagement_view/k=kidsManagement_homeView.dart';
 
-class NavigationHomeview extends StatelessWidget {
+class NavigationHomeview extends StatefulWidget {
   const NavigationHomeview({super.key});
 
+  @override
+  State<NavigationHomeview> createState() => _NavigationHomeviewState();
+}
+
+class _NavigationHomeviewState extends State<NavigationHomeview> {
+  late Future<void> _fetchFestivalsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the Future in initState
+    _fetchFestivalsFuture =
+        Provider.of<FestivalProvider>(context, listen: false)
+            .fetchFestivals(context);
+  }
 
   double calculateTotalHeight(BuildContext context) {
     double totalHeight = 0.0;
@@ -24,15 +39,16 @@ class NavigationHomeview extends StatelessWidget {
     totalHeight = totalHeight +
         MediaQuery.of(context).size.height * 0.07 +
         MediaQuery.of(context).size.height * 0.37 +
-        MediaQuery.of(context).size.height * 0.58+  // Example: Height of welcome message Positioned child
-        MediaQuery.of(context).size.height * 0.16;// Example: Height of welcome message Positioned child
+        MediaQuery.of(context).size.height *
+            0.58 + // Example: Height of welcome message Positioned child
+        MediaQuery.of(context).size.height *
+            0.16; // Example: Height of welcome message Positioned child
 
     return totalHeight;
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
@@ -64,13 +80,15 @@ class NavigationHomeview extends StatelessWidget {
                   //SizedBox(height: 8), // Adds spacing between text and row
                   FutureBuilder<String?>(
                     future: getUserName(),
-                    builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                    builder: (BuildContext context,
+                        AsyncSnapshot<String?> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       } else if (snapshot.hasData) {
-                        String displayName = snapshot.data ?? 'No username found';
+                        String displayName =
+                            snapshot.data ?? 'No username found';
                         return Row(
                           children: [
                             Text(
@@ -90,14 +108,16 @@ class NavigationHomeview extends StatelessWidget {
                             // SizedBox(width: 13),
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(context, FadePageRouteBuilder(widget: NotificationView()));
+                                Navigator.push(
+                                    context,
+                                    FadePageRouteBuilder(
+                                        widget: NotificationView()));
                               },
                               child: SvgPicture.asset(
                                 AppConstants.bellIcon,
                                 color: Color(0xFF788595),
                               ),
                             ),
-
 
                             SizedBox(width: 4),
                           ],
@@ -107,15 +127,14 @@ class NavigationHomeview extends StatelessWidget {
                         return Center(child: Text('No username found'));
                       }
                     },
-                  )
-
-                  ,
+                  ),
                   SizedBox(
                     height: 20,
                   ),
                   GestureDetector(
-                    onTap: (){
-                      Navigator.push(context, FadePageRouteBuilder(widget: BottomPremiumView()));
+                    onTap: () {
+                      Navigator.push(context,
+                          FadePageRouteBuilder(widget: BottomPremiumView()));
                     },
                     child: Card(
                       elevation: 2,
@@ -156,11 +175,13 @@ class NavigationHomeview extends StatelessWidget {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(right: 8, left: 16),
+                              padding:
+                                  const EdgeInsets.only(right: 8, left: 16),
                               child: Container(
                                 height: 60,
                                 width: 60,
-                                child: SvgPicture.asset(AppConstants.crownProIcon),
+                                child:
+                                    SvgPicture.asset(AppConstants.crownProIcon),
                               ),
                             ),
                           ],
@@ -173,7 +194,8 @@ class NavigationHomeview extends StatelessWidget {
             ),
 
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.34, // Adjusted position to avoid overlapping
+              top: MediaQuery.of(context).size.height *
+                  0.34, // Adjusted position to avoid overlapping
               left: 16,
               right: 16,
               child: GestureDetector(
@@ -182,16 +204,21 @@ class NavigationHomeview extends StatelessWidget {
                     // fit: StackFit.expand,
                     children: [
                       Container(
-                          height: MediaQuery.of(context).size.height*0.2,
-                          width: MediaQuery.of(context).size.width*0.45,
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(32),
+                          height: MediaQuery.of(context).size.height * 0.2,
+                          width: MediaQuery.of(context).size.width * 0.45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(32),
                             color: Colors.black,
                           ),
-                          child: SvgPicture.asset(AppConstants.tile1Background,fit: BoxFit.fill,)),
+                          child: SvgPicture.asset(
+                            AppConstants.tile1Background,
+                            fit: BoxFit.fill,
+                          )),
                       Positioned(
                         top: 40,
-                        left: 60,// Change this value to position the icon as desired
-                         // Change this value to position the icon as desired
+                        left: 60,
+                        // Change this value to position the icon as desired
+                        // Change this value to position the icon as desired
                         child: Column(
                           children: [
                             Padding(
@@ -200,33 +227,42 @@ class NavigationHomeview extends StatelessWidget {
                             ),
                             Text(
                               "Add",
-                              style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
                             ),
                             Text(
                               "Festival",
-                              style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
                             ),
-
                           ],
                         ), // Replace with your custom icon
                       ),
-
                     ],
                   ),
                 ),
-                onTap: (){
-                  Navigator.push(context, FadePageRouteBuilder(widget: AddFestivalHome()));
+                onTap: () {
+                  Navigator.push(
+                      context, FadePageRouteBuilder(widget: AddFestivalHome()));
                 },
               ),
             ), // Gridtile 1
 
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.34, // Adjusted position to avoid overlapping
+              top: MediaQuery.of(context).size.height *
+                  0.34, // Adjusted position to avoid overlapping
               left: MediaQuery.of(context).size.width * 0.51,
               right: 16,
-              child:   GestureDetector(
-                onTap: (){
-                  Navigator.push(context, FadePageRouteBuilder(widget: AddPerformanceHome()));
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      FadePageRouteBuilder(widget: AddPerformanceHome()));
                 },
                 child: GridTile(
                   child: Container(
@@ -236,14 +272,19 @@ class NavigationHomeview extends StatelessWidget {
                       // fit: StackFit.expand,
                       children: [
                         Container(
-                            height: MediaQuery.of(context).size.height*0.16,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
+                            height: MediaQuery.of(context).size.height * 0.16,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
                                 color: Colors.black),
-                            width: MediaQuery.of(context).size.width*0.45,
-                            child: SvgPicture.asset(AppConstants.tile2Background,fit: BoxFit.cover,)),
+                            width: MediaQuery.of(context).size.width * 0.45,
+                            child: SvgPicture.asset(
+                              AppConstants.tile2Background,
+                              fit: BoxFit.cover,
+                            )),
                         Positioned(
                           top: 35,
-                          left: 40,// Change this value to position the icon as desired
+                          left: 40,
+                          // Change this value to position the icon as desired
                           // Change this value to position the icon as desired
                           child: Column(
                             children: [
@@ -253,11 +294,19 @@ class NavigationHomeview extends StatelessWidget {
                               ),
                               Text(
                                 "Stage Running",
-                                style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
+                                style: TextStyle(
+                                    height: 1.0,
+                                    fontFamily: "UbuntuBold",
+                                    fontSize: 14,
+                                    color: Colors.white),
                               ),
                               Text(
                                 "Order",
-                                style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
+                                style: TextStyle(
+                                    height: 1.0,
+                                    fontFamily: "UbuntuBold",
+                                    fontSize: 14,
+                                    color: Colors.white),
                               ),
                             ],
                           ), // Replace with your custom icon
@@ -269,9 +318,10 @@ class NavigationHomeview extends StatelessWidget {
               ),
             ), // Gridtile 2
             Positioned(
-
-              top: MediaQuery.of(context).size.height * 0.34, // Adjusted position to avoid overlapping
-              left: MediaQuery.of(context).size.width * 0.51,// Position the new SVG at the top left
+              top: MediaQuery.of(context).size.height *
+                  0.34, // Adjusted position to avoid overlapping
+              left: MediaQuery.of(context).size.width *
+                  0.51, // Position the new SVG at the top left
               child: SvgPicture.asset(
                 AppConstants.proIcon, // Replace with your new SVG asset
                 width: 24, // Adjust the size as needed
@@ -279,28 +329,30 @@ class NavigationHomeview extends StatelessWidget {
               ),
             ), // proIcon
 
-
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.55, // Adjusted position to avoid overlapping
+              top: MediaQuery.of(context).size.height *
+                  0.55, // Adjusted position to avoid overlapping
               left: 16,
               right: 16,
-              child:  GestureDetector(
-                onTap: (){
-                  Navigator.push(context, FadePageRouteBuilder(widget: AddEventManagementView()));
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      FadePageRouteBuilder(widget: AddEventManagementView()));
                 },
                 child: GridTile(
                   child: Stack(
                     // fit: StackFit.expand,
                     children: [
                       Container(
-
-                          height: MediaQuery.of(context).size.height*0.16,
-
-                          width: MediaQuery.of(context).size.width*0.46,
-                          child: SvgPicture.asset(AppConstants.tile3Background,)),
+                          height: MediaQuery.of(context).size.height * 0.16,
+                          width: MediaQuery.of(context).size.width * 0.46,
+                          child: SvgPicture.asset(
+                            AppConstants.tile3Background,
+                          )),
                       Positioned(
                         top: 33,
-                        left: 45,// Change this value to position the icon as desired
+                        left: 45,
+                        // Change this value to position the icon as desired
                         // Change this value to position the icon as desired
                         child: Column(
                           children: [
@@ -310,107 +362,147 @@ class NavigationHomeview extends StatelessWidget {
                             ),
                             Text(
                               "Event ",
-                              style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
                             ),
                             Text(
                               "Management",
-                              style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
                             ),
                           ],
                         ), // Replace with your custom icon
                       ),
-
                     ],
                   ),
                 ),
               ),
-            ),// Gridtile 3
+            ), // Gridtile 3
 
-            Positioned(top: MediaQuery.of(context).size.height * 0.51,
-              left: MediaQuery.of(context).size.width * 0.51,
-            right: 16,
-            child:  GestureDetector(
-              onTap: ()=>Navigator.push(context,FadePageRouteBuilder(widget: AddToiletHome())),
-              child: GridTile(
-                child: Stack(
-                  // fit: StackFit.expand,
-                  children: [
-                    Container(
-                        height: MediaQuery.of(context).size.height*0.2,
-                        width: MediaQuery.of(context).size.width*0.5,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: SvgPicture.asset(AppConstants.tile4Background,fit: BoxFit.fill,)),
-                    Positioned(
-                      top: 35,
-                      left: 45,// Change this value to position the icon as desired
-                      // Change this value to position the icon as desired
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: SvgPicture.asset(AppConstants.tile4Top),
-                          ),
-                          Text(
-                            "Toilet",
-                            style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
-                          ),
-                          Text(
-                            "Management",
-                            style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
-                          ),
-                        ],
-                      ), // Replace with your custom icon
-                    ),
-                  ],
-                ),
-              ),
-            ),), // Gridtile 4
-
-            Positioned(top: MediaQuery.of(context).size.height * 0.72,left: 16,
-            child:  GestureDetector(
-              onTap: (){
-                Navigator.push(context, FadePageRouteBuilder(widget: AddNewsBullitinHome()));
-
-              },
-              child: GridTile(
-                child: Stack(
-                  // fit: StackFit.expand,
-                  children: [
-                    Container(
-                        height: MediaQuery.of(context).size.height*0.2,
-                        width: MediaQuery.of(context).size.width*0.45,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: SvgPicture.asset(AppConstants.tile5Background,fit: BoxFit.fill,)),
-                    Positioned(
-                      top: 40,
-                      left: 44,// Change this value to position the icon as desired
-                      // Change this value to position the icon as desired
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: SvgPicture.asset(AppConstants.tile5Top),
-                          ),
-                          Text(
-                            "News Bulletin",
-                            style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
-                          ),
-                          Text(
-                            "Management",
-                            style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
-                          ),
-                        ],
-                      ), // Replace with your custom icon
-                    ),
-                  ],
-                ),
-              ),
-            ),) ,// Gridtile 5
             Positioned(
+              top: MediaQuery.of(context).size.height * 0.51,
+              left: MediaQuery.of(context).size.width * 0.51,
+              right: 16,
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                    context, FadePageRouteBuilder(widget: AddToiletHome())),
+                child: GridTile(
+                  child: Stack(
+                    // fit: StackFit.expand,
+                    children: [
+                      Container(
+                          height: MediaQuery.of(context).size.height * 0.2,
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: SvgPicture.asset(
+                            AppConstants.tile4Background,
+                            fit: BoxFit.fill,
+                          )),
+                      Positioned(
+                        top: 35,
+                        left: 45,
+                        // Change this value to position the icon as desired
+                        // Change this value to position the icon as desired
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: SvgPicture.asset(AppConstants.tile4Top),
+                            ),
+                            Text(
+                              "Toilet",
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            ),
+                            Text(
+                              "Management",
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ), // Replace with your custom icon
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ), // Gridtile 4
 
-              top: MediaQuery.of(context).size.height * 0.72,left: 16,// Position the new SVG at the top left
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.72,
+              left: 16,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      FadePageRouteBuilder(widget: AddNewsBullitinHome()));
+                },
+                child: GridTile(
+                  child: Stack(
+                    // fit: StackFit.expand,
+                    children: [
+                      Container(
+                          height: MediaQuery.of(context).size.height * 0.2,
+                          width: MediaQuery.of(context).size.width * 0.45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: SvgPicture.asset(
+                            AppConstants.tile5Background,
+                            fit: BoxFit.fill,
+                          )),
+                      Positioned(
+                        top: 40,
+                        left: 44,
+                        // Change this value to position the icon as desired
+                        // Change this value to position the icon as desired
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: SvgPicture.asset(AppConstants.tile5Top),
+                            ),
+                            Text(
+                              "News Bulletin",
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            ),
+                            Text(
+                              "Management",
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ), // Replace with your custom icon
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ), // Gridtile 5
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.72,
+              left: 16,
+              // Position the new SVG at the top left
               child: SvgPicture.asset(
                 AppConstants.proIcon, // Replace with your new SVG asset
                 width: 24, // Adjust the size as needed
@@ -418,59 +510,67 @@ class NavigationHomeview extends StatelessWidget {
               ),
             ), // proIcon
 
-            Positioned(top: MediaQuery.of(context).size.height * 0.72,
-              left:  MediaQuery.of(context).size.width * 0.51,
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.72,
+              left: MediaQuery.of(context).size.width * 0.51,
               right: 16,
-            child:  GestureDetector(
-              onTap: (){
-                Navigator.push(context, FadePageRouteBuilder(widget: AddKidsActivityHome()));
-              },
-              child: GridTile(
-                child: Stack(
-                  // fit: StackFit.expand,
-                  children: [
-                    Container(
-
-                        height: MediaQuery.of(context).size.height*0.16,
-
-                        width: MediaQuery.of(context).size.width*0.46,
-                        child: SvgPicture.asset(AppConstants.tile6Background,)),
-                    Positioned(
-                      top: 22,
-                      left: 60,// Change this value to position the icon as desired
-                      // Change this value to position the icon as desired
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: SvgPicture.asset(AppConstants.tile6Top),
-                          ),
-                          Text(
-                            "Kids",
-                            style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
-                          ),
-                          Text(
-                            "Activity",
-                            style: TextStyle(height: 1.0,fontFamily: "UbuntuBold",fontSize: 14,color: Colors.white),
-                          ),
-                        ],
-                      ), // Replace with your custom icon
-                    ),
-
-                  ],
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      FadePageRouteBuilder(widget: AddKidsActivityHome()));
+                },
+                child: GridTile(
+                  child: Stack(
+                    // fit: StackFit.expand,
+                    children: [
+                      Container(
+                          height: MediaQuery.of(context).size.height * 0.16,
+                          width: MediaQuery.of(context).size.width * 0.46,
+                          child: SvgPicture.asset(
+                            AppConstants.tile6Background,
+                          )),
+                      Positioned(
+                        top: 22,
+                        left: 60,
+                        // Change this value to position the icon as desired
+                        // Change this value to position the icon as desired
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: SvgPicture.asset(AppConstants.tile6Top),
+                            ),
+                            Text(
+                              "Kids",
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            ),
+                            Text(
+                              "Activity",
+                              style: TextStyle(
+                                  height: 1.0,
+                                  fontFamily: "UbuntuBold",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ), // Replace with your custom icon
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),),// Gridtile 6
-
-
+            ), // Gridtile 6
 
             Positioned(
               top: MediaQuery.of(context).size.height * 0.93,
               left: 16,
               right: 16,
               child: FutureBuilder(
-                future: Provider.of<FestivalProvider>(context, listen: false)
-                    .fetchFestivals(context),
+                future: _fetchFestivalsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -493,7 +593,8 @@ class NavigationHomeview extends StatelessWidget {
                             child: Row(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16, right: 8),
+                                  padding:
+                                      const EdgeInsets.only(left: 16, right: 8),
                                   child: Container(
                                     width: 50.0,
                                     height: 50.0,
@@ -502,7 +603,8 @@ class NavigationHomeview extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
-                                      child: SvgPicture.asset(AppConstants.totalFestivals),
+                                      child: SvgPicture.asset(
+                                          AppConstants.totalFestivals),
                                     ),
                                   ),
                                 ),
@@ -519,8 +621,7 @@ class NavigationHomeview extends StatelessWidget {
                                     width: 50,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(16),
-                                      color: const Color(0xFF8AC85A)
-                                      ,
+                                      color: const Color(0xFF8AC85A),
                                     ),
                                     child: Center(
                                       child: Text(
@@ -553,7 +654,8 @@ class NavigationHomeview extends StatelessWidget {
                             child: Row(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16, right: 8),
+                                  padding:
+                                      const EdgeInsets.only(left: 16, right: 8),
                                   child: Container(
                                     width: 50.0,
                                     height: 50.0,
@@ -562,7 +664,8 @@ class NavigationHomeview extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
-                                      child: SvgPicture.asset(AppConstants.totalAttendees),
+                                      child: SvgPicture.asset(
+                                          AppConstants.totalAttendees),
                                     ),
                                   ),
                                 ),
@@ -605,12 +708,9 @@ class NavigationHomeview extends StatelessWidget {
                 },
               ),
             )
-
           ],
         ),
       ),
     );
   }
 }
-
-

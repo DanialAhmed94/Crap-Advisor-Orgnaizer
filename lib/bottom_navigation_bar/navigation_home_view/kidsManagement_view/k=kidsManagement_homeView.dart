@@ -9,20 +9,30 @@ import '../../../provider/activityCollection_provider.dart';
 import 'addActivity_view.dart';
 import 'allActivities_View.dart';
 
-
-class AddKidsActivityHome extends StatelessWidget {
+class AddKidsActivityHome extends StatefulWidget {
   const AddKidsActivityHome({super.key});
+
+  @override
+  _AddKidsActivityHomeState createState() => _AddKidsActivityHomeState();
+}
+
+class _AddKidsActivityHomeState extends State<AddKidsActivityHome> {
+  late Future<void> _fetchActivitiesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the Future in initState
+    _fetchActivitiesFuture = Provider.of<ActivityProvider>(context, listen: false).fetchActivities(context);
+  }
 
   double calculateTotalHeight(BuildContext context) {
     double totalHeight = 0.0;
 
-    totalHeight = totalHeight +
-        MediaQuery.of(context).size.height * 0.07 +
-        MediaQuery.of(context).size.height * 0.37 +
-        MediaQuery.of(context).size.height *
-            0.58 + // Example: Height of welcome message Positioned child
-        MediaQuery.of(context).size.height *
-            0.09; // Example: Height of welcome message Positioned child
+    totalHeight += MediaQuery.of(context).size.height * 0.07;
+    totalHeight += MediaQuery.of(context).size.height * 0.37;
+    totalHeight += MediaQuery.of(context).size.height * 0.58; // Example: Height of welcome message Positioned child
+    totalHeight += MediaQuery.of(context).size.height * 0.09; // Example: Height of welcome message Positioned child
 
     return totalHeight;
   }
@@ -61,7 +71,6 @@ class AddKidsActivityHome extends StatelessWidget {
                   ),
                   leading: IconButton(
                     icon: SvgPicture.asset(AppConstants.backIcon),
-                    // Replace with your custom icon
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -78,47 +87,44 @@ class AddKidsActivityHome extends StatelessWidget {
                 height: MediaQuery.of(context).size.height * 0.25,
                 width: MediaQuery.of(context).size.width * 0.87,
                 decoration: BoxDecoration(
-                    color: Color(0xFF3DA992),
-
-                    borderRadius: BorderRadius.circular(32)),
+                  color: Color(0xFF3DA992),
+                  borderRadius: BorderRadius.circular(32),
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Column(
-                      // crossAxisAlignment: CrossAxisAlignment.start,
-
                       children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.05,
-                        ),
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                         Text(
                           "Add Kids",
                           style: TextStyle(
-                              height: 1.0,
-                              fontFamily: "UbuntuBold",
-                              fontSize: 28,
-                              color: Colors.white),
+                            height: 1.0,
+                            fontFamily: "UbuntuBold",
+                            fontSize: 28,
+                            color: Colors.white,
+                          ),
                         ),
                         Text(
                           "Activity",
                           style: TextStyle(
-                              height: 1.0,
-                              fontFamily: "UbuntuBold",
-                              fontSize: 28,
-                              color: Colors.white),
+                            height: 1.0,
+                            fontFamily: "UbuntuBold",
+                            fontSize: 28,
+                            color: Colors.white,
+                          ),
                         ),
                         Spacer(),
                         GestureDetector(
                           child: SvgPicture.asset(AppConstants.forwardIcon),
-                          onTap: (){
+                          onTap: () {
                             Navigator.push(context, FadePageRouteBuilder(widget: AddActivityView()));
-                          },),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.04,
+                          },
                         ),
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                       ],
                     ),
-                    SvgPicture.asset(AppConstants.tile6Top,height: 100,width: 100,),
+                    SvgPicture.asset(AppConstants.tile6Top, height: 100, width: 100),
                   ],
                 ),
               ),
@@ -131,9 +137,10 @@ class AddKidsActivityHome extends StatelessWidget {
                   Text(
                     "Activities",
                     style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: "UbuntuMedium",
-                        fontWeight: FontWeight.bold),
+                      fontSize: 16,
+                      fontFamily: "UbuntuMedium",
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.49),
                   TextButton(
@@ -143,9 +150,10 @@ class AddKidsActivityHome extends StatelessWidget {
                     child: Text(
                       "View All",
                       style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: "UbuntuMedium",
-                          fontWeight: FontWeight.bold),
+                        fontSize: 16,
+                        fontFamily: "UbuntuMedium",
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   )
                 ],
@@ -156,7 +164,7 @@ class AddKidsActivityHome extends StatelessWidget {
               left: MediaQuery.of(context).size.width * 0.066,
               right: MediaQuery.of(context).size.width * 0.066,
               child: FutureBuilder<void>(
-                future: Provider.of<ActivityProvider>(context, listen: false).fetchActivities(context),
+                future: _fetchActivitiesFuture, // Use the stored Future here
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -236,7 +244,7 @@ class AddKidsActivityHome extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.only(right: 25),
                                     child: GestureDetector(
-                                      onTap: (){
+                                      onTap: () {
                                         Navigator.push(context, FadePageRouteBuilder(widget: ActivityDetailView(activity: activity)));
                                       },
                                       child: Container(
@@ -271,7 +279,6 @@ class AddKidsActivityHome extends StatelessWidget {
                 },
               ),
             ),
-
           ],
         ),
       ),

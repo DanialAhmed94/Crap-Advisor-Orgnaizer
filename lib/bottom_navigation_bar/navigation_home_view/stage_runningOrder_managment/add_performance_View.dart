@@ -40,11 +40,11 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
   final _soundController = TextEditingController();
   final _stageSetupController = TextEditingController();
   final _transitionController = TextEditingController();
-  final _focusNodeTransition = FocusNode();
   final _specialNotesController = TextEditingController();
-  final _focusNodeSpecialNotes = FocusNode();
 
   // FocusNodes to handle focus navigation between fields
+  final _focusNodeSpecialNotes = FocusNode();
+  final _focusNodeTransition = FocusNode();
   final _focusNodeLighting = FocusNode();
   final _focusNodeSound = FocusNode();
   final _focusNodeStageSetup = FocusNode();
@@ -77,28 +77,37 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _endDateController.dispose();
-    _endDateController.dispose();
-    _performanceController.dispose();
-    _performanceFocusNode.dispose();
-    _specialNotesController.dispose();
-    _focusNodeSpecialNotes.dispose();
-    _dobControler.dispose();
-    _startTimeController.dispose();
+    // Dispose of TextEditingControllers
     _endTimeController.dispose();
+    _startTimeController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
+    _bandController.dispose();
+    _performanceController.dispose();
+    _artistController.dispose();
+    _participantsController.dispose();
+    _guestsController.dispose();
     _lightingController.dispose();
     _soundController.dispose();
     _stageSetupController.dispose();
     _transitionController.dispose();
+    _specialNotesController.dispose();
+
+    // Dispose of FocusNodes
+    _focusNodeSpecialNotes.dispose();
     _focusNodeTransition.dispose();
     _focusNodeLighting.dispose();
     _focusNodeSound.dispose();
     _focusNodeStageSetup.dispose();
+    _performanceFocusNode.dispose();
+    _bandFocusNode.dispose();
+    _artistFocusNode.dispose();
     _participantsFocusNode.dispose();
-    _participantsController.dispose();
+    _guestsFocusNode.dispose();
+
+    super.dispose();
   }
+
 
   double calculateTotalHeight(BuildContext context) {
     double totalHeight = 0.0;
@@ -660,12 +669,14 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                               }
                               return null;
                             },
-                            textInputAction: TextInputAction.done,
+                            textInputAction: TextInputAction.next,
                             // Complete with Done action
-                            onFieldSubmitted: (_) {
-                              FocusScope.of(context)
-                                  .unfocus(); // Dismiss the keyboard
-                            },
+                              onFieldSubmitted: (_) {
+                                if (_participantsFocusNode.hasFocus) {
+                                  FocusScope.of(context).unfocus(); // Dismiss the keyboard
+                                }
+                              },
+
                           ),
                         ),
                         SizedBox(height: 10),
@@ -1243,52 +1254,37 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
               left: MediaQuery.of(context).size.width * 0.1,
               right: MediaQuery.of(context).size.width * 0.1,
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  if (_isloading) return;
+
                   // Validate all forms
                   if (_formKey1.currentState!.validate() &&
                       _formKey2.currentState!.validate() &&
                       _formKey3.currentState!.validate() &&
                       _formKey4.currentState!.validate()) {
-                    // All forms are valid, proceed with submission
-                    print("All forms are valid!");
                     setState(() {
-                      _isloading = true;
+                      _isloading = true; // Start loading
                     });
-                    addPerformance(
-                        context,
-                        _selectedFestivalId,
-                        _startDateController.text,
-                        _endDateController.text,
-                        _performanceController.text,
-                        _bandController.text,
-                        _artistController.text,
-                        _participantsController.text,
-                        _guestsController.text,
-                        _startTimeController.text,
-                        _endTimeController.text,
-                        _lightingController.text,
-                        _soundController.text,
-                        _stageSetupController.text,
-                        _transitionController.text,
-                        _specialNotesController.text);
 
 
-                    // Add further submission logic here
-                  } else {
-                    // One or more forms are invalid
-                    print("Some forms are invalid.");
-                    // Show Snackbar message
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Please fill out all required fields.',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        backgroundColor: Colors.red,
-                        // Change background color as needed
-                        duration: Duration(
-                            seconds: 3), // Duration for Snackbar visibility
-                      ),
+                    // Perform the API call
+                    await addPerformance(
+                      context,
+                      _selectedFestivalId,
+                      _startDateController.text,
+                      _endDateController.text,
+                      _performanceController.text,
+                      _bandController.text,
+                      _artistController.text,
+                      _participantsController.text,
+                      _guestsController.text,
+                      _startTimeController.text,
+                      _endTimeController.text,
+                      _lightingController.text,
+                      _soundController.text,
+                      _stageSetupController.text,
+                      _transitionController.text,
+                      _specialNotesController.text,
                     );
                   }
                 },
@@ -1305,7 +1301,9 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                     ),
                   ),
                   child: Center(
-                    child: Text(
+                    child: _isloading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text(
                       "Submit",
                       style: TextStyle(
                         fontFamily: "UbuntuBold",
@@ -1317,6 +1315,86 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                 ),
               ),
             ),
+
+            // Positioned(
+            //   top: MediaQuery.of(context).size.height * 2.6,
+            //   left: MediaQuery.of(context).size.width * 0.1,
+            //   right: MediaQuery.of(context).size.width * 0.1,
+            //   child: GestureDetector(
+            //     onTap: () {
+            //       // Validate all forms
+            //       if (_formKey1.currentState!.validate() &&
+            //           _formKey2.currentState!.validate() &&
+            //           _formKey3.currentState!.validate() &&
+            //           _formKey4.currentState!.validate()) {
+            //         // All forms are valid, proceed with submission
+            //         print("All forms are valid!");
+            //         setState(() {
+            //           _isloading = true;
+            //         });
+            //         addPerformance(
+            //             context,
+            //             _selectedFestivalId,
+            //             _startDateController.text,
+            //             _endDateController.text,
+            //             _performanceController.text,
+            //             _bandController.text,
+            //             _artistController.text,
+            //             _participantsController.text,
+            //             _guestsController.text,
+            //             _startTimeController.text,
+            //             _endTimeController.text,
+            //             _lightingController.text,
+            //             _soundController.text,
+            //             _stageSetupController.text,
+            //             _transitionController.text,
+            //             _specialNotesController.text);
+            //
+            //
+            //         // Add further submission logic here
+            //       } else {
+            //         // One or more forms are invalid
+            //         print("Some forms are invalid.");
+            //         // Show Snackbar message
+            //         ScaffoldMessenger.of(context).showSnackBar(
+            //           SnackBar(
+            //             content: Text(
+            //               'Please fill out all required fields.',
+            //               style: TextStyle(fontSize: 16),
+            //             ),
+            //             backgroundColor: Colors.red,
+            //             // Change background color as needed
+            //             duration: Duration(
+            //                 seconds: 3), // Duration for Snackbar visibility
+            //           ),
+            //         );
+            //       }
+            //     },
+            //     child: Container(
+            //       width: MediaQuery.of(context).size.width * 0.8,
+            //       height: 50,
+            //       decoration: BoxDecoration(
+            //         borderRadius: BorderRadius.circular(16),
+            //         gradient: LinearGradient(
+            //           colors: [Color(0xFF015CB5), Color(0xFF00AAE1)],
+            //           stops: [0.0, 1.0],
+            //           begin: Alignment.centerLeft,
+            //           end: Alignment.centerRight,
+            //         ),
+            //       ),
+            //       child: Center(
+            //         child: Text(
+            //           "Submit",
+            //           style: TextStyle(
+            //             fontFamily: "UbuntuBold",
+            //             fontSize: 18,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             if (_isloading)
               Positioned.fill(
                 child: Container(

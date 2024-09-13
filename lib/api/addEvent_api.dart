@@ -78,7 +78,7 @@ Future<void> addEvent(
   catch (error) {
     showErrorDialog(
         context, "Event was not added. Operation failed with: $error", []);
-    print("error: $error");
+    print("error123: $error");
   }
 }
 

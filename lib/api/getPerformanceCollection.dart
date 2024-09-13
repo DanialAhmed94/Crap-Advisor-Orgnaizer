@@ -29,7 +29,7 @@ Future<Performances?> getPerformanceCollection(BuildContext context) async {
   } on TimeoutException catch (_) {
     showErrorDialog(context, "Request timed out. Please try again later.", []);
   } catch (error) {
-    showErrorDialog(context, "Operation failed with: $error", []);
+    showErrorDialog(context, "Operation failed with while fetching performances: $error", []);
     print("error: $error"); // Print the error for debugging
   }
   return null; // Return null in case of an error

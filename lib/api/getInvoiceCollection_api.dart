@@ -32,7 +32,7 @@ Future<InvoiceResponse?> getInvoiceCollection(BuildContext context) async {
   //   showErrorDialog(context, "Request timed out. Please try again later.", []);  // Timeout error
   // }
   catch (error) {
-    showErrorDialog(context, "Operation failed with: $error", []);  // Generic error
+    showErrorDialog(context, "Operation failed with while fetching invoices: $error", []);  // Generic error
     print("error: $error");  // Print the error for debugging
   }
   return null;
