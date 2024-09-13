@@ -144,6 +144,7 @@ class _AddFestivalViewState extends State<BulletinDetailView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: 20,),
                         Text(
                           "Title",
                           style: TextStyle(
@@ -450,6 +451,44 @@ class _AddFestivalViewState extends State<BulletinDetailView> {
                           height: 10,
                         ),
                       ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.14,
+              right: 16,
+              left:MediaQuery.of(context).size.width * 0.73,
+              child: GestureDetector(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'This work is in process.',
+                        style: TextStyle(fontFamily: "Ubuntu"),
+                      ),
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                  );
+                  ;
+                },
+                child: Container(
+                  height: 40,
+                  width: 85,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Color(0xFF8AC85A),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Edit",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: "UbuntuMedium",
+                        fontSize: 12,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),

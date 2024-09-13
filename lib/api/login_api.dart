@@ -108,7 +108,7 @@ void showExpiredAccountErrorDialog(
           TextButton(
             child: Text('Upgrade'),
             onPressed: () {
-             Navigator.push(context, FadePageRouteBuilder(widget:  BottomPremiumView(),));
+             Navigator.push(context, FadePageRouteBuilder(widget:  BotomPremiumView(),));
             },
           ),
         ],

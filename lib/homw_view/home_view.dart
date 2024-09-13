@@ -30,7 +30,7 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 NavigationHomeview(),
                 SocialMediaHomeView(),
-                BottomPremiumView(),
+                BotomPremiumView(),
                 ProfileHomeview(),
                 // Add other views here for different tabs
               ],

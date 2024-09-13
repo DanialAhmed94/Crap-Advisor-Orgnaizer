@@ -158,6 +158,22 @@ class _ProfileHomeviewState extends State<ProfileHomeview> {
                   },
                 ),
                 const Divider(),
+                ProfileTile(
+                  title: "Invoices",
+                  leadingImage: AppConstants.feedBack,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'This work is in process.',
+                          style: TextStyle(fontFamily: "Ubuntu"),
+                        ),
+                        backgroundColor: Colors.blueAccent,
+                      ),
+                    );;
+                  },
+                ),
+                const Divider(),
                 ListTile(
                   title: Text(
                     "Logout",

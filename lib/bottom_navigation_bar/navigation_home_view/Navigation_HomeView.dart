@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../annim/transition.dart';
 import '../../constants/AppConstants.dart';
+import '../../premium_view/premium_view.dart';
 import '../../provider/festivalCollection_provider.dart';
 import 'eventMangement_view/eventManagement_homeView.dart';
 import 'festival_managment/festival_managment_homeView.dart';
@@ -134,7 +135,7 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                   GestureDetector(
                     onTap: () {
                       Navigator.push(context,
-                          FadePageRouteBuilder(widget: BottomPremiumView()));
+                          FadePageRouteBuilder(widget: PremiumView()));
                     },
                     child: Card(
                       elevation: 2,
@@ -580,125 +581,135 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                     return Column(
                       children: [
                         // Display Total Festivals
-                        Card(
-                          elevation: 2,
-                          color: Colors.white,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
-                            ),
-                            width: MediaQuery.of(context).size.width * 0.93,
-                            height: MediaQuery.of(context).size.height * 0.1,
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 16, right: 8),
-                                  child: Container(
-                                    width: 50.0,
-                                    height: 50.0,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFD3FCFF),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: SvgPicture.asset(
-                                          AppConstants.totalFestivals),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  " Total Festivals",
-                                  style: TextStyle(
-                                      fontFamily: "UbuntuMedium", fontSize: 15),
-                                ),
-                                Spacer(),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 25),
-                                  child: Container(
-                                    height: 50,
-                                    width: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: const Color(0xFF8AC85A),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        Provider.of<FestivalProvider>(context)
-                                            .totalFestivals
-                                            .toString(),
-                                        style: TextStyle(
-                                            fontFamily: "UbuntuMedium",
-                                            fontSize: 16,
-                                            color: Colors.white),
+                      GestureDetector(
+                        onTap:(){
+                          Navigator.push(context, FadePageRouteBuilder(widget: AddFestivalHome()));
+                        },
+                          child: Card(
+                            elevation: 2,
+                            color: Colors.white,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                              ),
+                              width: MediaQuery.of(context).size.width * 0.93,
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 16, right: 8),
+                                    child: Container(
+                                      width: 50.0,
+                                      height: 50.0,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFD3FCFF),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: SvgPicture.asset(
+                                            AppConstants.totalFestivals),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    " Total Festivals",
+                                    style: TextStyle(
+                                        fontFamily: "UbuntuMedium", fontSize: 15),
+                                  ),
+                                  Spacer(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 25),
+                                    child: Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color: const Color(0xFF8AC85A),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          Provider.of<FestivalProvider>(context)
+                                              .totalFestivals
+                                              .toString(),
+                                          style: TextStyle(
+                                              fontFamily: "UbuntuMedium",
+                                              fontSize: 16,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                         // Display Total Attendees
-                        Card(
-                          elevation: 2,
-                          color: Colors.white,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
-                            ),
-                            width: MediaQuery.of(context).size.width * 0.93,
-                            height: MediaQuery.of(context).size.height * 0.1,
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 16, right: 8),
-                                  child: Container(
-                                    width: 50.0,
-                                    height: 50.0,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFD3FCFF),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: SvgPicture.asset(
-                                          AppConstants.totalAttendees),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  " Total Attendees",
-                                  style: TextStyle(
-                                      fontFamily: "UbuntuMedium", fontSize: 15),
-                                  maxLines: 2,
-                                ),
-                                Spacer(),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 16),
-                                  child: Container(
-                                    height: 50,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: const Color(0xFF8AC85A),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        Provider.of<FestivalProvider>(context)
-                                            .totalAttendees
-                                            .toString(),
-                                        style: TextStyle(
-                                            fontFamily: "UbuntuMedium",
-                                            fontSize: 16,
-                                            color: Colors.white),
+                        GestureDetector(
+                          onTap:(){
+                            Navigator.push(context, FadePageRouteBuilder(widget: AddEventManagementView()));
+                          },
+                          child: Card(
+                            elevation: 2,
+                            color: Colors.white,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                              ),
+                              width: MediaQuery.of(context).size.width * 0.93,
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 16, right: 8),
+                                    child: Container(
+                                      width: 50.0,
+                                      height: 50.0,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFD3FCFF),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: SvgPicture.asset(
+                                            AppConstants.totalAttendees),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    " Total Attendees",
+                                    style: TextStyle(
+                                        fontFamily: "UbuntuMedium", fontSize: 15),
+                                    maxLines: 2,
+                                  ),
+                                  Spacer(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 16),
+                                    child: Container(
+                                      height: 50,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color: const Color(0xFF8AC85A),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          Provider.of<FestivalProvider>(context)
+                                              .totalAttendees
+                                              .toString(),
+                                          style: TextStyle(
+                                              fontFamily: "UbuntuMedium",
+                                              fontSize: 16,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

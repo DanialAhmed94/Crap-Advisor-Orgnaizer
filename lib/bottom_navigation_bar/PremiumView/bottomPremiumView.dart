@@ -1,9 +1,13 @@
 import 'package:crap_advisor_orgnaizer/constants/AppConstants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
-class BottomPremiumView extends StatelessWidget {
-  const BottomPremiumView({super.key});
+import '../../annim/transition.dart';
+import '../../homw_view/home_view.dart';
+
+class BotomPremiumView extends StatelessWidget {
+  const BotomPremiumView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +27,7 @@ class BottomPremiumView extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // Use Align instead of Positioned for better layout
+                  // Replace Positioned with Align for better layout management
                   Align(
                     alignment: Alignment.topCenter,
                     child: Image.asset(
@@ -56,7 +60,7 @@ class BottomPremiumView extends StatelessWidget {
                     width: MediaQuery.of(context).size.width * 0.7,
                     child: Center(
                       child: Text(
-                        "FestivalResource like Crapadvisor is completely free to all. It is intended to help smaller producers. If you do have more than a few stages and would like to expand the app, we got you covered there too.",
+                        "FestivalResource like Crapadivser is completely free to all. It is intended to help smaller producers. if you do have more than a few stages and would like to expand the app are offering your festie people to include more facilities we got byou covered there too.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: "UbuntuMedium",
@@ -111,7 +115,7 @@ class BottomPremiumView extends StatelessWidget {
                               ],
                             ),
                             Text(
-                              "\$999/year",
+                              "\$0/year",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
@@ -169,7 +173,7 @@ class BottomPremiumView extends StatelessWidget {
                               ],
                             ),
                             Text(
-                              "\$99/month", // Corrected from year to month
+                              "\$0/month",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
@@ -181,7 +185,41 @@ class BottomPremiumView extends StatelessWidget {
                       ),
                     ),
                   ),
+                  SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () => Navigator.pushReplacement(
+                      context,
+                      FadePageRouteBuilder(
+                        widget: HomeView(),
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        height: 50,
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF8AC85A),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Enjoy free trial",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 10),
+                  Text(
+                    "Enjoy a risk-free 7-day trial. No commitment required; cancel anytime",
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                  SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20.0, left: 20, right: 20),
                     child: RichText(
@@ -202,7 +240,7 @@ class BottomPremiumView extends StatelessWidget {
                             style: TextStyle(color: Color(0xFFFFD400)),
                           ),
                           TextSpan(
-                            text: '. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period.',
+                            text: '. Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period.',
                             style: TextStyle(color: Colors.black),
                           ),
                         ],

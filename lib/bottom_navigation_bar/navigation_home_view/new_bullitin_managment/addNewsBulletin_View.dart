@@ -501,9 +501,7 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                 child: GestureDetector(
                   onTap: () {
                     FocusScope.of(context).unfocus();
-                    if (FocusScope.of(context).hasFocus) {
-                      return; // Do not proceed if any text field is focused
-                    }
+
                     if (_formKey.currentState!.validate()) {
                       setState(() {
                         _isLoading = true;

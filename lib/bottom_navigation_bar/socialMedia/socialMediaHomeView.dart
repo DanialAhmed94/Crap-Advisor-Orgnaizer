@@ -51,92 +51,77 @@ class SocialMediaHomeView extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Card(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    elevation: 4,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // User Information and Time
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage:
-                            AssetImage('assets/images/user.png'), // Replace with user image
+                  child: GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'This work is in process.',
+                            style: TextStyle(fontFamily: "Ubuntu"),
                           ),
-                          title: Text('James'), // Replace with actual user name
-                          subtitle: Text('London, UK'),
-                          trailing: Text('2 Hr ago'), // Replace with time ago data
+                          backgroundColor: Colors.blueAccent,
                         ),
+                      );
+                    },
+                    child: Card(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      elevation: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // User Information and Time
+                          ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage:
+                              AssetImage('assets/images/user.png'), // Replace with user image
+                            ),
+                            title: Text('James'), // Replace with actual user name
+                            subtitle: Text('London, UK'),
+                            trailing: Text('2 Hr ago'), // Replace with time ago data
+                          ),
 
-                        // Post Image
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20, right: 20),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15.0),
-                            child: Image.asset(
-                              'assets/images/toilet.png', // Replace with post image
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: MediaQuery.of(context).size.height * 0.4, // 50% of screen height
+                          // Post Image
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20, right: 20),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15.0),
+                              child: Image.asset(
+                                'assets/images/toilet.png', // Replace with post image
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: MediaQuery.of(context).size.height * 0.4, // 50% of screen height
+                              ),
                             ),
                           ),
-                        ),
 
-                        // Like and Comment Row
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  // Show Snackbar for Like
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Likes feature is under development.',
-                                        style: TextStyle(fontFamily: "Ubuntu"),
-                                      ),
-                                      backgroundColor: Colors.blueAccent,
-                                    ),
-                                  );
-                                },
-                                child: Row(
+                          // Like and Comment Row
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                            child: Row(
+                              children: [
+                                Row(
                                   children: [
                                     Icon(Icons.favorite, color: Colors.red),
                                     SizedBox(width: 4),
                                     Text('2.4k'),
                                   ],
                                 ),
-                              ),
-                              SizedBox(width: 16),
-                              GestureDetector(
-                                onTap: () {
-                                  // Show Snackbar for Comment
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Comments feature is under development.',
-                                        style: TextStyle(fontFamily: "Ubuntu"),
-                                      ),
-                                      backgroundColor: Colors.blueAccent,
-                                    ),
-                                  );
-                                },
-                                child: Row(
+                                SizedBox(width: 16),
+                                Row(
                                   children: [
                                     Icon(Icons.comment, color: Colors.grey),
                                     SizedBox(width: 4),
                                     Text('147'),
                                   ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );

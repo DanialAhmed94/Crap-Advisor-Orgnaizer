@@ -114,7 +114,7 @@ class PremiumView extends StatelessWidget {
                               ],
                             ),
                             Text(
-                              "\$999/year",
+                              "\$0/year",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
@@ -172,7 +172,7 @@ class PremiumView extends StatelessWidget {
                               ],
                             ),
                             Text(
-                              "\$999/month",
+                              "\$0/month",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
@@ -202,7 +202,7 @@ class PremiumView extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            "Start 7 days free trial",
+                            "Enjoy free trial",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
