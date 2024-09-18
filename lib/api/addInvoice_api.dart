@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../constants/AppConstants.dart';
+import '../homw_view/home_view.dart';
 
 Future<void> addInvoice(
     BuildContext context,
@@ -39,7 +40,7 @@ Future<void> addInvoice(
       final responseData = jsonDecode(response.body);
       if (responseData['status'] == 200) {
         showSuccessDialog(
-            context, "Invoice saved successfully", null, NavigationHomeview());
+            context, "Invoice saved successfully", null, HomeView());
       }
     } else if (response.statusCode == 400) {
       // Handle validation errors

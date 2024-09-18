@@ -75,7 +75,7 @@ void showSuccessDialog<T>(
               Navigator.pushAndRemoveUntil(
                 context,
                 FadePageRouteBuilder(widget: navigateTo as Widget),
-                    (Route<dynamic> route) => false,
+                    (route) => false,
               );
             },
           ),

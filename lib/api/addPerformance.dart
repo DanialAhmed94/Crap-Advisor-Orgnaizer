@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 import '../bottom_navigation_bar/navigation_home_view/stage_runningOrder_managment/stage_management_homeView.dart';
 import '../constants/AppConstants.dart';
+import '../homw_view/home_view.dart';
 
 Future<void> addPerformance(
     BuildContext context,
@@ -75,11 +76,11 @@ Future<void> addPerformance(
 
         if (message1 == "Performance Created Successfully") {
           showSuccessDialog(context, "Performance added successfully!", null,
-              NavigationHomeview());
+              HomeView());
         } else if (message ==
             "You have comsumed your limit of an Standard Account! Please Buy Premium Account to Proceed Further")
         {
-          showSuccessDialog(context, message??"", "Attention", NavigationHomeview());
+          showSuccessDialog(context, message??"", "Attention",  HomeView());
         } else {
           showErrorDialog(context, message??"", []);
         }

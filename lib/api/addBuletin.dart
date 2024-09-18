@@ -10,6 +10,7 @@ import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/festival_managment/festival_managment_homeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/new_bullitin_managment/newBulletin_managmentView.dart';
 import '../constants/AppConstants.dart';
+import '../homw_view/home_view.dart';
 
 Future<void> addBulletin(BuildContext context, String title, String content,
     bool publishNow, String time, String date) async {
@@ -54,10 +55,10 @@ print('Bulletin : $buletin');
 
         if (message1 == "Bulletin Added Successfully") {
           showSuccessDialog(context, "Bulletin Added Successfully", null,
-              NavigationHomeview());
+              HomeView());
         } else if (message ==
             "You have comsumed your limit of an Standard Account! Please Buy Premium Account to Proceed Further") {
-          showSuccessDialog(context, message??"", "Failure", AddNewsBullitinHome());
+          showSuccessDialog(context, message??"", "Failure", HomeView());
         } else {
           showErrorDialog(context, message??"", []);
         }

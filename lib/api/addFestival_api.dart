@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/festival_managment/festival_managment_homeView.dart';
 import '../constants/AppConstants.dart';
+import '../homw_view/home_view.dart';
 
 Future<void> addFestival(
     BuildContext context,
@@ -53,10 +54,10 @@ Future<void> addFestival(
             context,
             "You have comsumed your limit of an Standard Account! Please Buy Premium Account to Proceed Further",
             "Failure",
-            AddFestivalHome());
+            HomeView());
       } else if (responseData['message'] == 'Festival Created Successfully') {
         showSuccessDialog(
-            context, "Festival added successfully", null, NavigationHomeview());
+            context, "Festival added successfully", null, HomeView());
         print('Festival created successfully!');
       }
     } else {

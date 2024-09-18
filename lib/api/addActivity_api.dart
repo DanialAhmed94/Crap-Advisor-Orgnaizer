@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../constants/AppConstants.dart';
+import '../homw_view/home_view.dart';
 
 Future<void> addActivity(BuildContext context, String? festId, String title,
     String image, String content, String startTime, String endTime) async {
@@ -35,7 +36,7 @@ Future<void> addActivity(BuildContext context, String? festId, String title,
       // Parse the response
       final responseData = jsonDecode(response.body);
       showSuccessDialog(
-          context, responseData['message'], null, NavigationHomeview());
+          context, responseData['message'], null, HomeView());
     } else if (response.statusCode == 400) {
       // Handle validation errors
       final responseData = jsonDecode(response.body);

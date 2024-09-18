@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/festival_managment/festival_managment_homeView.dart';
 import '../constants/AppConstants.dart';
+import '../homw_view/home_view.dart';
 
 Future<void> addToilet(BuildContext context, String? festId,
     String? toiletTypeId, String lat, String long, String image, String name) async {
@@ -39,7 +40,7 @@ Future<void> addToilet(BuildContext context, String? festId,
     if (response.statusCode == 200) {
       if (responseData['message'] == 'Toilet Created Successfully') {
         showSuccessDialog(
-            context, "Toilet added successfully", null, NavigationHomeview());
+            context, "Toilet added successfully", null, HomeView());
         print('Toilet created successfully!');
       }
     } else if (response.statusCode == 400) {
