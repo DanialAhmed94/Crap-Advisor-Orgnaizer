@@ -128,7 +128,7 @@ class AllBulletinsView extends StatelessWidget {
                                       width: 85,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        color: Colors.blue,
+                                        color: Color(0xFF8AC85A),
                                       ),
                                       child: Center(
                                         child: Text(

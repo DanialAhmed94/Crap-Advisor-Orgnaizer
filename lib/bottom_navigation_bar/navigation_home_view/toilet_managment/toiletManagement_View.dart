@@ -24,8 +24,10 @@ class _AddToiletHomeState extends State<AddToiletHome> {
   @override
   void initState() {
     super.initState();
-    _toiletTypesFuture = Provider.of<ToiletTypeProvider>(context, listen: false).fetchToiletTypes(context);
-    _toiletsFuture = Provider.of<ToiletProvider>(context, listen: false).fetchToilets(context);
+    _toiletTypesFuture = Provider.of<ToiletTypeProvider>(context, listen: false)
+        .fetchToiletTypes(context);
+    _toiletsFuture = Provider.of<ToiletProvider>(context, listen: false)
+        .fetchToilets(context);
   }
 
   double calculateTotalHeight(BuildContext context) {
@@ -90,7 +92,7 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                 height: MediaQuery.of(context).size.height * 0.25,
                 width: MediaQuery.of(context).size.width * 0.87,
                 decoration: BoxDecoration(
-                  color: Color(0xFF8000FF),
+                  color: Color(0xFF66D265),
                   borderRadius: BorderRadius.circular(32),
                 ),
                 child: Row(
@@ -123,7 +125,8 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                         GestureDetector(
                           child: SvgPicture.asset(AppConstants.forwardIcon),
                           onTap: () {
-                            Navigator.push(context, FadePageRouteBuilder(widget: AddToiletView()));
+                            Navigator.push(context,
+                                FadePageRouteBuilder(widget: AddToiletView()));
                           },
                         ),
                         SizedBox(
@@ -152,7 +155,8 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                   SizedBox(width: MediaQuery.of(context).size.width * 0.49),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, FadePageRouteBuilder(widget: AllToiletsView()));
+                      Navigator.push(context,
+                          FadePageRouteBuilder(widget: AllToiletsView()));
                     },
                     child: Text(
                       "View All",
@@ -190,7 +194,8 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                         );
                       } else {
                         // Successfully loaded toilet types
-                        return SizedBox.shrink(); // Placeholder for toilet types if needed
+                        return SizedBox
+                            .shrink(); // Placeholder for toilet types if needed
                       }
                     },
                   ),
@@ -213,7 +218,8 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                         );
                       } else {
                         // Successfully loaded toilets
-                        final toilets = Provider.of<ToiletProvider>(context).toilets;
+                        final toilets =
+                            Provider.of<ToiletProvider>(context).toilets;
 
                         if (toilets.isEmpty) {
                           return Center(
@@ -228,7 +234,8 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                         } else {
                           // Display the toilets in cards
                           final maxToiletsToShow = 4;
-                          final toiletsToShow = toilets.take(maxToiletsToShow).toList();
+                          final toiletsToShow =
+                              toilets.take(maxToiletsToShow).toList();
 
                           return Column(
                             children: toiletsToShow.map((toilet) {
@@ -240,42 +247,91 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                                     borderRadius: BorderRadius.circular(10),
                                     color: Colors.white,
                                   ),
-                                  width: MediaQuery.of(context).size.width * 0.93,
-                                  height: MediaQuery.of(context).size.height * 0.1,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.93,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.1,
                                   child: Row(
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.only(left: 16, right: 8),
+                                        padding: const EdgeInsets.only(
+                                            left: 16, right: 8),
                                         child: Container(
-                                          width: 50.0,
-                                          height: 50.0,
+                                          width: 50.0, // Container width
+                                          height: 50.0, // Container height
                                           decoration: BoxDecoration(
                                             color: Color(0xFFD5A5FF),
-                                            shape: BoxShape.circle,
+                                            // Background color of the container
+                                            shape: BoxShape
+                                                .circle, // Ensures the container is circular
                                           ),
-                                          child: Center(
-                                            child: SvgPicture.asset(AppConstants.comode1Icon),
+                                          child: ClipOval(
+                                            // Clips the image to ensure it has a circular shape
+                                            child: Image.network(
+                                              "https://stagingcrapadvisor.semicolonstech.com/asset/toilet_types/" +
+                                                  toilet.toiletType.image,
+                                              fit: BoxFit.cover,
+                                              // Ensures the image fills the container and is clipped to circular shape
+                                              loadingBuilder:
+                                                  (BuildContext context,
+                                                      Widget child,
+                                                      ImageChunkEvent?
+                                                          loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child; // Once the image is loaded, it displays the image
+                                                } else {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      // Shows loader while image is loading
+                                                      value: loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              (loadingProgress
+                                                                      .expectedTotalBytes ??
+                                                                  1)
+                                                          : null,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  "assets/images/test-toiletType.jpeg",
+                                                  // Fallback image if the network image fails
+                                                  fit: BoxFit
+                                                      .cover, // Ensure fallback image also fits in a circular shape
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                       ),
-                                      Text(
-                                        toilet.what3Words ?? "Unknown Toilet",
-                                        style: TextStyle(
-                                          fontFamily: "UbuntuMedium",
-                                          fontSize: 15,
+                                      Expanded(
+                                        child: Text(
+                                          toilet.toiletType.name ?? "",
+                                          // Use appropriate model field
+                                          style: TextStyle(
+                                            fontFamily: "UbuntuMedium",
+                                            fontSize: 15,
+                                          ),
+                                          maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        maxLines: 2,
                                       ),
-                                      Spacer(),
                                       Padding(
-                                        padding: const EdgeInsets.only(right: 25),
+                                        padding:
+                                            const EdgeInsets.only(right: 25),
                                         child: GestureDetector(
                                           onTap: () {
                                             Navigator.push(
                                               context,
                                               FadePageRouteBuilder(
-                                                widget: ToiletDetailView(toiletData: toilet),
+                                                widget: ToiletDetailView(
+                                                    toiletData: toilet),
                                               ),
                                             );
                                           },
@@ -283,8 +339,9 @@ class _AddToiletHomeState extends State<AddToiletHome> {
                                             height: 40,
                                             width: 85,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(16),
-                                              color: Colors.blue,
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              color: Color(0xFF66D265),
                                             ),
                                             child: Center(
                                               child: Text(
@@ -317,5 +374,31 @@ class _AddToiletHomeState extends State<AddToiletHome> {
         ),
       ),
     );
+  }
+
+  String getIconForToiletType(String toiletTypeName) {
+    print('Toilet Type Name: $toiletTypeName'); // For debugging purposes
+
+    switch (toiletTypeName) {
+      case 'Special Access':
+        return AppConstants.specialAccess;
+      case 'Ablution Solution Shower':
+        return AppConstants.ablutionSolution;
+      case 'Stand and Deliver (Get Off My Land)':
+        return AppConstants.standAndDeliver;
+      case 'Composter is No Imposter (Plastic Fantastic)':
+        return AppConstants.composterIsNoImposter;
+      case 'China Blue Royal Flush':
+        return AppConstants.chinaBlueRoal;
+      case 'Long Drop':
+        return AppConstants.longDrop;
+      case 'Stand and Deliver (Plastic Fantastic)':
+        return AppConstants.standAndDeliver;
+      case 'Femme Fatal':
+        return AppConstants.femmefetal;
+      default:
+        print('No match found, returning default icon');
+        return AppConstants.comode1Icon; // Fallback icon
+    }
   }
 }

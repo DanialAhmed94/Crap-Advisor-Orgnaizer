@@ -8,11 +8,14 @@ import 'package:http/http.dart' as http;
 
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/festival_managment/festival_managment_homeView.dart';
+import '../bottom_navigation_bar/navigation_home_view/toilet_managment/toiletManagement_View.dart';
 import '../constants/AppConstants.dart';
 import '../homw_view/home_view.dart';
 
 Future<void> addToilet(BuildContext context, String? festId,
-    String? toiletTypeId, String lat, String long, String image, String name) async {
+    String? toiletTypeId, String lat, String long, String image,
+    //String name,
+    String what3WordsAddress) async {
   final url = Uri.parse("${AppConstants.baseUrl}/store_toilets");
 
   final Map<String, dynamic> toilet = {
@@ -21,7 +24,8 @@ Future<void> addToilet(BuildContext context, String? festId,
     'latitude': lat,
     'longitude': long,
     'image': image,
-    'what_3_words': name,
+    'what_3_words': what3WordsAddress,
+    // 'name':name,
   };
   try {
     final bearerToken = await getToken();
@@ -40,7 +44,7 @@ Future<void> addToilet(BuildContext context, String? festId,
     if (response.statusCode == 200) {
       if (responseData['message'] == 'Toilet Created Successfully') {
         showSuccessDialog(
-            context, "Toilet added successfully", null, HomeView());
+            context, "Toilet added successfully", null, AddToiletHome());
         print('Toilet created successfully!');
       }
     } else if (response.statusCode == 400) {

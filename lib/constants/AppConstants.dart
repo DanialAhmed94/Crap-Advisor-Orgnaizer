@@ -13,15 +13,19 @@ class AppConstants{
 static String feedbackEmail = "astraldesignapp@gmail.com";
 
   static String splashBackground = 'assets/svg/seplash background.svg';
-  static String logo = "assets/svg/logo-crap.svg";
+ // static String logo = "assets/svg/logo-crap.svg";
+ // static String logo = "assets/svg/newLogo.svg";
+  static String logo = "assets/images/newlogo1.png";
   static String newLogo = "assets/images/checking.png";
   static String planBackground = "assets/images/planBackground.png";
   static String leftLines = "assets/svg/leftLines.svg";
   static String rightLines = "assets/svg/rightLines.svg";
   static String defaultLoginButton = "assets/svg/defaultLoginButton.svg";
   static String loginButton = "assets/svg/newLoginButton.svg";
-  static String backIcon = "assets/svg/backIcon.svg";
+  static String backIcon = "assets/svg/greeBackIcon.svg";
   static String greenBackIcon = "assets/svg/greeBackIcon.svg";
+  static String customMarker = "assets/images/customMarker.png";
+  static String currentLocationMarker = "assets/images/currentLocationMarker.png";
   static String forwardIcon = "assets/svg/forwardIcon.svg";
   static String submitButton = "assets/svg/newsubmitButton.svg";
   static String premiumBackground = "assets/svg/premiumBackground.svg";
@@ -36,12 +40,18 @@ static String feedbackEmail = "astraldesignapp@gmail.com";
   static String proIcon = "assets/svg/proIcon.svg";
   static String bellIcon = "assets/svg/bellIcon.svg";
   static String crownProIcon = "assets/svg/crownProIcon.svg";
-  static String tile1Background = "assets/svg/tile1background.svg";
-  static String tile2Background = "assets/svg/tile2background.svg";
-  static String tile3Background = "assets/svg/tile3background.svg";
-  static String tile4Background = "assets/svg/tile4background.svg";
-  static String tile5Background = "assets/svg/tile5background.svg";
-  static String tile6Background = "assets/svg/tile6background.svg";
+  //static String tile1Background = "assets/svg/tile1background.svg";
+  static String tile1Background = "assets/svg/tile1BackgroundNew.svg";
+ // static String tile2Background = "assets/svg/tile2background.svg";
+  static String tile2Background = "assets/svg/tile2BackgroundNew.svg";
+ // static String tile3Background = "assets/svg/tile3background.svg";
+  static String tile3Background = "assets/svg/tile3BackgroundNew.svg";
+//  static String tile4Background = "assets/svg/tile4background.svg";
+  static String tile4Background = "assets/svg/tile4BackgroundNew.svg";
+ // static String tile5Background = "assets/svg/tile5background.svg";
+  static String tile5Background = "assets/svg/tile5BackgroundNew.svg";
+  //static String tile6Background = "assets/svg/tile6background.svg";
+  static String tile6Background = "assets/svg/tile6BackgroundNew.svg";
   static String tile1Top = "assets/svg/festivalTop.svg";
   static String tile2Top = "assets/svg/tile2Top.svg";
   static String tile3Top = "assets/svg/tile3Top.svg";
@@ -69,7 +79,22 @@ static String feedbackEmail = "astraldesignapp@gmail.com";
   static String bulletinTitleIcon = "assets/svg/bulletinTitle.svg";
   static String bulletinContentIcon = "assets/svg/bullerinContent.svg";
   static String timer1Icon = "assets/svg/timer1.svg";
+
+
   static String comode1Icon = "assets/svg/comode.svg";
+  static String specialAccess = "assets/svg/specialAccess.svg";
+  static String ablutionSolution = "assets/svg/ablutionSolution.svg";
+  static String standAndDeliver = "assets/svg/standAndDeliver.svg";
+  static String composterIsNoImposter = "assets/svg/composterIsNoImposter.svg";
+  static String chinaBlueRoal = "assets/svg/china.svg";
+  static String longDrop = "assets/svg/longDrop.svg";
+  static String femmefetal = "assets/svg/femmefetal.svg";
+
+
+
+
+
+
   static String toiletCategory1Icon = "assets/svg/toiletCategory.svg";
   static String crowdCapicity = "assets/svg/crowdCapacity.svg";
   static String person = "assets/svg/person.svg";
@@ -88,6 +113,7 @@ static String feedbackEmail = "astraldesignapp@gmail.com";
   static const String feedBack = "assets/svg/feedback.svg";
   static const String logout = "assets/svg/check-out.png";
   static const String delete = "assets/svg/garbage.png";
+  static const String mapPreview = "assets/images/mapPreview.png";
 
 
 

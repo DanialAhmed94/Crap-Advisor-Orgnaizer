@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 
+import '../bottom_navigation_bar/PremiumView/bottomPremiumView.dart';
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,12 +28,13 @@ Future<void> addPerformance(
     String sound,
     String stageSetup,
     String transitionDetail,
-    String specialNotes) async {
+    String specialNotes,
+    String? event_id) async {
   final url = Uri.parse("${AppConstants.baseUrl}/store_performance");
 
   final Map<String, dynamic> performance = {
     'festival_id': festId ?? "",
-    'band_name': band ,
+    'band_name': "." ,
     'artist_name': artist ,
     'technical_rquirement_lightening': lighting,
     'technical_rquirement_sound': sound,
@@ -47,6 +49,7 @@ Future<void> addPerformance(
     'end_date': endDate,
     'performance_title': title,
     'transition_detail': transitionDetail,
+    'event_id': event_id,
   };
 
   try {
@@ -76,11 +79,11 @@ Future<void> addPerformance(
 
         if (message1 == "Performance Created Successfully") {
           showSuccessDialog(context, "Performance added successfully!", null,
-              HomeView());
+              AddPerformanceHome());
         } else if (message ==
             "You have comsumed your limit of an Standard Account! Please Buy Premium Account to Proceed Further")
         {
-          showSuccessDialog(context, message??"", "Attention",  HomeView());
+          showSuccessDialog(context, message??"", "Attention",  BotomPremiumView());
         } else {
           showErrorDialog(context, message??"", []);
         }

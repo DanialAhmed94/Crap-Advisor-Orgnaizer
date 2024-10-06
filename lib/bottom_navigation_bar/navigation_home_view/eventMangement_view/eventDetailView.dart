@@ -16,9 +16,9 @@ import 'invoice_view.dart';
 
 class EventDetailView extends StatefulWidget {
   late EventData event;
-  late Invoice? invoice;
 
-  EventDetailView({required this.event, this.invoice});
+
+  EventDetailView({required this.event,});
 
   @override
   State<EventDetailView> createState() => _AddFestivalViewState();
@@ -303,7 +303,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                             ),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(left: 8),
-                              child: SvgPicture.asset(
+                              child: SvgPicture.asset(color: Color(0xFF628C61),
                                   AppConstants.bulletinTitleIcon),
                             ),
                             border: OutlineInputBorder(
@@ -387,7 +387,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                               ),
                               if (_isEmpty)
                                 Center(
-                                  child: SvgPicture.asset(
+                                  child: SvgPicture.asset(color: Color(0xFF628C61),
                                       AppConstants.bulletinContentIcon),
                                 ),
                             ],
@@ -417,7 +417,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child:
-                                  SvgPicture.asset(AppConstants.crowdCapicity),
+                                  SvgPicture.asset(color: Color(0xFF628C61),AppConstants.crowdCapicity),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -482,7 +482,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                           decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SvgPicture.asset(AppConstants.person),
+                              child: SvgPicture.asset(color: Color(0xFF628C61),AppConstants.person),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -517,7 +517,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                           decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SvgPicture.asset(AppConstants.totalAmount),
+                              child: SvgPicture.asset(color: Color(0xFF628C61),AppConstants.totalAmount),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -585,7 +585,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                           decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SvgPicture.asset(AppConstants.tax),
+                              child: SvgPicture.asset(color: Color(0xFF628C61),AppConstants.tax),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -654,7 +654,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                                         prefixIcon: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 8, right: 8),
-                                          child: SvgPicture.asset(
+                                          child: SvgPicture.asset(color: Color(0xFF628C61),
                                             AppConstants.timer1Icon,
                                           ),
                                         ),
@@ -722,7 +722,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                                         prefixIcon: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 8, right: 8),
-                                          child: SvgPicture.asset(
+                                          child: SvgPicture.asset(color: Color(0xFF628C61),
                                             AppConstants.timer1Icon,
                                           ),
                                         ),
@@ -786,7 +786,7 @@ class _AddFestivalViewState extends State<EventDetailView> {
                                     prefixIcon: Padding(
                                       padding: const EdgeInsets.only(
                                           left: 8, right: 8),
-                                      child: SvgPicture.asset(
+                                      child: SvgPicture.asset(color: Color(0xFF628C61),
                                         AppConstants.calendarIcon,
                                       ),
                                     ),

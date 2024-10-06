@@ -65,7 +65,14 @@ void showSuccessDialog<T>(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(message),
+            Text(
+              message,
+              textAlign: TextAlign.left,  // Set text alignment here
+              style: TextStyle(
+                fontSize: 12
+                // You can define your text style properties here, like fontSize, fontFamily, etc.
+              ),
+            ),
           ],
         ),
         actions: <Widget>[
@@ -75,7 +82,7 @@ void showSuccessDialog<T>(
               Navigator.pushAndRemoveUntil(
                 context,
                 FadePageRouteBuilder(widget: navigateTo as Widget),
-                    (route) => false,
+                    (route) => route.isFirst,
               );
             },
           ),

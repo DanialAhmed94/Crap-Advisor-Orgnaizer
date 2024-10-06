@@ -87,7 +87,7 @@ class _AddKidsActivityHomeState extends State<AddKidsActivityHome> {
                 height: MediaQuery.of(context).size.height * 0.25,
                 width: MediaQuery.of(context).size.width * 0.87,
                 decoration: BoxDecoration(
-                  color: Color(0xFF3DA992),
+                  color: Color(0xFFAEDB4E),
                   borderRadius: BorderRadius.circular(32),
                 ),
                 child: Row(
@@ -217,7 +217,7 @@ class _AddKidsActivityHomeState extends State<AddKidsActivityHome> {
                                       width: 50.0, // Adjust the width as needed
                                       height: 50.0, // Adjust the height as needed
                                       decoration: BoxDecoration(
-                                        color: Color(0xFF3DA992).withOpacity(0.7),
+                                        color: Color(0xFFAEDB4E),
                                         shape: BoxShape.circle, // Circular shape
                                       ),
                                       child: Center(
@@ -252,7 +252,7 @@ class _AddKidsActivityHomeState extends State<AddKidsActivityHome> {
                                         width: 85,
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(16),
-                                          color: Colors.blue,
+                                          color: Color(0xFFAEDB4E),
                                         ),
                                         child: Center(
                                           child: Text(

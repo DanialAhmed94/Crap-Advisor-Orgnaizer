@@ -31,6 +31,7 @@ class _AddFestivalViewState extends State<PerformanceDetailView> {
 // Define TextEditingControllers
   late TextEditingController _endTimeController;
   late TextEditingController _festivalNameController;
+  late TextEditingController _eventNameController;
   late TextEditingController _startTimeController ;
   late TextEditingController _startDateController;
   late TextEditingController _endDateController;
@@ -76,6 +77,9 @@ class _AddFestivalViewState extends State<PerformanceDetailView> {
     super.initState();
     _festivalNameController = TextEditingController(
         text: widget.performance.festival?.nameOrganizer ?? ""
+    );
+    _eventNameController = TextEditingController(
+        text: widget.performance.event?.eventTitle ?? ""
     );
     _startDateController = TextEditingController(text: "${widget.performance.startDate ??""}");
     _endDateController = TextEditingController(text: "${widget.performance.endDate??""}");
@@ -126,8 +130,7 @@ class _AddFestivalViewState extends State<PerformanceDetailView> {
         MediaQuery.of(context).size.height * 0.07 +
         MediaQuery.of(context).size.height * 0.37 +
         MediaQuery.of(context).size.height * 0.58 +
-        MediaQuery.of(context).size.height * 0.9 +
-        MediaQuery.of(context).size.height * 0.8;
+        MediaQuery.of(context).size.height * 0.78 ;
 
     return totalHeight;
   }
@@ -252,7 +255,49 @@ class _AddFestivalViewState extends State<PerformanceDetailView> {
                           },
                         ),
 
+                        SizedBox(height: 20,),
+                        Text(
+                          "Event Name",
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
+                        ),
 
+                        TextFormField(
+                          readOnly: true,
+
+                          controller: _eventNameController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            prefixIconConstraints: BoxConstraints(
+                              minWidth: 30.0,
+                              minHeight: 30.0,
+                            ),
+                            prefixIcon: Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: SvgPicture.asset(
+                                AppConstants.dropDownPrefixIcon,color: Color(0xFF8AC85A),),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16.0),
+                          ),
+
+                          onFieldSubmitted: (_) {
+                            FocusScope.of(context).requestFocus(_bandFocusNode);
+                          },
+                        ),
                         SizedBox(
                           height: 10,
                         ),
@@ -439,49 +484,8 @@ class _AddFestivalViewState extends State<PerformanceDetailView> {
                             FocusScope.of(context).requestFocus(_bandFocusNode);
                           },
                         ),
-                        SizedBox(height: 10),
-                        Text("Band",
-                            style: TextStyle(
-                                fontFamily: "UbuntuMedium", fontSize: 15)),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          readOnly: true,
 
-                          controller: _bandController,
-                          focusNode: _bandFocusNode,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIconConstraints: BoxConstraints(
-                              minWidth: 30.0,
-                              minHeight: 30.0,
-                            ),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(left: 8, right: 8),
-                              child: SvgPicture.asset(
-                                AppConstants.artistTitleIcon,color: Color(0xFF8AC85A),),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
 
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_artistFocusNode);
-                          },
-                        ),
                         SizedBox(height: 10),
                         Text("Artist",
                             style: TextStyle(
@@ -773,280 +777,10 @@ class _AddFestivalViewState extends State<PerformanceDetailView> {
                 ),
               ),
             ),
-            Positioned(
-              top: MediaQuery.of(context).size.height * 1.38,
-              left: 16,
-              right: 16,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.43,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      // Shadow color with 4% opacity
-                      blurRadius: 80.0,
-                      // Adjust the blur radius for desired blur effect
-                      spreadRadius: 0,
-                      // Optional: controls the size of the shadow spread
-                      offset: Offset(0,
-                          4), // Optional: controls the position of the shadow
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    // Add a FormKey if needed to control the state of the Form
-                    key: _formKey2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Technical Requirements",
-                          style: TextStyle(
-                            fontFamily: "UbuntuBold",
-                            fontSize: 22,
-                            color: Color(0xFF8AC85A),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextFormField(
-                          readOnly: true,
 
-                          controller: _lightingController,
-                          focusNode: _focusNodeLighting,
-                          textInputAction: TextInputAction.next,
-                          // Move to next field
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_focusNodeSound);
-                          },
-                          // validator: (value) {
-                          //   if (value == null || value.isEmpty) {
-                          //     return 'Please enter lighting requirements';
-                          //   }
-                          //   return null;
-                          // },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "Lighting",
-                            hintStyle: TextStyle(
-                              color: Color(0xFFA0A0A0),
-                              fontFamily: "UbuntuMedium",
-                              fontSize: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextFormField(
-                          readOnly: true,
-
-                          controller: _soundController,
-                          focusNode: _focusNodeSound,
-                          textInputAction: TextInputAction.next,
-                          // Move to next field
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_focusNodeStageSetup);
-                          },
-                          // validator: (value) {
-                          //   if (value == null || value.isEmpty) {
-                          //     return 'Please enter sound requirements';
-                          //   }
-                          //   return null;
-                          // },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "Sound",
-                            hintStyle: TextStyle(
-                              color: Color(0xFFA0A0A0),
-                              fontFamily: "UbuntuMedium",
-                              fontSize: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextFormField(
-                          readOnly: true,
-
-                          controller: _stageSetupController,
-                          focusNode: _focusNodeStageSetup,
-                          textInputAction: TextInputAction.done,
-                          // Complete form
-                          // validator: (value) {
-                          //   if (value == null || value.isEmpty) {
-                          //     return 'Please enter stage setup details';
-                          //   }
-                          //   return null;
-                          // },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "Stage Setup",
-                            hintStyle: TextStyle(
-                              color: Color(0xFFA0A0A0),
-                              fontFamily: "UbuntuMedium",
-                              fontSize: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+           
             Positioned(
-              top: MediaQuery.of(context).size.height * 1.85,
-              left: 16,
-              right: 16,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.35,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 80.0,
-                      spreadRadius: 0,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey3, // Form key for validation
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Transition Details",
-                          style: TextStyle(
-                            fontFamily: "UbuntuBold",
-                            fontSize: 22,
-                            color: Color(0xFF8AC85A),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.2,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                blurRadius: 4.0,
-                                spreadRadius: 0,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: TextFormField(
-                            readOnly: true,
-                            controller: _transitionController,
-                            focusNode: _focusNodeTransition,
-                            maxLines: null,
-                            expands: true,
-                            keyboardType: TextInputType.multiline,
-                            textAlignVertical: TextAlignVertical.top,
-                            decoration: InputDecoration(
-                              hintText:
-                              'Instructions for transition between acts',
-                              hintStyle: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16.0,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide.none,
-                              ),
-                              contentPadding: EdgeInsets.all(16.0),
-                              filled: true,
-                              fillColor: Colors.white,
-                            ),
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) {
-                            //     return 'Please enter a description';
-                            //   }
-                            //   return null;
-                            // },
-                            textInputAction: TextInputAction.done,
-                            // Done button to close keyboard
-                            onFieldSubmitted: (_) {
-                              FocusScope.of(context)
-                                  .unfocus(); // Dismiss keyboard
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).size.height * 2.227,
+              top: MediaQuery.of(context).size.height * 1.4,
               left: 16,
               right: 16,
               child: Container(
@@ -1072,7 +806,7 @@ class _AddFestivalViewState extends State<PerformanceDetailView> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "Special Notes",
+                          "Notes",
                           style: TextStyle(
                             fontFamily: "UbuntuBold",
                             fontSize: 22,

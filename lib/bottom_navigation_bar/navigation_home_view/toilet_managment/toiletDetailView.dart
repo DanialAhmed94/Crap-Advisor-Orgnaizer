@@ -1,12 +1,15 @@
 import 'dart:io';
 
+import 'package:crap_advisor_orgnaizer/bottom_navigation_bar/navigation_home_view/toilet_managment/toiletDetailMap.dart';
 import 'package:crap_advisor_orgnaizer/data_model/toiletCollection_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../annim/transition.dart';
 import '../../../api/addFestival_api.dart';
 import '../../../api/addToilet_api.dart';
 import '../../../constants/AppConstants.dart';
@@ -18,6 +21,7 @@ import '../../../utilities/utilities.dart';
 
 class ToiletDetailView extends StatefulWidget {
   late ToiletData toiletData;
+
   ToiletDetailView({required this.toiletData});
 
   @override
@@ -25,13 +29,16 @@ class ToiletDetailView extends StatefulWidget {
 }
 
 class _AddFestivalViewState extends State<ToiletDetailView> {
- // late TextEditingController _dobControler;
+  // late TextEditingController _dobControler;
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _festivalNameController;
-  late TextEditingController _toiletTypeNameController;
+
   late TextEditingController _latitudeController;
   late TextEditingController _longitudeController;
-  late TextEditingController _nameController ;
+  late TextEditingController _categoryController;
+  late TextEditingController _what3WordsController;
+
+  // late TextEditingController _nameController ;
   final FocusNode _latFocusNode = FocusNode();
   final FocusNode _longFocusNode = FocusNode();
   final FocusNode _nameFocusNode = FocusNode();
@@ -52,31 +59,38 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
       });
     }
   }
+
   @override
   void initState() {
     // TODO: implement initState
     _festivalNameController = TextEditingController(
-        text: widget.toiletData.festival?.nameOrganizer ?? ""
-    );
+        text: widget.toiletData.festival?.nameOrganizer ?? "");
     // _toiletTypeNameController = TextEditingController(
     //     text: widget.toiletData.festival?.nameOrganizer ?? ""
     // );
-    _latitudeController = TextEditingController(text: "${widget.toiletData.latitude}");
-    _longitudeController = TextEditingController(text: "${widget.toiletData.longitude}");
-    _nameController = TextEditingController(text: "${widget.toiletData.what3Words}");
-    super.initState();
+    _latitudeController =
+        TextEditingController(text: "${widget.toiletData.latitude}");
+    _longitudeController =
+        TextEditingController(text: "${widget.toiletData.longitude}");
+    _categoryController =
+        TextEditingController(text: "${widget.toiletData.toiletType.name}");
+    _what3WordsController =
+        TextEditingController(text: "${widget.toiletData.what3Words}");
 
+    super.initState();
   }
+
   @override
   void dispose() {
     _latitudeController.dispose();
     _longitudeController.dispose();
     _latFocusNode.dispose();
     _longFocusNode.dispose();
-    _nameController.dispose();
+    _categoryController.dispose();
     _nameFocusNode.dispose();
     super.dispose();
   }
+
   double calculateTotalHeight(BuildContext context) {
     double totalHeight = 0.0;
 
@@ -88,13 +102,16 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
 
     return totalHeight;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
           children: [
-            Container(height: calculateTotalHeight(context),),
+            Container(
+              height: calculateTotalHeight(context),
+            ),
             Positioned.fill(
               child: Image.asset(
                 AppConstants.planBackground,
@@ -136,7 +153,7 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
               left: 16,
               right: 16,
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.7,
+                height: MediaQuery.of(context).size.height * 0.87,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Color(0xFFF8FAFC),
@@ -149,8 +166,8 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                       // Adjust the blur radius for desired blur effect
                       spreadRadius: 0,
                       // Optional: controls the size of the shadow spread
-                      offset: Offset(
-                          0, 4), // Optional: controls the position of the shadow
+                      offset: Offset(0,
+                          4), // Optional: controls the position of the shadow
                     ),
                   ],
                 ),
@@ -161,18 +178,20 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 20,),
+                        SizedBox(
+                          height: 20,
+                        ),
                         Text(
                           "Festival Name",
                           style: TextStyle(
                               fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
-                        SizedBox(height: 10,),
+                        SizedBox(
+                          height: 10,
+                        ),
                         TextFormField(
                           readOnly: true,
-
                           controller: _festivalNameController,
-
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -183,7 +202,9 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(left: 8, right: 8),
                               child: SvgPicture.asset(
-                                AppConstants.dropDownPrefixIcon,color: Color(0xFF8AC85A),),
+                                AppConstants.dropDownPrefixIcon,
+                                color: Color(0xFF8AC85A),
+                              ),
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
@@ -198,9 +219,8 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                               borderSide: BorderSide.none,
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
-
                         ),
 
                         // SizedBox(height: 10,),
@@ -268,8 +288,8 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                         ),
                         Text(
                           "Image",
-                          style:
-                          TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(
                           height: 10,
@@ -289,11 +309,12 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                               ),
                             ],
                           ),
-                          child:ClipRRect(
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
-                            child:Image.network(
+                            child: Image.network(
                               "${AppConstants.toiletImageBaseUrl}" +
-                                  (widget.toiletData.image ?? ""), // Provide a default empty string if null
+                                  (widget.toiletData.image ?? ""),
+                              // Provide a default empty string if null
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 // If an error occurs while loading the image, show the default image
@@ -310,15 +331,16 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                                 }
                                 return Center(
                                   child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
                                         : null,
                                   ),
                                 );
                               },
                             ),
-
                           ),
                         ),
                         if (!_isImageSelected) // If image is not selected, show error message
@@ -333,21 +355,21 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                           height: 10,
                         ),
                         Text(
-                          "Name",
-                          style:
-                          TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
+                          "Category",
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(
                           height: 10,
                         ),
                         TextFormField(
                           readOnly: true,
-                          controller: _nameController,
+                          controller: _categoryController,
                           focusNode: _nameFocusNode,
                           textInputAction: TextInputAction.next,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter name';
+                              return 'Please select category';
                             }
                             return null;
                           },
@@ -357,7 +379,7 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            hintText: "name",
+                            hintText: "Category",
                             hintStyle: TextStyle(
                                 color: Color(0xFFA0A0A0),
                                 fontFamily: "UbuntuMedium",
@@ -365,29 +387,64 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(
                           height: 10,
                         ),
+                        Row(
+                          children: [
+                            Text(
+                              "View Location",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            Spacer(),
+                            Text(
+                              "Open Map",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                                onTap: ()  {
+                                   Navigator.push(
+                                      context,
+                                      FadePageRouteBuilder(
+                                          widget: What3WodsMapDetailView(
+                                              initialPosition: LatLng(
+                                                  double.parse(
+                                                      _latitudeController.text),
+                                                  double.parse(
+                                                      _longitudeController
+                                                          .text)))));
+                                },
+                                child: Image.asset(AppConstants.mapPreview)),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         Text(
-                          "Location",
-                          style:
-                          TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
+                          "Location (Latitude / Longitude)",
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(
                           height: 10,
@@ -417,20 +474,20 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(
@@ -458,28 +515,72 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          "What3Words Address",
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(
                           height: 10,
                         ),
-
-
-
+                        TextFormField(
+                          readOnly: true,
+                          controller: _what3WordsController,
+                          focusNode: _latFocusNode,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter what3words';
+                            }
+                            return null;
+                          },
+                          onFieldSubmitted: (_) {
+                            FocusScope.of(context).requestFocus(_longFocusNode);
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "what3words",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFA0A0A0),
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 16.0),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -489,7 +590,7 @@ class _AddFestivalViewState extends State<ToiletDetailView> {
             Positioned(
               top: MediaQuery.of(context).size.height * 0.14,
               right: 16,
-              left:MediaQuery.of(context).size.width * 0.73,
+              left: MediaQuery.of(context).size.width * 0.73,
               child: GestureDetector(
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(

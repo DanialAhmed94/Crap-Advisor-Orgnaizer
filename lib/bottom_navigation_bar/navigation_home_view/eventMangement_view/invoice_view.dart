@@ -224,18 +224,8 @@ class _AddFestivalViewState extends State<InvoiceView> {
                                   height: 50,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(16),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Color(0xFF015CB5),
-                                        Color(0xFF00AAE1)
-                                      ],
-                                      stops: [0.0, 1.0],
-                                      // 0% for the first color, 100% for the second color
-                                      begin: Alignment.centerLeft,
-                                      // Start from the left side
-                                      end: Alignment
-                                          .centerRight, // End at the right side
-                                    ),
+                                    color: Color(0xFFAEDB4E),
+
                                   ),
                                   child: Center(
                                     child: Text(
@@ -402,14 +392,7 @@ class _AddFestivalViewState extends State<InvoiceView> {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF015CB5), Color(0xFF00AAE1)],
-                        stops: [0.0, 1.0],
-                        // 0% for the first color, 100% for the second color
-                        begin: Alignment.centerLeft,
-                        // Start from the left side
-                        end: Alignment.centerRight, // End at the right side
-                      ),
+                      color: Color(0xFFAEDB4E),
                     ),
                     child: Center(
                       child: Text(

@@ -93,7 +93,7 @@ class AllEventsView extends StatelessWidget {
                                     width: 50.0,
                                     height: 50.0,
                                     decoration: BoxDecoration(
-                                      color: Color(0xFFD3FCFF),
+                                      color:Color(0xFF48CF51),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
@@ -120,15 +120,12 @@ class AllEventsView extends StatelessWidget {
                                   padding: const EdgeInsets.only(right: 25),
                                   child: GestureDetector(
                                     onTap: () {
-                                      final invoiceProvider = Provider.of<InvoiceProvider>(context, listen: false);
-                                      final invoice = invoiceProvider.getInvoiceByEventId(int.parse(event.id.toString()));
 
                                       Navigator.push(
                                         context,
                                         FadePageRouteBuilder(
                                           widget: EventDetailView(
                                             event: event,
-                                            invoice: invoice,
                                           ),
                                         ),
                                       );
@@ -138,7 +135,7 @@ class AllEventsView extends StatelessWidget {
                                       width: 85,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        color: Colors.blue,
+                                        color : Color(0xFF48CF51),
                                       ),
                                       child: Center(
                                         child: Text(

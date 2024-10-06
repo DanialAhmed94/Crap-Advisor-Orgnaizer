@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:crap_advisor_orgnaizer/Maps/what3wordsMap.dart';
+import 'package:crap_advisor_orgnaizer/annim/transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,6 +31,8 @@ class _AddFestivalViewState extends State<AddToiletView> {
   final TextEditingController _latitudeController = TextEditingController();
   final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _what3WordsController = TextEditingController();
+
   final FocusNode _latFocusNode = FocusNode();
   final FocusNode _longFocusNode = FocusNode();
   final FocusNode _nameFocusNode = FocusNode();
@@ -49,16 +53,18 @@ class _AddFestivalViewState extends State<AddToiletView> {
       });
     }
   }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _dobControler.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
   }
+
   @override
   void dispose() {
     _dobControler.dispose();
+    _what3WordsController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
     _latFocusNode.dispose();
@@ -67,24 +73,28 @@ class _AddFestivalViewState extends State<AddToiletView> {
     _nameFocusNode.dispose();
     super.dispose();
   }
+
   double calculateTotalHeight(BuildContext context) {
     double totalHeight = 0.0;
 
     totalHeight = totalHeight +
         MediaQuery.of(context).size.height * 0.07 +
-        MediaQuery.of(context).size.height * 0.5 +
+        MediaQuery.of(context).size.height * 0.67 +
         MediaQuery.of(context).size.height *
-            0.63 ; // Example: Height of welcome message Positioned child
+            0.63; // Example: Height of welcome message Positioned child
 
     return totalHeight;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
           children: [
-            Container(height: calculateTotalHeight(context),),
+            Container(
+              height: calculateTotalHeight(context),
+            ),
             Positioned.fill(
               child: Image.asset(
                 AppConstants.planBackground,
@@ -126,7 +136,7 @@ class _AddFestivalViewState extends State<AddToiletView> {
               left: 16,
               right: 16,
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.95,
+                height: MediaQuery.of(context).size.height * 1.0,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Color(0xFFF8FAFC),
@@ -139,8 +149,8 @@ class _AddFestivalViewState extends State<AddToiletView> {
                       // Adjust the blur radius for desired blur effect
                       spreadRadius: 0,
                       // Optional: controls the size of the shadow spread
-                      offset: Offset(
-                          0, 4), // Optional: controls the position of the shadow
+                      offset: Offset(0,
+                          4), // Optional: controls the position of the shadow
                     ),
                   ],
                 ),
@@ -156,14 +166,18 @@ class _AddFestivalViewState extends State<AddToiletView> {
                           style: TextStyle(
                               fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
-                        SizedBox(height: 10,),
+                        SizedBox(
+                          height: 10,
+                        ),
                         Consumer<FestivalProvider>(
                           builder: (context, festivalProvider, child) {
                             return DropdownButtonFormField<String>(
                               value: _selectedFestivalId,
                               decoration: InputDecoration(
                                 prefixIcon: SvgPicture.asset(
-                                  AppConstants.dropDownPrefixIcon,color: Color(0xFF8AC85A),),
+                                  AppConstants.dropDownPrefixIcon,
+                                  color: Color(0xFF8AC85A),
+                                ),
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
@@ -179,8 +193,8 @@ class _AddFestivalViewState extends State<AddToiletView> {
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
                                       maxWidth:
-                                      MediaQuery.of(context).size.width *
-                                          0.6, // Set a max width
+                                          MediaQuery.of(context).size.width *
+                                              0.6, // Set a max width
                                     ),
                                     child: Text(
                                       festival.nameOrganizer ?? "",
@@ -207,12 +221,13 @@ class _AddFestivalViewState extends State<AddToiletView> {
                             );
                           },
                         ),
-
-                        SizedBox(height: 10,),
+                        SizedBox(
+                          height: 10,
+                        ),
                         Text(
                           "Toilet Category",
-                          style:
-                          TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(
                           height: 10,
@@ -223,7 +238,9 @@ class _AddFestivalViewState extends State<AddToiletView> {
                               value: _selectedToiletId,
                               decoration: InputDecoration(
                                 prefixIcon: SvgPicture.asset(
-                                  AppConstants.dropDownPrefixIcon,color: Color(0xFF8AC85A),),
+                                  AppConstants.dropDownPrefixIcon,
+                                  color: Color(0xFF8AC85A),
+                                ),
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
@@ -239,8 +256,8 @@ class _AddFestivalViewState extends State<AddToiletView> {
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
                                       maxWidth:
-                                      MediaQuery.of(context).size.width *
-                                          0.6, // Set a max width
+                                          MediaQuery.of(context).size.width *
+                                              0.6, // Set a max width
                                     ),
                                     child: Text(
                                       toiletType.name ?? "",
@@ -267,23 +284,19 @@ class _AddFestivalViewState extends State<AddToiletView> {
                             );
                           },
                         ),
-
                         SizedBox(
                           height: 10,
                         ),
                         Text(
                           "Upload Image",
-                          style:
-                          TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(
                           height: 10,
                         ),
                         Container(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .height * 0.2,
+                          height: MediaQuery.of(context).size.height * 0.2,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -302,21 +315,24 @@ class _AddFestivalViewState extends State<AddToiletView> {
                               _pickImage();
                               setState(() {
                                 _isImageSelected =
-                                true; // Reset error message once image is selected
+                                    true; // Reset error message once image is selected
                               });
                             },
                             child: Center(
                               child: _selectedImage == null
-                                  ? SvgPicture.asset(AppConstants.addIcon,)
+                                  ? SvgPicture.asset(        color:  Color(0xFF66D265),
+
+                                AppConstants.addIcon,
+                                    )
                                   : ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.file(
-                                  File(_selectedImage!.path),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                              ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Image.file(
+                                        File(_selectedImage!.path),
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
@@ -328,69 +344,102 @@ class _AddFestivalViewState extends State<AddToiletView> {
                               style: TextStyle(color: Colors.red, fontSize: 12),
                             ),
                           ),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // Text(
+                        //   "Name",
+                        //   style: TextStyle(
+                        //       fontFamily: "UbuntuMedium", fontSize: 15),
+                        // ),
+                        // SizedBox(
+                        //   height: 20,
+                        // ),
+                        // TextFormField(
+                        //   controller: _nameController,
+                        //   focusNode: _nameFocusNode,
+                        //   textInputAction: TextInputAction.next,
+                        //   validator: (value) {
+                        //     if (value == null || value.isEmpty) {
+                        //       return 'Please enter name';
+                        //     }
+                        //     return null;
+                        //   },
+                        //   onFieldSubmitted: (_) {
+                        //     FocusScope.of(context).requestFocus(_latFocusNode);
+                        //   },
+                        //   decoration: InputDecoration(
+                        //     filled: true,
+                        //     fillColor: Colors.white,
+                        //     hintText: "name",
+                        //     hintStyle: TextStyle(
+                        //         color: Color(0xFFA0A0A0),
+                        //         fontFamily: "UbuntuMedium",
+                        //         fontSize: 15),
+                        //     border: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(25.0),
+                        //       borderSide:
+                        //           BorderSide.none, // Removes the default border
+                        //     ),
+                        //     enabledBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(30.0),
+                        //       borderSide:
+                        //           BorderSide.none, // Removes the default border
+                        //     ),
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(30.0),
+                        //       borderSide:
+                        //           BorderSide.none, // Removes the default border
+                        //     ),
+                        //     contentPadding:
+                        //         EdgeInsets.symmetric(horizontal: 16.0),
+                        //   ),
+                        // ),
                         SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
-                        Text(
-                          "Name",
-                          style:
-                          TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
+                        Row(
+                          children: [
+                            Text(
+                              "Add Location",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            Spacer(),
+                            Text(
+                              "Open Map",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                                onTap: () async {
+                                  final result = await Navigator.push(
+                                      context,
+                                      FadePageRouteBuilder(
+                                          widget: What3WodsMapView()));
+                                  if (result != null) {
+                                    // Update text fields with the selected latitude and longitude
+                                    setState(() {
+                                      _latitudeController.text =
+                                          result['latitude'];
+                                      _longitudeController.text =
+                                          result['longitude'];
+                                      _what3WordsController.text =
+                                          result['what3Words'];
+                                    });
+                                  }
+                                },
+                                child: Image.asset(AppConstants.mapPreview)),
+                          ],
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
                         TextFormField(
-                          controller: _nameController,
-                          focusNode: _nameFocusNode,
-                          textInputAction: TextInputAction.next,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter name';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context).requestFocus(_latFocusNode);
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "name",
-                            hintStyle: TextStyle(
-                                color: Color(0xFFA0A0A0),
-                                fontFamily: "UbuntuMedium",
-                                fontSize: 15),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide:
-                              BorderSide.none, // Removes the default border
-                            ),
-                            contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Location",
-                          style:
-                          TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
+                          readOnly: true,
                           controller: _latitudeController,
                           focusNode: _latFocusNode,
                           textInputAction: TextInputAction.next,
@@ -414,26 +463,27 @@ class _AddFestivalViewState extends State<AddToiletView> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
                         TextFormField(
+                          readOnly: true,
                           controller: _longitudeController,
                           focusNode: _longFocusNode,
                           textInputAction: TextInputAction.done,
@@ -454,28 +504,66 @@ class _AddFestivalViewState extends State<AddToiletView> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
-
-
-
+                        TextFormField(
+                          readOnly: true,
+                          controller: _what3WordsController,
+                          focusNode: _latFocusNode,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter what3words';
+                            }
+                            return null;
+                          },
+                          onFieldSubmitted: (_) {
+                            FocusScope.of(context).requestFocus(_longFocusNode);
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "what3words",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFA0A0A0),
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 16.0),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -483,16 +571,16 @@ class _AddFestivalViewState extends State<AddToiletView> {
               ),
             ),
             Positioned(
-                top: MediaQuery.of(context).size.height*1.12,
-                left: MediaQuery.of(context).size.width*0.1,
-                right: MediaQuery.of(context).size.width*0.1,
+                top: MediaQuery.of(context).size.height * 1.17,
+                left: MediaQuery.of(context).size.width * 0.1,
+                right: MediaQuery.of(context).size.width * 0.1,
                 child: GestureDetector(
-                  onTap: ()async{
-                    if(_formKey.currentState!.validate()){
+                  onTap: () async {
+                    if (_formKey.currentState!.validate()) {
                       if (_selectedImage == null) {
                         setState(() {
                           _isImageSelected =
-                          false; // Trigger error message if no image is selected
+                              false; // Trigger error message if no image is selected
                         });
                         return;
                       } else {
@@ -500,20 +588,19 @@ class _AddFestivalViewState extends State<AddToiletView> {
                           isLoading = true; // Show loading indicator
                         });
                         try {
-                          String base64img = await convertImageToBase64(
-                              _selectedImage);
+                          String base64img =
+                              await convertImageToBase64(_selectedImage);
                           addToilet(
                               context,
-                              _selectedFestivalId??"",
-                              _selectedToiletId??"",
+                              _selectedFestivalId ?? "",
+                              _selectedToiletId ?? "",
                               _latitudeController.text,
                               _longitudeController.text,
                               base64img,
-                            _nameController.text
-                              );
-                        } finally{
-
-                        }
+                              _what3WordsController.text,
+                              // _nameController.text
+                          );
+                        } finally {}
                         print('all ok danial');
                       }
                       print("tapped");
@@ -524,17 +611,20 @@ class _AddFestivalViewState extends State<AddToiletView> {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF015CB5), Color(0xFF00AAE1)],
-                        stops: [0.0, 1.0], // 0% for the first color, 100% for the second color
-                        begin: Alignment.centerLeft, // Start from the left side
-                        end: Alignment.centerRight,  // End at the right side
+                      color:  Color(0xFF66D265),
+
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Submit",
+                        style: TextStyle(
+                            fontFamily: "UbuntuBold",
+                            fontSize: 18,
+                            color: Colors.white),
                       ),
                     ),
-                    child: Center(child: Text("Submit",style: TextStyle(fontFamily: "UbuntuBold",fontSize: 18,color: Colors.white),),),
                   ),
-                )
-            ),
+                )),
             if (isLoading)
               Positioned.fill(
                 child: Container(

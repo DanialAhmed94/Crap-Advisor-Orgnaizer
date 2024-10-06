@@ -55,10 +55,10 @@ print('Bulletin : $buletin');
 
         if (message1 == "Bulletin Added Successfully") {
           showSuccessDialog(context, "Bulletin Added Successfully", null,
-              HomeView());
+              AddNewsBullitinHome());
         } else if (message ==
             "You have comsumed your limit of an Standard Account! Please Buy Premium Account to Proceed Further") {
-          showSuccessDialog(context, message??"", "Failure", HomeView());
+          showSuccessDialog(context, message??"", "Failure", AddNewsBullitinHome());
         } else {
           showErrorDialog(context, message??"", []);
         }

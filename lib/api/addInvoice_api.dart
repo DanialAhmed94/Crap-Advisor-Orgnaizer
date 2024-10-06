@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
+import '../bottom_navigation_bar/navigation_home_view/eventMangement_view/eventManagement_homeView.dart';
 import '../constants/AppConstants.dart';
 import '../homw_view/home_view.dart';
 
@@ -40,7 +41,7 @@ Future<void> addInvoice(
       final responseData = jsonDecode(response.body);
       if (responseData['status'] == 200) {
         showSuccessDialog(
-            context, "Invoice saved successfully", null, HomeView());
+            context, "Invoice saved successfully", null, AddEventManagementView());
       }
     } else if (response.statusCode == 400) {
       // Handle validation errors

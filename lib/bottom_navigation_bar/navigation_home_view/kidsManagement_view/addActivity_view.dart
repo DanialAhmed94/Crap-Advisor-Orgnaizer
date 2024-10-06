@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../Maps/googleMap.dart';
+import '../../../annim/transition.dart';
 import '../../../api/addActivity_api.dart';
 import '../../../constants/AppConstants.dart';
 import '../../../data_model/festivalCollection_model.dart';
@@ -30,6 +33,9 @@ class _AddFestivalViewState extends State<AddActivityView> {
   TextEditingController _endTimeController = TextEditingController();
   TextEditingController _startTimeController = TextEditingController();
   TextEditingController _titleController = TextEditingController();
+  TextEditingController _latitudeController = TextEditingController();
+  TextEditingController _longitudeController = TextEditingController();
+  TextEditingController _addressController = TextEditingController();
 
   XFile? _selectedImage;
   bool _isImageSelected = true;
@@ -73,20 +79,23 @@ class _AddFestivalViewState extends State<AddActivityView> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    _latitudeController.dispose();
+    _longitudeController.dispose();
     _contentControler.dispose();
     _startTimeController.dispose();
     _endTimeController.dispose();
     _titleController.dispose();
+    _addressController.dispose();
   }
 
   double calculateTotalHeight(BuildContext context) {
     double totalHeight = 0.0;
 
     totalHeight = totalHeight +
-        MediaQuery.of(context).size.height * 0.07 +
+        MediaQuery.of(context).size.height * 0.4 +
         MediaQuery.of(context).size.height * 0.41 +
         MediaQuery.of(context).size.height *
-            0.8; // Example: Height of welcome message Positioned child
+            0.85; // Example: Height of welcome message Positioned child
 
     return totalHeight;
   }
@@ -141,7 +150,7 @@ class _AddFestivalViewState extends State<AddActivityView> {
               left: 16,
               right: 16,
               child: Container(
-                height: MediaQuery.of(context).size.height * 1.03,
+                height: MediaQuery.of(context).size.height * 1.4,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Color(0xFFF8FAFC),
@@ -179,7 +188,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                             return DropdownButtonFormField<String>(
                               value: _selectedFestivalId,
                               decoration: InputDecoration(
-                                prefixIcon: SvgPicture.asset(
+                                prefixIcon: SvgPicture.asset(                  color: Color(0xFFAEDB4E),
+
                                     AppConstants.dropDownPrefixIcon),
                                 filled: true,
                                 fillColor: Colors.white,
@@ -240,8 +250,6 @@ class _AddFestivalViewState extends State<AddActivityView> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Title is required'; // Error message for empty input
-                            } else if (value.length < 10) {
-                              return 'Title must be at least 10 characters long'; // Error message for short input
                             }
                             return null; // Input is valid
                           },
@@ -254,7 +262,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                             ),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(left: 8, right: 8),
-                              child: SvgPicture.asset(
+                              child: SvgPicture.asset(                  color: Color(0xFFAEDB4E),
+
                                 AppConstants.bulletinTitleIcon,
                               ),
                             ),
@@ -314,7 +323,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                             },
                             child: Center(
                               child: _selectedImage == null
-                                  ? SvgPicture.asset(AppConstants.addIcon)
+                                  ? SvgPicture.asset(                  color: Color(0xFFAEDB4E),
+                                  AppConstants.addIcon)
                                   : ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
                                       child: Image.file(
@@ -392,7 +402,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                               ),
                               if (_isEmpty)
                                 Center(
-                                  child: SvgPicture.asset(
+                                  child: SvgPicture.asset(                  color: Color(0xFFAEDB4E),
+
                                       AppConstants.bulletinContentIcon),
                                 ),
                             ],
@@ -400,6 +411,172 @@ class _AddFestivalViewState extends State<AddActivityView> {
                         ),
                         SizedBox(
                           height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "Add Location",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            Spacer(),
+                            Text(
+                              "Open Map",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                                onTap: () async {
+                                  final result = await Navigator.push(
+                                      context,
+                                      FadePageRouteBuilder(
+                                          widget: GoogleMapView(isFromFestival: false,)));
+                                  if (result != null) {
+                                    // Update text fields with the selected latitude and longitude
+                                    setState(() {
+                                      _latitudeController.text =
+                                      result['latitude'];
+                                      _longitudeController.text =
+                                      result['longitude'];
+                                      _addressController.text =
+                                      result['address'];
+
+                                    });
+                                  }
+                                },
+                                child: Image.asset(AppConstants.mapPreview)),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          readOnly: true,
+                          controller: _latitudeController,
+
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter latitude';
+                            }
+                            return null;
+                          },
+
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "Latitude",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFA0A0A0),
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16.0),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          readOnly: true,
+                          controller: _longitudeController,
+                          textInputAction: TextInputAction.done,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter longitude';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "Longitude",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFA0A0A0),
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16.0),
+                          ),
+                        ),
+
+
+                        SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          readOnly: true,
+                          controller: _addressController,
+                          textInputAction: TextInputAction.done,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter address';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "Address",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFA0A0A0),
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                              BorderSide.none, // Removes the default border
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16.0),
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: 20,
                         ),
                         Row(
                           children: [
@@ -444,7 +621,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                                             prefixIcon: Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
-                                              child: SvgPicture.asset(
+                                              child: SvgPicture.asset(                  color: Color(0xFFAEDB4E),
+
                                                   AppConstants.timer1Icon),
                                             ),
                                             suffixIcon: Icon(
@@ -479,6 +657,9 @@ class _AddFestivalViewState extends State<AddActivityView> {
                                   ),
                                 ],
                               ),
+                            ),
+                            SizedBox(
+                              width: 10,
                             ),
                             Expanded(
                               child: Column(
@@ -521,7 +702,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                                             prefixIcon: Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
-                                              child: SvgPicture.asset(
+                                              child: SvgPicture.asset(                  color: Color(0xFFAEDB4E),
+
                                                   AppConstants.timerIcon),
                                             ),
                                             suffixIcon: Icon(
@@ -569,7 +751,7 @@ class _AddFestivalViewState extends State<AddActivityView> {
               ),
             ),
             Positioned(
-                top: MediaQuery.of(context).size.height * 1.2,
+                top: MediaQuery.of(context).size.height * 1.57,
                 left: MediaQuery.of(context).size.width * 0.1,
                 right: MediaQuery.of(context).size.width * 0.1,
                 child: GestureDetector(
@@ -594,6 +776,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                               _titleController.text,
                               base64img,
                               _contentControler.text,
+                              _latitudeController.text,
+                              _longitudeController.text,
                               _startTimeController.text,
                               _endTimeController.text);
                         } finally {
@@ -610,14 +794,8 @@ class _AddFestivalViewState extends State<AddActivityView> {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF015CB5), Color(0xFF00AAE1)],
-                        stops: [0.0, 1.0],
-                        // 0% for the first color, 100% for the second color
-                        begin: Alignment.centerLeft,
-                        // Start from the left side
-                        end: Alignment.centerRight, // End at the right side
-                      ),
+                      color: Color(0xFFAEDB4E),
+
                     ),
                     child: Center(
                       child: Text(

@@ -29,6 +29,8 @@ class Activity {
   final String activityTitle;
   final String image;
   final String description;
+  final String? latitude;
+  final String? longitude;
   final String startTime;
   final String endTime;
   final DateTime createdAt;
@@ -41,6 +43,8 @@ class Activity {
     required this.activityTitle,
     required this.image,
     required this.description,
+    required this.latitude,
+    required this.longitude,
     required this.startTime,
     required this.endTime,
     required this.createdAt,
@@ -56,6 +60,8 @@ class Activity {
       activityTitle: json['activity_title'],
       image: json['image'],
       description: json['description'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
       startTime: json['start_time'],
       endTime: json['end_time'],
       createdAt: DateTime.parse(json['created_at']),

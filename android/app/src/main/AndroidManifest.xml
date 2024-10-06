@@ -7,11 +7,17 @@
     <!-- For Android versions below 13 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <!-- for user current location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:label="Organizer Toolkit"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/ic_launcher"
+
+        >
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCbVkm49HQB7DLEDai7wbujMrjimuhNwhU"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -128,12 +128,12 @@ class _SignupViewState extends State<SignupView> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      if (_uploadedImages.length < 1) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please upload at least 1 document')),
-        );
-        return;
-      }
+      // if (_uploadedImages.length < 1) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Please upload at least 1 document')),
+      //   );
+      //   return;
+      // }
       setState(() {
         _isLoading = true; // Show loading indicator
       });
@@ -359,14 +359,14 @@ class _SignupViewState extends State<SignupView> {
                                   ),
                                   SizedBox(height: 20),
 
-                                  Container(
-                                    color: const Color(0xFFF1FEED),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ImageUploadSection(
-                                          onImagesSelected: _onImagesSelected),
-                                    ),
-                                  ),
+                                  // Container(
+                                  //   color: const Color(0xFFF1FEED),
+                                  //   child: Padding(
+                                  //     padding: const EdgeInsets.all(8.0),
+                                  //     child: ImageUploadSection(
+                                  //         onImagesSelected: _onImagesSelected),
+                                  //   ),
+                                  // ),
 
                                   SizedBox(height: 20),
 

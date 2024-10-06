@@ -220,7 +220,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                             return DropdownButtonFormField<String>(
                               value: _selectedFestivalId,
                               decoration: InputDecoration(
-                                prefixIcon: SvgPicture.asset(
+                                prefixIcon: SvgPicture.asset(color: Color(0xFF628C61),
                                     AppConstants.dropDownPrefixIcon),
                                 filled: true,
                                 fillColor: Colors.white,
@@ -285,7 +285,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                             ),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(left: 8),
-                              child: SvgPicture.asset(
+                              child: SvgPicture.asset(color: Color(0xFF628C61),
                                   AppConstants.bulletinTitleIcon),
                             ),
                             border: OutlineInputBorder(
@@ -368,7 +368,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                               ),
                               if (_isEmpty)
                                 Center(
-                                  child: SvgPicture.asset(
+                                  child: SvgPicture.asset(color: Color(0xFF628C61),
                                       AppConstants.bulletinContentIcon),
                                 ),
                             ],
@@ -397,7 +397,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child:
-                                  SvgPicture.asset(AppConstants.crowdCapicity),
+                                  SvgPicture.asset(color: Color(0xFF628C61),AppConstants.crowdCapicity),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -461,7 +461,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                           decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SvgPicture.asset(AppConstants.person),
+                              child: SvgPicture.asset(color: Color(0xFF628C61),AppConstants.person),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -496,7 +496,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                           decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SvgPicture.asset(AppConstants.totalAmount),
+                              child: SvgPicture.asset(color: Color(0xFF628C61),AppConstants.totalAmount),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -563,7 +563,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                           decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SvgPicture.asset(AppConstants.tax),
+                              child: SvgPicture.asset(color: Color(0xFF628C61),AppConstants.tax),
                             ),
                             filled: true,
                             fillColor: Colors.white,
@@ -638,7 +638,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                                             prefixIcon: Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
-                                              child: SvgPicture.asset(
+                                              child: SvgPicture.asset(color: Color(0xFF628C61),
                                                 AppConstants.timer1Icon,
                                               ),
                                             ),
@@ -717,7 +717,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                                             prefixIcon: Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
-                                              child: SvgPicture.asset(
+                                              child: SvgPicture.asset(color: Color(0xFF628C61),
                                                 AppConstants.timer1Icon,
                                               ),
                                             ),
@@ -805,7 +805,7 @@ class _AddFestivalViewState extends State<AddEventview> {
                                         prefixIcon: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 8, right: 8),
-                                          child: SvgPicture.asset(
+                                          child: SvgPicture.asset(color: Color(0xFF628C61),
                                             AppConstants.calendarIcon,
                                           ),
                                         ),
@@ -881,14 +881,8 @@ class _AddFestivalViewState extends State<AddEventview> {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF015CB5), Color(0xFF00AAE1)],
-                        stops: [0.0, 1.0],
-                        // 0% for the first color, 100% for the second color
-                        begin: Alignment.centerLeft,
-                        // Start from the left side
-                        end: Alignment.centerRight, // End at the right side
-                      ),
+                      color : Color(0xFF48CF51),
+
                     ),
                     child: Center(
                       child: Text(

@@ -172,7 +172,7 @@ class _AddFestivalViewState extends State<BulletinDetailView> {
                             ),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(left: 8, right: 8),
-                              child: SvgPicture.asset(
+                              child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                 AppConstants.bulletinTitleIcon,
                               ),
                             ),
@@ -255,7 +255,7 @@ class _AddFestivalViewState extends State<BulletinDetailView> {
                               ),
                               if (_isEmpty)
                                 Center(
-                                  child: SvgPicture.asset(
+                                  child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                       AppConstants.bulletinContentIcon),
                                 ),
                             ],
@@ -340,7 +340,7 @@ class _AddFestivalViewState extends State<BulletinDetailView> {
                                         prefixIcon: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 8, right: 8),
-                                          child: SvgPicture.asset(
+                                          child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                             AppConstants.timer1Icon,
                                           ),
                                         ),
@@ -406,7 +406,7 @@ class _AddFestivalViewState extends State<BulletinDetailView> {
                                         prefixIcon: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 8, right: 8),
-                                          child: SvgPicture.asset(
+                                          child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                             AppConstants.calendarIcon,
                                           ),
                                         ),

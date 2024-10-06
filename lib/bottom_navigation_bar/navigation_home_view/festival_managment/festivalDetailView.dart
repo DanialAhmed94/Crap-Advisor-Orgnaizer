@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../../../Maps/DetailMap.dart';
+import '../../../annim/transition.dart';
 import '../../../api/addFestival_api.dart';
 import '../../../data_model/festivalCollection_model.dart';
 import '../../../utilities/utilities.dart';
@@ -9,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:geocoding/geocoding.dart'; // Import the geocoding package
 
 import '../../../constants/AppConstants.dart';
 
@@ -27,7 +32,7 @@ class _AddFestivalViewState extends State<FestivalDetailView> {
   late TextEditingController _longitudeControler;
   late TextEditingController _descriptionControler;
   late TextEditingController _startDateControler;
-
+  late final TextEditingController _addressControler;
   late TextEditingController _endDateControler;
 
 // late Uint8List imageBytes;
@@ -48,7 +53,36 @@ class _AddFestivalViewState extends State<FestivalDetailView> {
         TextEditingController(text: "${widget.festival.startingDate}");
     _endDateControler =
         TextEditingController(text: "${widget.festival.endingDate}");
+// Initially set the address to an empty string
+    _addressControler = TextEditingController(text: "");
+    // Asynchronously fetch the address and update the controller
+    _fetchAndSetAddress();
     // imageBytes = base64Decode(widget.festival.image??"");
+  }
+  // Method to fetch the address asynchronously and update the controller
+  Future<void> _fetchAndSetAddress() async {
+    String address = await _getAddressFromLatLng(
+      double.parse(widget.festival.latitude?? "0.0"),
+      double.parse(widget.festival.longitude?? "0.0"),
+    );
+
+    // Once the address is fetched, update the controller inside setState
+    setState(() {
+      _addressControler.text = address;
+    });
+  }
+  Future<String> _getAddressFromLatLng(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        // Format the address according to UK standard
+        return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+      }
+    } catch (e) {
+      print(e);
+    }
+    return "Unknown Address";
   }
 
   @override
@@ -67,7 +101,7 @@ class _AddFestivalViewState extends State<FestivalDetailView> {
 
     totalHeight = totalHeight +
         MediaQuery.of(context).size.height * 0.07 +
-        MediaQuery.of(context).size.height * 0.37 +
+        MediaQuery.of(context).size.height * 0.55 +
         MediaQuery.of(context).size.height *
             0.58 + // Example: Height of welcome message Positioned child
         MediaQuery.of(context).size.height *
@@ -126,7 +160,7 @@ class _AddFestivalViewState extends State<FestivalDetailView> {
               left: 16,
               right: 16,
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.97,
+                height: MediaQuery.of(context).size.height * 1.15,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Color(0xFFF8FAFC),
@@ -297,8 +331,38 @@ class _AddFestivalViewState extends State<FestivalDetailView> {
                             SizedBox(
                               height: 15,
                             ),
+                            Row(
+                              children: [
+                                Text(
+                                  "View Location",
+                                  style: TextStyle(
+                                      fontFamily: "UbuntuMedium", fontSize: 15),
+                                ),
+                                Spacer(),
+                                Text(
+                                  "Open Map",
+                                  style: TextStyle(
+                                      fontFamily: "UbuntuMedium", fontSize: 15),
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                GestureDetector(
+                                    onTap: () async {
+                                       await Navigator.push(
+                                          context,
+                                          FadePageRouteBuilder(
+                                              widget: MapDetailView(isFromFestival: true,initialPosition: LatLng(double.parse(_latitudeControler.text),double.parse(_longitudeControler.text)))));
+
+                                    },
+                                    child: Image.asset(AppConstants.mapPreview)),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
                             Text(
-                              "Location (Lattitude / Longitude)",
+                              "Location (Lattitude / Longitude / Address)",
                               style: TextStyle(
                                   fontFamily: "UbuntuMedium", fontSize: 15),
                             ),
@@ -366,6 +430,45 @@ class _AddFestivalViewState extends State<FestivalDetailView> {
                                 ),
                                 contentPadding:
                                     EdgeInsets.symmetric(horizontal: 16.0),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              readOnly: true,
+                              controller: _addressControler,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a valid address';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: "Address",
+                                hintStyle: TextStyle(
+                                    color: Color(0xFFA0A0A0),
+                                    fontFamily: "UbuntuMedium",
+                                    fontSize: 15),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide:
+                                  BorderSide.none, // Removes the default border
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide:
+                                  BorderSide.none, // Removes the default border
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide:
+                                  BorderSide.none, // Removes the default border
+                                ),
+                                contentPadding:
+                                EdgeInsets.symmetric(horizontal: 16.0),
                               ),
                             ),
                             SizedBox(

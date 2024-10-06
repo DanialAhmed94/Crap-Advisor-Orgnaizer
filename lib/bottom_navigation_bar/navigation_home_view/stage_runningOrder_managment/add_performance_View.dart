@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../api/addPerformance.dart';
+import '../../../api/getEventsByFestival.dart';
 import '../../../constants/AppConstants.dart';
 import '../../../data_model/festivalCollection_model.dart';
 import '../../../provider/festivalCollection_provider.dart';
@@ -25,7 +26,8 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
   bool _isloading = false;
 
   String? _selectedFestivalId;
-
+  String? _selectedEventId;
+  Future<List<Map<String, String>>>? _eventsFuture;
 // Define TextEditingControllers
   final _endTimeController = TextEditingController();
   final _startTimeController = TextEditingController();
@@ -54,6 +56,13 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
   final _participantsFocusNode = FocusNode();
   final _guestsFocusNode = FocusNode();
 
+
+
+  void _fetchEvents(String festivalId) {
+    setState(() {
+      _eventsFuture = getEventsByFestival(festivalId);
+    });
+  }
   Future<void> _selectTime(
       BuildContext context, TextEditingController controller) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -116,8 +125,8 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
         MediaQuery.of(context).size.height * 0.07 +
         MediaQuery.of(context).size.height * 0.37 +
         MediaQuery.of(context).size.height * 0.58 +
-        MediaQuery.of(context).size.height * 0.9 +
-        MediaQuery.of(context).size.height * 0.8;
+        MediaQuery.of(context).size.height * 0.9;
+
 
     return totalHeight;
   }
@@ -199,60 +208,17 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                       children: [
                         Text(
                           "Select Festival",
-                          style: TextStyle(
-                              fontFamily: "UbuntuMedium", fontSize: 15),
+                          style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
-                        // Consumer<FestivalProvider>(
-                        //   builder: (context, festivalProvider, child) {
-                        //     return DropdownButtonFormField<String>(
-                        //       value: _selectedItem,
-                        //       decoration: InputDecoration(
-                        //         prefixIcon: SvgPicture.asset(AppConstants.dropDownPrefixIcon),
-                        //         filled: true,
-                        //         fillColor: Colors.white,
-                        //         border: OutlineInputBorder(
-                        //           borderRadius: BorderRadius.circular(30.0),
-                        //           borderSide: BorderSide.none,
-                        //         ),
-                        //       ),
-                        //       items: festivalProvider.festivals.map((Festival festival) {
-                        //         return DropdownMenuItem<String>(
-                        //           value: festival.nameOrganizer, // Use the appropriate property
-                        //           child: ConstrainedBox(
-                        //             constraints: BoxConstraints(
-                        //               maxWidth: MediaQuery.of(context).size.width * 0.6, // Set a max width
-                        //             ),
-                        //             child: Text(
-                        //               festival.nameOrganizer,
-                        //               overflow: TextOverflow.ellipsis, // Manage overflow
-                        //               maxLines: 1, // Show only one line
-                        //             ),
-                        //           ),
-                        //         );
-                        //       }).toList(),
-                        //       onChanged: (newValue) {
-                        //         setState(() {
-                        //           _selectedItem = newValue;
-                        //         });
-                        //       },
-                        //       validator: (value) {
-                        //         if (value == null || value.isEmpty) {
-                        //           return 'Please select a festival';
-                        //         }
-                        //         return null;
-                        //       },
-                        //     );
-                        //   },
-                        // ),
-                        // Holds the ID of the selected festival
-
                         Consumer<FestivalProvider>(
                           builder: (context, festivalProvider, child) {
                             return DropdownButtonFormField<String>(
                               value: _selectedFestivalId,
                               decoration: InputDecoration(
                                 prefixIcon: SvgPicture.asset(
-                                    AppConstants.dropDownPrefixIcon,color: Color(0xFF8AC85A),),
+                                  AppConstants.dropDownPrefixIcon,
+                                  color: Color(0xFF8AC85A),
+                                ),
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
@@ -260,31 +226,26 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                                   borderSide: BorderSide.none,
                                 ),
                               ),
-                              items: festivalProvider.festivals
-                                  .map((Festival festival) {
+                              items: festivalProvider.festivals.map((Festival festival) {
                                 return DropdownMenuItem<String>(
                                   value: festival.id.toString(),
-                                  // Store the festival ID here
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              0.6, // Set a max width
+                                      maxWidth: MediaQuery.of(context).size.width * 0.6,
                                     ),
                                     child: Text(
                                       festival.nameOrganizer ?? "",
-                                      // Display the festival name
                                       overflow: TextOverflow.ellipsis,
-                                      // Manage overflow
-                                      maxLines: 1, // Show only one line
+                                      maxLines: 1,
                                     ),
                                   ),
                                 );
                               }).toList(),
                               onChanged: (newValue) {
                                 setState(() {
-                                  _selectedFestivalId =
-                                      newValue; // Save the selected festival ID
+                                  _selectedFestivalId = newValue;
+                                  _selectedEventId = null; // Reset event selection
+                                  _fetchEvents(newValue!); // Fetch events based on festival
                                 });
                               },
                               validator: (value) {
@@ -296,6 +257,119 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                             );
                           },
                         ),
+                        SizedBox(height: 20),
+                        Text(
+                          "Select Event",
+                          style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15),
+                        ),
+                        FutureBuilder<List<Map<String, String>>>(
+                          future: _eventsFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return DropdownButtonFormField<String>(
+                                items: [],
+                                onChanged: null,
+                                hint: Text('Loading events...'),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please wait for events to load';
+                                  }
+                                  return null;
+                                },
+                              );
+                            } else if (snapshot.hasError) {
+                              return DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(Icons.error, color: Colors.red),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                                items: [],
+                                onChanged: null,
+                                hint: Text('Error: ${snapshot.error}', overflow: TextOverflow.ellipsis),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please resolve the error and try again';
+                                  }
+                                  return null;
+                                },
+                              );
+                            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              return DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                                items: [],
+                                onChanged: null,
+                                hint: Text('No events found'),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'No events available';
+                                  }
+                                  return null;
+                                },
+                              );
+                            } else {
+                              // Ensure selected event exists in the list
+                              if (_selectedEventId != null &&
+                                  !snapshot.data!.any((event) => event['event_id'] == _selectedEventId)) {
+                                _selectedEventId = null;
+                              }
+
+                              return DropdownButtonFormField<String>(
+                                value: _selectedEventId,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                                items: snapshot.data!.map((Map<String, String> event) {
+                                  return DropdownMenuItem<String>(
+                                    value: event['event_id'],
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: MediaQuery.of(context).size.width * 0.6,
+                                      ),
+                                      child: Text(
+                                        event['event_title'] ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedEventId = value;
+                                  });
+                                },
+                                hint: Text('Select Event'),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select an event';
+                                  }
+                                  return null;
+                                },
+                              );
+                            }
+                          },
+                        ),
+
+
+
+
 
                         SizedBox(
                           height: 10,
@@ -527,52 +601,7 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                             FocusScope.of(context).requestFocus(_bandFocusNode);
                           },
                         ),
-                        SizedBox(height: 10),
-                        Text("Band",
-                            style: TextStyle(
-                                fontFamily: "UbuntuMedium", fontSize: 15)),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _bandController,
-                          focusNode: _bandFocusNode,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIconConstraints: BoxConstraints(
-                              minWidth: 30.0,
-                              minHeight: 30.0,
-                            ),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(left: 8, right: 8),
-                              child: SvgPicture.asset(
-                                  AppConstants.artistTitleIcon,color: Color(0xFF8AC85A),),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter an artist name';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_artistFocusNode);
-                          },
-                        ),
+
                         SizedBox(height: 10),
                         Text("Artist",
                             style: TextStyle(
@@ -611,7 +640,7 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter participants names';
+                              return 'Please enter participants';
                             }
                             return null;
                           },
@@ -621,7 +650,7 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                           },
                         ),
                         SizedBox(height: 10),
-                        Text("Participantes Names",
+                        Text("Participants",
                             style: TextStyle(
                                 color: Color(0xFF0A0909),
                                 fontFamily: "UbuntuMedium",
@@ -893,273 +922,10 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                 ),
               ),
             ),
+
+
             Positioned(
-              top: MediaQuery.of(context).size.height * 1.38,
-              left: 16,
-              right: 16,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.43,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      // Shadow color with 4% opacity
-                      blurRadius: 80.0,
-                      // Adjust the blur radius for desired blur effect
-                      spreadRadius: 0,
-                      // Optional: controls the size of the shadow spread
-                      offset: Offset(0,
-                          4), // Optional: controls the position of the shadow
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    // Add a FormKey if needed to control the state of the Form
-                    key: _formKey2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Technical Requirements",
-                          style: TextStyle(
-                            fontFamily: "UbuntuBold",
-                            fontSize: 22,
-                            color: Color(0xFF8AC85A),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextFormField(
-                          controller: _lightingController,
-                          focusNode: _focusNodeLighting,
-                          textInputAction: TextInputAction.next,
-                          // Move to next field
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_focusNodeSound);
-                          },
-                          // validator: (value) {
-                          //   if (value == null || value.isEmpty) {
-                          //     return 'Please enter lighting requirements';
-                          //   }
-                          //   return null;
-                          // },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "Lighting",
-                            hintStyle: TextStyle(
-                              color: Color(0xFFA0A0A0),
-                              fontFamily: "UbuntuMedium",
-                              fontSize: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextFormField(
-                          controller: _soundController,
-                          focusNode: _focusNodeSound,
-                          textInputAction: TextInputAction.next,
-                          // Move to next field
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_focusNodeStageSetup);
-                          },
-                          // validator: (value) {
-                          //   if (value == null || value.isEmpty) {
-                          //     return 'Please enter sound requirements';
-                          //   }
-                          //   return null;
-                          // },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "Sound",
-                            hintStyle: TextStyle(
-                              color: Color(0xFFA0A0A0),
-                              fontFamily: "UbuntuMedium",
-                              fontSize: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        TextFormField(
-                          controller: _stageSetupController,
-                          focusNode: _focusNodeStageSetup,
-                          textInputAction: TextInputAction.done,
-                          // Complete form
-                          // validator: (value) {
-                          //   if (value == null || value.isEmpty) {
-                          //     return 'Please enter stage setup details';
-                          //   }
-                          //   return null;
-                          // },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "Stage Setup",
-                            hintStyle: TextStyle(
-                              color: Color(0xFFA0A0A0),
-                              fontFamily: "UbuntuMedium",
-                              fontSize: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                              borderSide:
-                                  BorderSide.none, // Removes the default border
-                            ),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).size.height * 1.85,
-              left: 16,
-              right: 16,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.35,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 80.0,
-                      spreadRadius: 0,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey3, // Form key for validation
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Transition Details",
-                          style: TextStyle(
-                            fontFamily: "UbuntuBold",
-                            fontSize: 22,
-                            color: Color(0xFF8AC85A),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.2,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                blurRadius: 4.0,
-                                spreadRadius: 0,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: TextFormField(
-                            controller: _transitionController,
-                            focusNode: _focusNodeTransition,
-                            maxLines: null,
-                            expands: true,
-                            keyboardType: TextInputType.multiline,
-                            textAlignVertical: TextAlignVertical.top,
-                            decoration: InputDecoration(
-                              hintText:
-                                  'Instructions for transition between acts',
-                              hintStyle: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16.0,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide.none,
-                              ),
-                              contentPadding: EdgeInsets.all(16.0),
-                              filled: true,
-                              fillColor: Colors.white,
-                            ),
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) {
-                            //     return 'Please enter a description';
-                            //   }
-                            //   return null;
-                            // },
-                            textInputAction: TextInputAction.done,
-                            // Done button to close keyboard
-                            onFieldSubmitted: (_) {
-                              FocusScope.of(context)
-                                  .unfocus(); // Dismiss keyboard
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).size.height * 2.227,
+              top: MediaQuery.of(context).size.height * 1.4,
               left: 16,
               right: 16,
               child: Container(
@@ -1185,7 +951,7 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "Special Notes",
+                          "Notes",
                           style: TextStyle(
                             fontFamily: "UbuntuBold",
                             fontSize: 22,
@@ -1250,7 +1016,7 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
               ),
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height * 2.6,
+              top: MediaQuery.of(context).size.height * 1.8,
               left: MediaQuery.of(context).size.width * 0.1,
               right: MediaQuery.of(context).size.width * 0.1,
               child: GestureDetector(
@@ -1259,12 +1025,21 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
 
                   // Validate all forms
                   if (_formKey1.currentState!.validate() &&
-                      _formKey2.currentState!.validate() &&
-                      _formKey3.currentState!.validate() &&
                       _formKey4.currentState!.validate()) {
-                    setState(() {
+                    print("am here");
+
+                    if(_selectedEventId==null){
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please select an event'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                    else{setState(() {
                       _isloading = true; // Start loading
                     });
+                    }
 
 
                     // Perform the API call
@@ -1285,6 +1060,7 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                       _stageSetupController.text,
                       _transitionController.text,
                       _specialNotesController.text,
+                        _selectedEventId,
                     );
                   }
                 },
@@ -1293,12 +1069,7 @@ class _AddFestivalViewState extends State<AddPerformanceView> {
                   height: 50,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF015CB5), Color(0xFF00AAE1)],
-                      stops: [0.0, 1.0],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
+                    color: Color(0xFF8AC85A),
                   ),
                   child: Center(
                     child: _isloading

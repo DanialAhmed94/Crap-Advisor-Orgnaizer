@@ -1,5 +1,6 @@
 import 'package:crap_advisor_orgnaizer/annim/transition.dart';
 import 'package:crap_advisor_orgnaizer/bottom_navigation_bar/profileView/profileDetailView.dart';
+import 'package:crap_advisor_orgnaizer/bottom_navigation_bar/profileView/recieptsView.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../api/deleteUser_api.dart';
@@ -162,15 +163,7 @@ class _ProfileHomeviewState extends State<ProfileHomeview> {
                   title: "Invoices",
                   leadingImage: AppConstants.feedBack,
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'This work is in process.',
-                          style: TextStyle(fontFamily: "Ubuntu"),
-                        ),
-                        backgroundColor: Colors.blueAccent,
-                      ),
-                    );;
+                  Navigator.push(context, FadePageRouteBuilder(widget: RecieptsView()));
                   },
                 ),
                 const Divider(),

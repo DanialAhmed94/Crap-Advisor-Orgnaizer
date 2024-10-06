@@ -1,3 +1,4 @@
+import 'eventColection_model.dart';
 import 'festivalCollection_model.dart';
 
 class Performances {
@@ -46,6 +47,7 @@ class Performance {
   final DateTime createdAt;
   final DateTime updatedAt;
   final Festival? festival;
+  final EventData? event;
 
   Performance({
     required this.id,
@@ -69,6 +71,7 @@ class Performance {
     required this.createdAt,
     required this.updatedAt,
     required this.festival,
+    required this.event,
   });
   factory Performance.fromJson(Map<String, dynamic> json) {
     return Performance(
@@ -95,6 +98,11 @@ class Performance {
       festival: json['festival'] != null
           ? Festival.fromJson(json['festival'])
           : null, // Parse festival using Festival model
+
+      event: json['event'] != null
+          ? EventData.fromJson(json['event'])
+          : null,
+
     );
   }
 

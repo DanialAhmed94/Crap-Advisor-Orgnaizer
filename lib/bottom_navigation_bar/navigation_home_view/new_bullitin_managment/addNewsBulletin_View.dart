@@ -182,7 +182,7 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                             ),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(left: 8, right: 8),
-                              child: SvgPicture.asset(
+                              child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                 AppConstants.bulletinTitleIcon,
                               ),
                             ),
@@ -267,7 +267,7 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                               ),
                               if (_isEmpty)
                                 Center(
-                                  child: SvgPicture.asset(
+                                  child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                       AppConstants.bulletinContentIcon),
                                 ),
                             ],
@@ -355,7 +355,7 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                                             prefixIcon: Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
-                                              child: SvgPicture.asset(
+                                              child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                                 AppConstants.timer1Icon,
                                               ),
                                             ),
@@ -441,7 +441,7 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                                             prefixIcon: Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
-                                              child: SvgPicture.asset(
+                                              child: SvgPicture.asset( color: Color(0xFF8AC85A),
                                                 AppConstants.calendarIcon,
                                               ),
                                             ),
@@ -525,14 +525,7 @@ class _AddFestivalViewState extends State<AddNewsBulletinView> {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF015CB5), Color(0xFF00AAE1)],
-                        stops: [0.0, 1.0],
-                        // 0% for the first color, 100% for the second color
-                        begin: Alignment.centerLeft,
-                        // Start from the left side
-                        end: Alignment.centerRight, // End at the right side
-                      ),
+                      color: Color(0xFF8AC85A),
                     ),
                     child: Center(
                       child: Text(

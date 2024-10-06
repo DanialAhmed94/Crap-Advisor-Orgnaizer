@@ -54,10 +54,10 @@ Future<void> addFestival(
             context,
             "You have comsumed your limit of an Standard Account! Please Buy Premium Account to Proceed Further",
             "Failure",
-            HomeView());
+            AddFestivalHome());
       } else if (responseData['message'] == 'Festival Created Successfully') {
         showSuccessDialog(
-            context, "Festival added successfully", null, HomeView());
+            context, "Festival added successfully", null, AddFestivalHome());
         print('Festival created successfully!');
       }
     } else {

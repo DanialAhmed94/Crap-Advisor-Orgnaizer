@@ -35,7 +35,7 @@ class SocialMediaHomeView extends StatelessWidget {
                   ),
                 ),
                 leading: IconButton(
-                  icon: SvgPicture.asset(AppConstants.logo),
+                  icon: Image.asset(AppConstants.logo),
                   onPressed: null,
                 ),
                 backgroundColor: Colors.transparent,

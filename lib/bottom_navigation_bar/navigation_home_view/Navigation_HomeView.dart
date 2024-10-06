@@ -142,7 +142,8 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: Colors.black,
+                          color: Color(0xFF5C9D37)
+                          ,
                         ),
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height * 0.15,
@@ -209,7 +210,7 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                           width: MediaQuery.of(context).size.width * 0.45,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(32),
-                            color: Colors.black,
+                           // color: Colors.black,
                           ),
                           child: SvgPicture.asset(
                             AppConstants.tile1Background,
@@ -362,7 +363,7 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                               child: SvgPicture.asset(AppConstants.tile3Top),
                             ),
                             Text(
-                              "Event ",
+                              "Event Capacity ",
                               style: TextStyle(
                                   height: 1.0,
                                   fontFamily: "UbuntuBold",
@@ -604,7 +605,8 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                                       width: 50.0,
                                       height: 50.0,
                                       decoration: BoxDecoration(
-                                        color: Color(0xFFD3FCFF),
+                                        color: Color(0xFFD3FFD8)
+                                        ,
                                         shape: BoxShape.circle,
                                       ),
                                       child: Center(
@@ -670,7 +672,8 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                                       width: 50.0,
                                       height: 50.0,
                                       decoration: BoxDecoration(
-                                        color: Color(0xFFD3FCFF),
+                                        color: Color(0xFFD3FFD8),
+
                                         shape: BoxShape.circle,
                                       ),
                                       child: Center(

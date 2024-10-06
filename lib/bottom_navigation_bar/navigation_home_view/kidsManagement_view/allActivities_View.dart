@@ -94,7 +94,7 @@ class AllActivitiesView extends StatelessWidget {
                                     width: 50.0, // Adjust the width as needed
                                     height: 50.0, // Adjust the height as needed
                                     decoration: BoxDecoration(
-                                      color: Color(0xFF3DA992).withOpacity(0.7),
+                                      color: Color(0xFFAEDB4E),
                                       shape: BoxShape.circle, // Circular shape
                                     ),
                                     child: Center(
@@ -128,7 +128,7 @@ class AllActivitiesView extends StatelessWidget {
                                       width: 85,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        color: Colors.blue,
+                                        color: Color(0xFFAEDB4E),
                                       ),
                                       child: Center(
                                         child: Text(

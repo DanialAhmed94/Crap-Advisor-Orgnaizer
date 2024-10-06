@@ -45,7 +45,7 @@ class BotomPremiumView extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        "FestivalResource Unlimited",
+                        "FestivalResource",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: "UbuntuBold",
@@ -57,171 +57,266 @@ class BotomPremiumView extends StatelessWidget {
                   SizedBox(height: 20),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.3,
-                    width: MediaQuery.of(context).size.width * 0.7,
+                    width: MediaQuery.of(context).size.width * 0.75,
                     child: Center(
-                      child: Text(
-                        "FestivalResource like Crapadivser is completely free to all. It is intended to help smaller producers. if you do have more than a few stages and would like to expand the app are offering your festie people to include more facilities we got byou covered there too.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: "UbuntuMedium",
-                          fontSize: 16,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start, // Align the paragraphs to the left
+                        children: [
+                          RichText(
+                            textAlign: TextAlign.left,
+                            text: TextSpan(
+                              text: "FestivalResource like Crapadivser is completely free to sub 5000 capacity events and has a host of free features ",
+                              style: TextStyle(
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 14,
+                                color: Colors.black, // Set the color for your text
+                              ),
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: "included.",
+                                  style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10), // Add some spacing between paragraphs
+                          RichText(
+                            textAlign: TextAlign.left,
+                            text: TextSpan(
+                              text: "In FestivalResource toolkit you can list your performances, post running orders and upload bulletins and more all for ",
+                              style: TextStyle(
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: "free.",
+                                  style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10), // Add some spacing between paragraphs
+                          RichText(
+                            textAlign: TextAlign.left,
+                            text: TextSpan(
+                              text: "Festival resource toolkit is created in the spirit of festival and is intended to help smaller festivals and events offering a free resource app for their clients. If you do have more than a couple of stages and have a bigger capacity FestivalResource is upgradeable for bigger ",
+                              style: TextStyle(
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: "events.",
+                                  style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+
+
                   ),
                   SizedBox(height: 20),
                   // Annual Subscription Card
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: 80,
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      color: const Color(0xFF8AC85A),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Annual",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Spacer(),
-                                Container(
-                                  height: 30,
-                                  width: 130,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Best Value Offer",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              "\$0/year",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Monthly Subscription Card
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: 80,
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      color: const Color(0xFF8AC85A),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Monthly",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Spacer(),
-                                Container(
-                                  height: 30,
-                                  width: 130,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Best Value Offer",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              "\$0/month",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
                   GestureDetector(
-                    onTap: () => Navigator.pushReplacement(
-                      context,
-                      FadePageRouteBuilder(
-                        widget: HomeView(),
-                      ),
-                    ),
-                    child: Center(
-                      child: Container(
-                        height: 50,
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF8AC85A),
-                          borderRadius: BorderRadius.circular(20),
+                    onTap: (){
+                      // Show the SnackBar indicating that this work is in progress
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("This feature is a work in progress."),
+                          duration: Duration(seconds: 2), // Duration for which the SnackBar will be visible
                         ),
-                        child: Center(
-                          child: Text(
-                            "Enjoy free trial",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
+                      );
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: 80,
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        color: Color(0xFF5C9D37),
+                        // child: Center(
+                        //   child: Text(
+                        //     "Free App",
+                        //     textAlign: TextAlign.center,
+                        //     style: TextStyle(
+                        //       color: Colors.white,
+                        //       fontFamily: "InterMedium",
+                        //       fontSize: 20,
+                        //     ),
+                        //   ),
+                        // ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    "Annual",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Container(
+                                    height: 30,
+                                    width: 130,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Best Value Offer",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                "\$0/year",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
                   SizedBox(height: 10),
+                  // Monthly Subscription Card
+                  GestureDetector(
+                    onTap: () {
+                      // Show the SnackBar indicating that this work is in progress
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("This feature is a work in progress."),
+                          duration: Duration(seconds: 2), // Duration for which the SnackBar will be visible
+                        ),
+                      );
+
+                      // Optionally navigate to another view (commented out to keep the SnackBar visible)
+                      // Navigator.pushReplacement(
+                      //   context,
+                      //   FadePageRouteBuilder(
+                      //     widget: HomeView(),
+                      //   ),
+                      // );
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: 80,
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        color: const Color(0xFF8AC85A),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    "Monthly",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Container(
+                                    height: 30,
+                                    width: 130,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Best Value Offer",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                "\$0/month",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // SizedBox(height: 20),
+                  // GestureDetector(
+                  //   onTap: () => Navigator.pushReplacement(
+                  //     context,
+                  //     FadePageRouteBuilder(
+                  //       widget: HomeView(),
+                  //     ),
+                  //   ),
+                  //   child: Center(
+                  //     child: Container(
+                  //       height: 50,
+                  //       width: MediaQuery.of(context).size.width * 0.9,
+                  //       decoration: BoxDecoration(
+                  //         color: const Color(0xFF8AC85A),
+                  //         borderRadius: BorderRadius.circular(20),
+                  //       ),
+                  //       child: Center(
+                  //         child: Text(
+                  //           "Enjoy free trial",
+                  //           style: TextStyle(
+                  //             color: Colors.white,
+                  //             fontSize: 14,
+                  //           ),
+                  //           textAlign: TextAlign.center,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+
                   Text(
                     "Enjoy a risk-free 7-day trial. No commitment required; cancel anytime",
                     style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                   SizedBox(height: 20),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0, left: 20, right: 20),
+                    padding: const EdgeInsets.only(
+                        bottom: 20.0, left: 20, right: 20),
                     child: RichText(
                       text: TextSpan(
                         text: 'By placing this order, you agree to the ',
@@ -240,7 +335,8 @@ class BotomPremiumView extends StatelessWidget {
                             style: TextStyle(color: Color(0xFFFFD400)),
                           ),
                           TextSpan(
-                            text: '. Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period.',
+                            text:
+                                '. Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period.',
                             style: TextStyle(color: Colors.black),
                           ),
                         ],
@@ -256,7 +352,6 @@ class BotomPremiumView extends StatelessWidget {
     );
   }
 }
-
 
 // import 'package:crap_advisor_orgnaizer/constants/AppConstants.dart';
 // import 'package:flutter/cupertino.dart';

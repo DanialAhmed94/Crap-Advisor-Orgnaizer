@@ -6,17 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
+import '../bottom_navigation_bar/navigation_home_view/kidsManagement_view/k=kidsManagement_homeView.dart';
 import '../constants/AppConstants.dart';
 import '../homw_view/home_view.dart';
 
 Future<void> addActivity(BuildContext context, String? festId, String title,
-    String image, String content, String startTime, String endTime) async {
+    String image, String content,String latitude, String longitude, String startTime, String endTime) async {
   final url = Uri.parse("${AppConstants.baseUrl}/store_activity");
   final Map<String, dynamic> activity = {
     "festival_id": festId,
     "activity_title": title,
     "image": image,
     "description": content,
+    "latitude": latitude,
+    "longitude": longitude,
     "start_time": startTime,
     "end_time": endTime,
   };
@@ -36,7 +39,7 @@ Future<void> addActivity(BuildContext context, String? festId, String title,
       // Parse the response
       final responseData = jsonDecode(response.body);
       showSuccessDialog(
-          context, responseData['message'], null, HomeView());
+          context, responseData['message'], null, AddKidsActivityHome());
     } else if (response.statusCode == 400) {
       // Handle validation errors
       final responseData = jsonDecode(response.body);

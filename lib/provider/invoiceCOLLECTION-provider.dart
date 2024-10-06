@@ -16,12 +16,7 @@ class InvoiceProvider extends ChangeNotifier {
     }
   }
 
-  Invoice? getInvoiceByEventId(int eventId) {
-    return _invoices.firstWhere(
-          (invoice) => invoice.eventId == eventId,
-       // returning null here
-    );
-  }
+
 
 
 }

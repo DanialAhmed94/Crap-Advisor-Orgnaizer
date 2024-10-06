@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:crap_advisor_orgnaizer/Maps/googleMap.dart';
+
+import '../../../annim/transition.dart';
 import '../../../api/addFestival_api.dart';
 import '../../../utilities/utilities.dart';
 
@@ -6,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:geocoding/geocoding.dart'; // Import the geocoding package
 
 import '../../../constants/AppConstants.dart';
 
@@ -18,13 +22,14 @@ class AddFestivalView extends StatefulWidget {
 
 class _AddFestivalViewState extends State<AddFestivalView> {
   late final TextEditingController _festivalNameControler;
-  late final TextEditingController _latitudeControler;
-  late final TextEditingController _longitudeControler;
+  late final TextEditingController latitudeControler;
+  late final TextEditingController longitudeControler;
   late final TextEditingController _descriptionControler;
+  late final TextEditingController _addressControler;
   late final TextEditingController _startDateControler =
-  TextEditingController();
+      TextEditingController();
   late final TextEditingController _endDateControler = TextEditingController();
-   XFile? _selectedImage;
+  XFile? _selectedImage;
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
   bool _isImageSelected = true;
@@ -45,12 +50,12 @@ class _AddFestivalViewState extends State<AddFestivalView> {
     // TODO: implement initState
     super.initState();
     _festivalNameControler = TextEditingController();
-    _latitudeControler = TextEditingController();
-    _longitudeControler = TextEditingController();
+    latitudeControler = TextEditingController();
+    longitudeControler = TextEditingController();
+    _addressControler = TextEditingController();
     _descriptionControler = TextEditingController();
     _startDateControler.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _endDateControler.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
   }
 
   @override
@@ -58,34 +63,22 @@ class _AddFestivalViewState extends State<AddFestivalView> {
     // TODO: implement dispose
     super.dispose();
     _startDateControler.dispose();
-    _latitudeControler.dispose();
-    _longitudeControler.dispose();
+    latitudeControler.dispose();
+    longitudeControler.dispose();
     _festivalNameControler.dispose();
     _endDateControler.dispose();
+    _addressControler.dispose();
   }
-
   double calculateTotalHeight(BuildContext context) {
     double totalHeight = 0.0;
 
     totalHeight = totalHeight +
-        MediaQuery
-            .of(context)
-            .size
-            .height * 0.07 +
-        MediaQuery
-            .of(context)
-            .size
-            .height * 0.37 +
-        MediaQuery
-            .of(context)
-            .size
-            .height *
-            0.58 + // Example: Height of welcome message Positioned child
-        MediaQuery
-            .of(context)
-            .size
-            .height *
-            0.29; // Example: Height of welcome message Positioned child
+        MediaQuery.of(context).size.height * 0.07 +
+        MediaQuery.of(context).size.height * 0.37 +
+        MediaQuery.of(context).size.height *
+            0.6 + // Example: Height of welcome message Positioned child
+        MediaQuery.of(context).size.height *
+            0.33; // Example: Height of welcome message Positioned child
 
     return totalHeight;
   }
@@ -103,14 +96,8 @@ class _AddFestivalViewState extends State<AddFestivalView> {
               child: Image.asset(
                 AppConstants.planBackground,
                 fit: BoxFit.fill,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
               ),
             ),
             Positioned(
@@ -142,21 +129,12 @@ class _AddFestivalViewState extends State<AddFestivalView> {
               ),
             ),
             Positioned(
-              top: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.15,
+              top: MediaQuery.of(context).size.height * 0.15,
               left: 16,
               right: 16,
               child: Container(
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 1.033,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
+                height: MediaQuery.of(context).size.height * 1.11,
+                width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(16),
@@ -203,27 +181,28 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(left: 8),
                               child: SvgPicture.asset(
-                                AppConstants.festivalNameFieldIcon,color: Color(0xFF8AC85A),
+                                AppConstants.festivalNameFieldIcon,
+                                color: Color(0xFF8AC85A),
                               ),
                             ),
                             // Change icon as needed
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 32.0),
+                                EdgeInsets.symmetric(horizontal: 32.0),
                           ),
                         ),
                         SizedBox(
@@ -231,15 +210,12 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                         ),
                         Text(
                           "Upload Image",
-                          style: TextStyle(fontFamily: "UbuntuMedium",
-                              fontSize: 15),
+                          style: TextStyle(
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(height: 10),
                         Container(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .height * 0.2,
+                          height: MediaQuery.of(context).size.height * 0.2,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -258,21 +234,24 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                               _pickImage();
                               setState(() {
                                 _isImageSelected =
-                                true; // Reset error message once image is selected
+                                    true; // Reset error message once image is selected
                               });
                             },
                             child: Center(
                               child: _selectedImage == null
-                                  ? SvgPicture.asset(AppConstants.addIcon,color: Color(0xFF8AC85A),)
+                                  ? SvgPicture.asset(
+                                      AppConstants.addIcon,
+                                      color: Color(0xFF8AC85A),
+                                    )
                                   : ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.file(
-                                  File(_selectedImage!.path),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                              ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Image.file(
+                                        File(_selectedImage!.path),
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
@@ -287,16 +266,50 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                         SizedBox(
                           height: 10,
                         ),
-                        Text(
-                          "Location",
-                          style: TextStyle(
-                              fontFamily: "UbuntuMedium", fontSize: 15),
+                        Row(
+                          children: [
+                            Text(
+                              "Location",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            Spacer(),
+                            Text(
+                              "Open Map",
+                              style: TextStyle(
+                                  fontFamily: "UbuntuMedium", fontSize: 15),
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            GestureDetector(
+                                onTap: () async {
+                                  final result = await Navigator.push(
+                                      context,
+                                      FadePageRouteBuilder(
+                                          widget: GoogleMapView(isFromFestival: true,)));
+                                  if (result != null) {
+                                    // Update text fields with the selected latitude and longitude
+                                    setState(() {
+                                      latitudeControler.text =
+                                          result['latitude'];
+                                      longitudeControler.text =
+                                          result['longitude'];
+
+                                      _addressControler.text =
+                                      result['address'];
+                                    });
+                                  }
+                                },
+                                child: Image.asset(AppConstants.mapPreview)),
+                          ],
                         ),
                         SizedBox(
                           height: 10,
                         ),
                         TextFormField(
-                          controller: _latitudeControler,
+                          readOnly: true,
+                          controller: latitudeControler,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a valid latitude';
@@ -314,27 +327,28 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide:
-                              BorderSide.none, // Removes the default border
+                                  BorderSide.none, // Removes the default border
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(
                           height: 10,
                         ),
                         TextFormField(
-                          controller: _longitudeControler,
+                          readOnly: true,
+                          controller: longitudeControler,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a valid longitude';
@@ -345,6 +359,46 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                             filled: true,
                             fillColor: Colors.white,
                             hintText: "Longitude",
+                            hintStyle: TextStyle(
+                                color: Color(0xFFA0A0A0),
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide:
+                                  BorderSide.none, // Removes the default border
+                            ),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 16.0),
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          readOnly: true,
+                          controller: _addressControler,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a valid address';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "Address",
                             hintStyle: TextStyle(
                                 color: Color(0xFFA0A0A0),
                                 fontFamily: "UbuntuMedium",
@@ -368,6 +422,7 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                             EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
+
                         SizedBox(
                           height: 10,
                         ),
@@ -387,11 +442,10 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                   SizedBox(
                                     height: 10,
                                   ),
-
                                   GestureDetector(
                                     onTap: () async {
                                       final DateTime? pickedDate =
-                                      await showDatePicker(
+                                          await showDatePicker(
                                         context: context,
                                         initialDate: DateTime.now(),
                                         firstDate: DateTime(1900),
@@ -409,17 +463,14 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                       child: Container(
                                         height: 70,
                                         width:
-                                        MediaQuery
-                                            .of(context)
-                                            .size
-                                            .width *
-                                            0.45,
+                                            MediaQuery.of(context).size.width *
+                                                0.45,
                                         child: TextFormField(
                                           controller: _startDateControler,
                                           style: TextStyle(fontSize: 14.0),
                                           decoration: InputDecoration(
                                             prefixIconConstraints:
-                                            BoxConstraints(
+                                                BoxConstraints(
                                               minWidth: 30.0,
                                               minHeight: 30.0,
                                             ),
@@ -427,7 +478,8 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
                                               child: SvgPicture.asset(
-                                                AppConstants.calendarIcon,color: Color(0xFF8AC85A),
+                                                AppConstants.calendarIcon,
+                                                color: Color(0xFF8AC85A),
                                               ),
                                             ),
                                             suffixIcon: Icon(
@@ -436,32 +488,30 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                             fillColor: Colors.white,
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(25.0),
+                                                  BorderRadius.circular(25.0),
                                               borderSide: BorderSide
                                                   .none, // Removes the default border
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide
                                                   .none, // Removes the default border
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide
                                                   .none, // Removes the default border
                                             ),
                                             contentPadding:
-                                            EdgeInsets.symmetric(
-                                                horizontal: 16.0),
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 16.0),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-
-
                                 ],
                               ),
                             ),
@@ -482,7 +532,7 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                   GestureDetector(
                                     onTap: () async {
                                       final DateTime? pickedDate =
-                                      await showDatePicker(
+                                          await showDatePicker(
                                         context: context,
                                         initialDate: DateTime.now(),
                                         firstDate: DateTime(1900),
@@ -500,17 +550,14 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                       child: Container(
                                         height: 70,
                                         width:
-                                        MediaQuery
-                                            .of(context)
-                                            .size
-                                            .width *
-                                            0.42,
+                                            MediaQuery.of(context).size.width *
+                                                0.42,
                                         child: TextFormField(
                                           controller: _endDateControler,
                                           style: TextStyle(fontSize: 14.0),
                                           decoration: InputDecoration(
                                             prefixIconConstraints:
-                                            BoxConstraints(
+                                                BoxConstraints(
                                               minWidth: 30.0,
                                               minHeight: 30.0,
                                             ),
@@ -518,7 +565,8 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                               padding: const EdgeInsets.only(
                                                   left: 8, right: 8),
                                               child: SvgPicture.asset(
-                                                AppConstants.calendarIcon,color: Color(0xFF8AC85A),
+                                                AppConstants.calendarIcon,
+                                                color: Color(0xFF8AC85A),
                                               ),
                                             ),
                                             suffixIcon: Icon(
@@ -531,25 +579,25 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                                 fontSize: 15),
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(25.0),
+                                                  BorderRadius.circular(25.0),
                                               borderSide: BorderSide
                                                   .none, // Removes the default border
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide
                                                   .none, // Removes the default border
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide
                                                   .none, // Removes the default border
                                             ),
                                             contentPadding:
-                                            EdgeInsets.symmetric(
-                                                horizontal: 16.0),
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 16.0),
                                           ),
                                         ),
                                       ),
@@ -571,10 +619,7 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                           height: 10,
                         ),
                         Container(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .height *
+                          height: MediaQuery.of(context).size.height *
                               0.2, // 20% of screen height
                           width: double.infinity, // Full width of the container
                           decoration: BoxDecoration(
@@ -632,25 +677,16 @@ class _AddFestivalViewState extends State<AddFestivalView> {
               ),
             ),
             Positioned(
-                top: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 1.2,
-                left: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 0.1,
-                right: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 0.1,
+                top: MediaQuery.of(context).size.height * 1.28,
+                left: MediaQuery.of(context).size.width * 0.1,
+                right: MediaQuery.of(context).size.width * 0.1,
                 child: GestureDetector(
                   onTap: () async {
                     if (_formKey.currentState!.validate()) {
                       if (_selectedImage == null) {
                         setState(() {
                           _isImageSelected =
-                          false; // Trigger error message if no image is selected
+                              false; // Trigger error message if no image is selected
                         });
                         return;
                       } else {
@@ -658,33 +694,28 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                           isLoading = true; // Show loading indicator
                         });
                         try {
-                          String base64img = await convertImageToBase64(
-                              _selectedImage);
+                          String base64img =
+                              await convertImageToBase64(_selectedImage);
                           addFestival(
                               context,
                               _festivalNameControler.text,
                               base64img,
-                              _latitudeControler.text,
-                              _longitudeControler.text,
+                              latitudeControler.text,
+                              longitudeControler.text,
                               _startDateControler.text,
                               _endDateControler.text,
                               _descriptionControler.text);
-                        } finally{
-
-                        }
+                        } finally {}
                         print('all ok danial');
                       }
                     }
                   },
                   child: Container(
-                    width: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.8,
+                    width: MediaQuery.of(context).size.width * 0.8,
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                     color: Color(0xFF8AC85A),
+                      color: Color(0xFF8AC85A),
                     ),
                     child: Center(
                       child: Text(
