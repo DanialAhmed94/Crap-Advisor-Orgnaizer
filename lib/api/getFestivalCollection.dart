@@ -11,7 +11,8 @@ import '../constants/AppConstants.dart';
 import '../data_model/festivalCollection_model.dart';
 
 Future<FestivalResponse?> getFestivalCollection(BuildContext context) async {
-  final url = Uri.parse("${AppConstants.baseUrl}/festivals");
+  final url = Uri.parse("${AppConstants.baseUrl}/festival");
+
   try {
     final bearerToken = await getToken();
     final response = await http.get(

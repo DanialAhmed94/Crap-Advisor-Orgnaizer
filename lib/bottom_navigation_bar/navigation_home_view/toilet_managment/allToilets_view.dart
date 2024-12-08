@@ -88,48 +88,63 @@ class AllToiletsView extends StatelessWidget {
                             child: Row(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16, right: 8),
+                                  padding:
+                                      const EdgeInsets.only(left: 16, right: 8),
                                   child: Container(
                                     width: 50.0, // Container width
                                     height: 50.0, // Container height
                                     decoration: BoxDecoration(
-                                      color: Color(0xFFD5A5FF), // Background color of the container
-                                      shape: BoxShape.circle, // Ensures the container is circular
+                                      color: Color(0xFFD5A5FF),
+                                      // Background color of the container
+                                      shape: BoxShape
+                                          .circle, // Ensures the container is circular
                                     ),
-                                    child: ClipOval( // Clips the image to ensure it has a circular shape
+                                    child: ClipOval(
+                                      // Clips the image to ensure it has a circular shape
                                       child: Image.network(
                                         "https://stagingcrapadvisor.semicolonstech.com/asset/toilet_types/" +
                                             toilet.toiletType.image,
-                                        fit: BoxFit.cover, // Ensures the image fills the container and is clipped to circular shape
-                                        loadingBuilder: (BuildContext context, Widget child,
+                                        fit: BoxFit.cover,
+                                        // Ensures the image fills the container and is clipped to circular shape
+                                        loadingBuilder: (BuildContext context,
+                                            Widget child,
                                             ImageChunkEvent? loadingProgress) {
                                           if (loadingProgress == null) {
                                             return child; // Once the image is loaded, it displays the image
                                           } else {
                                             return Center(
-                                              child: CircularProgressIndicator( // Shows loader while image is loading
-                                                value: loadingProgress.expectedTotalBytes != null
-                                                    ? loadingProgress.cumulativeBytesLoaded /
-                                                    (loadingProgress.expectedTotalBytes ?? 1)
+                                              child: CircularProgressIndicator(
+                                                // Shows loader while image is loading
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        (loadingProgress
+                                                                .expectedTotalBytes ??
+                                                            1)
                                                     : null,
                                               ),
                                             );
                                           }
                                         },
-                                        errorBuilder: (context, error, stackTrace) {
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
                                           return Image.asset(
-                                            "assets/images/test-toiletType.jpeg", // Fallback image if the network image fails
-                                            fit: BoxFit.cover, // Ensure fallback image also fits in a circular shape
+                                            "assets/images/test-toiletType.jpeg",
+                                            // Fallback image if the network image fails
+                                            fit: BoxFit
+                                                .cover, // Ensure fallback image also fits in a circular shape
                                           );
                                         },
                                       ),
                                     ),
                                   ),
-
                                 ),
                                 Expanded(
                                   child: Text(
-                                    toilet.toiletType.name ?? "", // Use appropriate model field
+                                    toilet.toiletType.name ?? "",
+                                    // Use appropriate model field
                                     style: TextStyle(
                                       fontFamily: "UbuntuMedium",
                                       fontSize: 15,
@@ -145,7 +160,8 @@ class AllToiletsView extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         FadePageRouteBuilder(
-                                          widget: ToiletDetailView(toiletData: toilet),
+                                          widget: ToiletDetailView(
+                                              toiletData: toilet),
                                         ),
                                       );
                                     },
@@ -154,8 +170,7 @@ class AllToiletsView extends StatelessWidget {
                                       width: 85,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        color:  Color(0xFF66D265),
-
+                                        color: Color(0xFF66D265),
                                       ),
                                       child: Center(
                                         child: Text(

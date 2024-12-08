@@ -29,6 +29,7 @@ Future<void> signUp(
     'image': uploadedImages.isNotEmpty ? uploadedImages[0] : null,
     'image2': uploadedImages.length > 1 ? uploadedImages[1] : null,
     'image3': uploadedImages.length > 2 ? uploadedImages[2] : null,
+    'app_type':"organizer",
   };
 
   try {

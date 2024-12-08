@@ -224,7 +224,7 @@ class _GoogleMapViewState extends State<What3WodsMapView>
   }
 
   Future<String?> convertToWhat3Words(double lat, double lng) async {
-    const apiKey = 'E1NAKJWV';
+    const apiKey = 'FO6J2VWD';
     final url =
         "https://api.what3words.com/v3/convert-to-3wa?coordinates=$lat%2C$lng&key=$apiKey";
 

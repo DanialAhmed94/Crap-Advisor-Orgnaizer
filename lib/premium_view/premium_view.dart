@@ -55,11 +55,16 @@ class PremiumView extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.3,
                     width: MediaQuery.of(context).size.width * 0.75,
-                    child: Center(
+                    constraints: BoxConstraints(
+                      // Set a maximum height instead of a fixed height
+                      maxHeight: MediaQuery.of(context).size.height * 0.5,
+                    ),
+                    padding: EdgeInsets.all(16.0), // Add padding for consistent spacing
+
+                    child: SingleChildScrollView(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start, // Align the paragraphs to the left
+                        crossAxisAlignment: CrossAxisAlignment.start, // Align content to the left
                         children: [
                           RichText(
                             textAlign: TextAlign.left,
@@ -68,17 +73,21 @@ class PremiumView extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: "UbuntuMedium",
                                 fontSize: 14,
-                                color: Colors.black, // Set the color for your text
+                                color: Colors.black,
                               ),
                               children: <TextSpan>[
                                 TextSpan(
                                   text: "included.",
-                                  style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 14),
+                                  style: TextStyle(
+                                    fontFamily: "UbuntuMedium",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold, // Emphasize "included"
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 10), // Add some spacing between paragraphs
+                          SizedBox(height: 10),
                           RichText(
                             textAlign: TextAlign.left,
                             text: TextSpan(
@@ -91,16 +100,20 @@ class PremiumView extends StatelessWidget {
                               children: <TextSpan>[
                                 TextSpan(
                                   text: "free.",
-                                  style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 14),
+                                  style: TextStyle(
+                                    fontFamily: "UbuntuMedium",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold, // Emphasize "free"
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 10), // Add some spacing between paragraphs
+                          SizedBox(height: 10),
                           RichText(
                             textAlign: TextAlign.left,
                             text: TextSpan(
-                              text: "Festival resource toolkit is created in the spirit of festival and is intended to help smaller festivals and events offering a free resource app for their clients. If you do have more than a couple of stages and have a bigger capacity FestivalResource is upgradeable for bigger ",
+                              text: "Festival Resource Toolkit is created in the spirit of festival and is intended to help smaller festivals and events offering a free resource app for their clients. If you do have more than a couple of stages and have a bigger capacity, FestivalResource is upgradeable for bigger ",
                               style: TextStyle(
                                 fontFamily: "UbuntuMedium",
                                 fontSize: 14,
@@ -109,7 +122,11 @@ class PremiumView extends StatelessWidget {
                               children: <TextSpan>[
                                 TextSpan(
                                   text: "events.",
-                                  style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 14),
+                                  style: TextStyle(
+                                    fontFamily: "UbuntuMedium",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold, // Emphasize "events"
+                                  ),
                                 ),
                               ],
                             ),
@@ -117,8 +134,6 @@ class PremiumView extends StatelessWidget {
                         ],
                       ),
                     ),
-
-
                   ),
                   SizedBox(height: 20),
                   // Annual Subscription Card

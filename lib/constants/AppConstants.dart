@@ -58,6 +58,7 @@ static String feedbackEmail = "astraldesignapp@gmail.com";
   static String tile4Top = "assets/svg/tile4Top.svg";
   static String tile5Top = "assets/svg/tile5Top.svg";
   static String tile6Top = "assets/svg/tile6Top.svg";
+  static String tile7Top = "assets/images/registered.png";
   static String totalFestivals = "assets/svg/totalFestivals.svg";
   static String totalAttendees = "assets/svg/newtotalFestivals.svg";
   static String festivalMangementCardIcon = "assets/svg/festivalManagmentCard.svg";

@@ -8,16 +8,88 @@ import '../../../constants/AppConstants.dart';
 import '../../../data_model/performanceCollection_model.dart';
 import '../../../provider/performanceCollection_provider.dart';
 
-class AllPerformancesView extends StatelessWidget {
+class AllPerformancesView extends StatefulWidget {
   const AllPerformancesView({super.key});
+
+  @override
+  State<AllPerformancesView> createState() => _AllPerformancesViewState();
+}
+
+class _AllPerformancesViewState extends State<AllPerformancesView> {
+  bool _isLoading = false;
+
+  Future<void> _deletePerformance(BuildContext context, Performance performance) async {
+    // Show confirmation dialog
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Delete Performance"),
+          content: Text("Are you sure you want to delete this performance?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // User cancels deletion
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // User confirms deletion
+              },
+              child: Text(
+                "Delete",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Perform deletion using the provider
+        await Provider.of<PerformanceProvider>(context, listen: false)
+            .deletePerformance(context, performance.id.toString());
+
+        // Re-fetch performances to update the list
+        await Provider.of<PerformanceProvider>(context, listen: false)
+            .fetchPerformances(context);
+
+
+      } catch (error) {
+        // Handle any errors during deletion
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to delete performance. Please try again.',
+              style: TextStyle(fontFamily: "Ubuntu"),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Optional: Add AppBar here if needed
       body: Stack(
         children: [
           // Background image
-          Container(
+          // Background image
+          SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: Image.asset(
@@ -27,68 +99,76 @@ class AllPerformancesView extends StatelessWidget {
           ),
           // Main content
           SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.only(top: 10),
-                  child: AppBar(
-                    centerTitle: true,
-                    title: Text(
-                      "All Performances",
-                      style: TextStyle(
-                        fontFamily: "Ubuntu",
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              child: Column(
+                children: [
+                  // AppBar Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Back Button
+                      IconButton(
+                        icon: SvgPicture.asset(AppConstants.greenBackIcon),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                    ),
-                    leading: IconButton(
-                      icon: SvgPicture.asset(AppConstants.greenBackIcon),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    backgroundColor: Colors.transparent,
-                    elevation: 0, // Remove shadow
-                  ),
-                ),
-                SizedBox(height: 10), // Space between AppBar and performances
-                Consumer<PerformanceProvider>(
-                  builder: (context, performanceProvider, child) {
-                    // Access the performances list from the provider
-                    List<Performance> performances = performanceProvider.performances;
-
-                    // If the list is empty, show a centered message
-                    if (performances.isEmpty) {
-                      return Center(
-                        child: Text(
-                          "No performances available",
-                          style: TextStyle(
-                            fontFamily: "UbuntuMedium",
-                            fontSize: 18,
-                            color: Colors.black54,
-                          ),
+                      // Title
+                      Text(
+                        "All Performances",
+                        style: TextStyle(
+                          fontFamily: "Ubuntu",
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                      );
-                    }
+                      ),
+                      // Placeholder for symmetry
+                      SizedBox(width: 40), // Adjust based on back button size
+                    ],
+                  ),
+                  SizedBox(height: 20), // Space between AppBar and performances
+                  Consumer<PerformanceProvider>(
+                    builder: (context, performanceProvider, child) {
+                      // Access the performances list from the provider
+                      List<Performance> performances = performanceProvider.performances;
 
-                    // If the list is not empty, show the performance cards
-                    return Column(
-                      children: performances.map((performance) {
-                        return Card(
-                          elevation: 2,
-                          color: Colors.white,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
+                      // If the list is empty, show a centered message
+                      if (performances.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text(
+                              "No performances available",
+                              style: TextStyle(
+                                fontFamily: "UbuntuMedium",
+                                fontSize: 18,
+                                color: Colors.black54,
+                              ),
                             ),
-                            width: MediaQuery.of(context).size.width * 0.93,
-                            height: MediaQuery.of(context).size.height * 0.1,
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 16, right: 8),
-                                  child: Container(
+                          ),
+                        );
+                      }
+
+                      // If the list is not empty, show the performance cards
+                      return Column(
+                        children: performances.map((performance) {
+                          return Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Container(
+                              padding: EdgeInsets.all(12.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  // Performance Icon
+                                  Container(
                                     width: 50.0,
                                     height: 50.0,
                                     decoration: BoxDecoration(
@@ -96,38 +176,71 @@ class AllPerformancesView extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
-                                      child: SvgPicture.asset(AppConstants.performancesIcon),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    performance.performanceTitle ?? "", // Use the appropriate field from your model
-                                    style: TextStyle(
-                                      fontFamily: "UbuntuMedium",
-                                      fontSize: 15,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 25),
-                                  child: GestureDetector(
-                                    onTap: (){
-                                      Navigator.push(context, FadePageRouteBuilder(widget: PerformanceDetailView(performance: performance,)));
-                                    },
-                                    child: Container(
-                                      height: 40,
-                                      width: 85,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16),
-                                        color: Color(0xFF8AC85A),
+                                      child: SvgPicture.asset(
+                                        AppConstants.performancesIcon,
+                                        width: 24,
+                                        height: 24,
+                                        color: Colors.white,
                                       ),
-                                      child: Center(
+                                    ),
+                                  ),
+                                  SizedBox(width: 16.0),
+                                  // Performance Details
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          performance.performanceTitle ?? "",
+                                          style: TextStyle(
+                                            fontFamily: "UbuntuMedium",
+                                            fontSize: 16,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4.0),
+                                        Text(
+                                          "Artist: ${performance.artistName ?? "N/A"}",
+                                          style: TextStyle(
+                                            fontFamily: "Ubuntu",
+                                            fontSize: 14,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                        SizedBox(height: 2.0),
+                                        Text(
+                                          "Date: ${performance.startDate ?? "N/A"}",
+                                          style: TextStyle(
+                                            fontFamily: "Ubuntu",
+                                            fontSize: 14,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Action Buttons
+                                  Column(
+                                    children: [
+                                      // View Detail Button
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            FadePageRouteBuilder(
+                                              widget: PerformanceDetailView(performance: performance),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFF8AC85A),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        ),
                                         child: Text(
                                           "View Detail",
-                                          textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontFamily: "UbuntuMedium",
                                             fontSize: 12,
@@ -135,231 +248,54 @@ class AllPerformancesView extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                    ),
+                                      SizedBox(height: 8.0),
+                                      // Delete Button
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await _deletePerformance(context, performance);
+                                        },
+                                        child: Container(
+                                          height: 30,
+                                          width: 30,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.redAccent,
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.delete,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
+          // Loading Overlay
+          if (_isLoading)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black45,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 }
-
-// import 'package:crap_advisor_orgnaizer/annim/transition.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
-//
-// import '../../../constants/AppConstants.dart';
-//
-// class AllPerformancesView extends StatelessWidget {
-//   const AllPerformancesView({super.key});
-//
-//   double calculateTotalHeight(BuildContext context) {
-//     double totalHeight = 0.0;
-//
-//     totalHeight = totalHeight +
-//         MediaQuery.of(context).size.height * 0.07 +
-//         MediaQuery.of(context).size.height * 0.37 +
-//         MediaQuery.of(context).size.height *
-//             0.58 + // Example: Height of welcome message Positioned child
-//         MediaQuery.of(context).size.height *
-//             0.3; // Example: Height of welcome message Positioned child
-//
-//     return totalHeight;
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SingleChildScrollView(
-//         physics: AlwaysScrollableScrollPhysics(),
-//         child: Stack(
-//           children: [
-//             Container(height: calculateTotalHeight(context)),
-//             Positioned.fill(
-//               child: Image.asset(
-//                 AppConstants.planBackground,
-//                 fit: BoxFit.cover,
-//                 height: MediaQuery.of(context).size.height,
-//                 width: MediaQuery.of(context).size.width,
-//               ),
-//             ),
-//             Positioned(
-//               top: 10,
-//               left: 0,
-//               right: 0,
-//               child: PreferredSize(
-//                 preferredSize: Size.fromHeight(kToolbarHeight),
-//                 child: AppBar(
-//                   centerTitle: true,
-//                   title: Text(
-//                     "All Performances",
-//                     style: TextStyle(
-//                       fontFamily: "Ubuntu",
-//                       fontSize: 20,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   leading: IconButton(
-//                     icon: SvgPicture.asset(AppConstants.backIcon),
-//                     // Replace with your custom icon
-//                     onPressed: () {
-//                       Navigator.pop(context);
-//                     },
-//                   ),
-//                   backgroundColor: Colors.transparent,
-//                   elevation: 0, // Remove shadow
-//                 ),
-//               ),
-//             ),
-//             Positioned(
-//               top: MediaQuery.of(context).size.height * 0.13,
-//               left: MediaQuery.of(context).size.width * 0.066,
-//               right: MediaQuery.of(context).size.width * 0.066,
-//               child: Column(
-//                 children: [
-//                   Card(
-//                     elevation: 2,
-//                     color: Colors.white,
-//                     child: Container(
-//                       decoration: BoxDecoration(
-//                         borderRadius: BorderRadius.circular(10),
-//                         color: Colors.white,
-//                       ),
-//                       width: MediaQuery.of(context).size.width * 0.93,
-//                       height: MediaQuery.of(context).size.height * 0.1,
-//                       child: Row(
-//                         children: [
-//                           Padding(
-//                             padding: const EdgeInsets.only(left: 16, right: 8),
-//                             child: Container(
-//                               width: 50.0, // Adjust the width as needed
-//                               height: 50.0, // Adjust the height as needed
-//                               decoration: BoxDecoration(
-//                                 color: Color(0xFFFFD0B0),
-//                                 // Background color
-//                                 shape: BoxShape.circle, // Circular shape
-//                               ),
-//                               child: Center(
-//                                 child: SvgPicture.asset(
-//                                     AppConstants.performancesIcon),
-//                               ),
-//                             ),
-//                           ),
-//                           Text(
-//                             "Music",
-//                             style: TextStyle(
-//                                 fontFamily: "UbuntuMedium",
-//                                 fontSize: 15,
-//                                 overflow: TextOverflow.ellipsis),
-//                             maxLines: 2,
-//                           ),
-//                           Spacer(),
-//                           Padding(
-//                             padding: const EdgeInsets.only(right: 25),
-//                             child: Container(
-//                               height: 40,
-//                               width: 85,
-//                               decoration: BoxDecoration(
-//                                   borderRadius: BorderRadius.circular(16),
-//                                   color: Colors.blue),
-//                               child: Center(
-//                                 child: Text(
-//                                   "View Detail",
-//                                   textAlign: TextAlign.center,
-//                                   style: TextStyle(
-//                                       fontFamily: "UbuntuMedium",
-//                                       fontSize: 12,
-//                                       color: Colors.white),
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                   Card(
-//                     elevation: 2,
-//                     color: Colors.white,
-//                     child: Container(
-//                       decoration: BoxDecoration(
-//                         borderRadius: BorderRadius.circular(10),
-//                         color: Colors.white,
-//                       ),
-//                       width: MediaQuery.of(context).size.width * 0.93,
-//                       height: MediaQuery.of(context).size.height * 0.1,
-//                       child: Row(
-//                         children: [
-//                           Padding(
-//                             padding: const EdgeInsets.only(left: 16, right: 8),
-//                             child: Container(
-//                               width: 50.0, // Adjust the width as needed
-//                               height: 50.0, // Adjust the height as needed
-//                               decoration: BoxDecoration(
-//                                 color: Color(0xFFFFD0B0),
-//                                 // Background color
-//                                 shape: BoxShape.circle, // Circular shape
-//                               ),
-//                               child: Center(
-//                                 child: SvgPicture.asset(
-//                                     AppConstants.performancesIcon),
-//                               ),
-//                             ),
-//                           ),
-//                           Text(
-//                             "Cultural",
-//                             style: TextStyle(
-//                                 fontFamily: "UbuntuMedium",
-//                                 fontSize: 15,
-//                                 overflow: TextOverflow.ellipsis),
-//                             maxLines: 2,
-//                           ),
-//                           Spacer(),
-//                           Padding(
-//                             padding: const EdgeInsets.only(right: 25),
-//                             child: Container(
-//                               height: 40,
-//                               width: 85,
-//                               decoration: BoxDecoration(
-//                                   borderRadius: BorderRadius.circular(16),
-//                                   color: Colors.blue),
-//                               child: Center(
-//                                 child: Text(
-//                                   "View Detail",
-//                                   textAlign: TextAlign.center,
-//                                   style: TextStyle(
-//                                       fontFamily: "UbuntuMedium",
-//                                       fontSize: 12,
-//                                       color: Colors.white),
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//
-//
-//
-//
-//                 ],
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

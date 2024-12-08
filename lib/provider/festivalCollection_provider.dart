@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../api/deleteFestival_api.dart';
 import '../api/getFestivalCollection.dart';
 import '../data_model/festivalCollection_model.dart';
 
@@ -26,6 +27,13 @@ class FestivalProvider extends ChangeNotifier {
       _totalAttendees = response.attendies;
 
       notifyListeners(); // Notify listeners when data is updated
+    }
+  }
+
+  Future<void> deleteFestival(BuildContext context, String festivalId) async {
+    final response = await deleteSelectedFestival(context, festivalId);
+    if (response) {
+      notifyListeners();
     }
   }
 }

@@ -15,6 +15,8 @@ Future<void> LogInApi(
   final Map<String, dynamic> logInData = {
     'email': email,
     'password': password,
+    'app_type':"organizer",
+
   };
   try {
     final response = await http
@@ -50,7 +52,7 @@ Future<void> LogInApi(
         await setIsLogedIn(true);
         await saveIsUserId(userId);
 
-        print("api hit");
+        print("api hit ${token}");
         Navigator.pushReplacement(
             context, FadePageRouteBuilder(widget: PremiumView()));
       } else {

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -8,8 +9,63 @@ import '../../../data_model/festivalCollection_model.dart';
 import '../../../provider/festivalCollection_provider.dart';
 import 'festivalDetailView.dart';
 
-class AllFestivalView extends StatelessWidget {
-  const AllFestivalView({super.key});
+class AllFestivalView extends StatefulWidget {
+  const AllFestivalView({Key? key}) : super(key: key);
+
+  @override
+  State<AllFestivalView> createState() => _AllFestivalViewState();
+}
+
+class _AllFestivalViewState extends State<AllFestivalView> {
+  bool _isLoading = false;
+
+  Future<void> _deleteFestival(BuildContext context, Festival festival) async {
+    // Show confirmation dialog
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Delete Festival"),
+          content: Text("Are you sure you want to delete this festival?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text(
+                "Delete",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Perform deletion
+      await Provider.of<FestivalProvider>(context, listen: false)
+          .deleteFestival(context, festival.id.toString());
+
+      // Re-fetch festivals to update the list
+      await Provider.of<FestivalProvider>(context, listen: false)
+          .fetchFestivals(context);
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +73,7 @@ class AllFestivalView extends StatelessWidget {
       body: Stack(
         children: [
           // Background image
-          Container(
+          SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: Image.asset(
@@ -27,10 +83,9 @@ class AllFestivalView extends StatelessWidget {
           ),
           // Main content
           SingleChildScrollView(
-           // physics: AlwaysScrollableScrollPhysics(),
             child: Column(
               children: [
-               // SizedBox(height: MediaQuery.of(context).size.height * 0.07),
+                // AppBar
                 Container(
                   padding: EdgeInsets.only(top: 10),
                   child: AppBar(
@@ -56,121 +111,179 @@ class AllFestivalView extends StatelessWidget {
                 SizedBox(height: 10), // Space between AppBar and festivals
                 Consumer<FestivalProvider>(
                   builder: (context, festivalProvider, child) {
-                    // Access the festivals list from the provider
                     List<Festival> festivals = festivalProvider.festivals;
 
-                    // If the list is empty, show a centered message
                     if (festivals.isEmpty) {
                       return Center(
-                        child: Text(
-                          "No festivals available",
-                          style: TextStyle(
-                            fontFamily: "UbuntuMedium",
-                            fontSize: 18,
-                            color: Colors.black54,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text(
+                            "No festivals available",
+                            style: TextStyle(
+                              fontFamily: "UbuntuMedium",
+                              fontSize: 18,
+                              color: Colors.black54,
+                            ),
                           ),
                         ),
                       );
                     }
 
-                    // If the list is not empty, show the festival cards
                     return Column(
                       children: festivals.map((festival) {
-                        return Stack(
-                          children: [
-                            Card(
-                              elevation: 2,
-                              color: Colors.white,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.white,
-                                ),
-                                width: MediaQuery.of(context).size.width * 0.93,
-                                height: MediaQuery.of(context).size.height * 0.1,
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 16, right: 8),
-                                      child: Container(
-                                        width: 50.0,
-                                        height: 50.0,
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
+                          child: Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Stack(
+                              children: [
+                                // Main Content of the Card
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: Colors.white,
+                                  ),
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      // Festival Icon/Image
+                                      Container(
+                                        width: 60.0,
+                                        height: 60.0,
                                         decoration: BoxDecoration(
                                           color: Color(0xFF8AC85A),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
-                                          child: SvgPicture.asset(AppConstants.totalFestivals),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        festival.nameOrganizer ?? "",
-                                        style: TextStyle(
-                                          fontFamily: "UbuntuMedium",
-                                          fontSize: 15,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 25),
-                                      child: GestureDetector(
-                                        onTap: (){Navigator.push(
-                                            context,
-                                            FadePageRouteBuilder(
-                                                widget: FestivalDetailView(
-                                                    festival: festival)));},
-                                        child: Container(
-                                          height: 40,
-                                          width: 85,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(16),
-                                            color: Color(0xFF8AC85A),
+                                          child: SvgPicture.asset(
+                                            AppConstants.totalFestivals,
+                                            width: 30,
+                                            height: 30,
                                           ),
-                                          child: Center(
-                                            child: Text(
-                                              "View Detail",
-                                              textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      SizedBox(width: 15),
+                                      // Festival Details
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              festival.nameOrganizer ?? "",
                                               style: TextStyle(
                                                 fontFamily: "UbuntuMedium",
-                                                fontSize: 12,
-                                                color: Colors.white,
+                                                fontSize: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            SizedBox(height: 5),
+                                            Text(
+                                              "From: ${festival.startingDate ?? "N/A"}",
+                                              style: TextStyle(
+                                                fontFamily: "Ubuntu",
+                                                fontSize: 14,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Action Buttons
+                                      Row(
+                                        children: [
+                                          // View Detail Button
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                FadePageRouteBuilder(
+                                                  widget: FestivalDetailView(
+                                                    festival: festival,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              height: 35,
+                                              width: 100,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.circular(10),
+                                                color: Color(0xFF8AC85A),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  "View Detail",
+                                                  style: TextStyle(
+                                                    fontFamily: "UbuntuMedium",
+                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
+                                          SizedBox(width: 10),
+                                          // Delete Button
+                                          GestureDetector(
+                                            onTap: () async {
+                                              await _deleteFestival(
+                                                  context, festival);
+                                            },
+                                            child: Container(
+                                              height: 35,
+                                              width: 35,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.redAccent,
+                                              ),
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.delete,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              right: 10,
-                              top:-5,
-
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  'Unofficial',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontFamily: "UbuntuMedium",
+                                    ],
                                   ),
                                 ),
-                              ),
+                                // Badge Overlay
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      "Unofficial",
+                                      style: TextStyle(
+                                        fontFamily: "UbuntuMedium",
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        )
-                        ;
+                          ),
+                        );
                       }).toList(),
                     );
                   },
@@ -178,71 +291,17 @@ class AllFestivalView extends StatelessWidget {
               ],
             ),
           ),
+
+          // Loading Overlay
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.4),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
         ],
       ),
     );
   }
 }
-// Card(
-// elevation: 2,
-// color: Colors.white,
-// child: Container(
-// decoration: BoxDecoration(
-// borderRadius: BorderRadius.circular(10),
-// color: Colors.white,
-// ),
-// width: MediaQuery.of(context).size.width * 0.93,
-// height: MediaQuery.of(context).size.height * 0.1,
-// child: Row(
-// children: [
-// Padding(
-// padding: const EdgeInsets.only(left: 16, right: 8),
-// child: Container(
-// width: 50.0,
-// height: 50.0,
-// decoration: BoxDecoration(
-// color: Color(0xFF8AC85A),
-// shape: BoxShape.circle,
-// ),
-// child: Center(
-// child: SvgPicture.asset(AppConstants.totalFestivals),
-// ),
-// ),
-// ),
-// Expanded(
-// child: Text(
-// festival.nameOrganizer ?? "",
-// style: TextStyle(
-// fontFamily: "UbuntuMedium",
-// fontSize: 15,
-// ),
-// maxLines: 1,
-// overflow: TextOverflow.ellipsis,
-// ),
-// ),
-// Padding(
-// padding: const EdgeInsets.only(right: 25),
-// child: Container(
-// height: 40,
-// width: 85,
-// decoration: BoxDecoration(
-// borderRadius: BorderRadius.circular(16),
-// color:Color(0xFF8AC85A),
-// ),
-// child: Center(
-// child: Text(
-// "View Detail",
-// textAlign: TextAlign.center,
-// style: TextStyle(
-// fontFamily: "UbuntuMedium",
-// fontSize: 12,
-// color: Colors.white,
-// ),
-// ),
-// ),
-// ),
-// ),
-// ],
-// ),
-// ),
-// )
