@@ -41,7 +41,7 @@ Future<void> LogInApi(
         final userId = responseData['data']['user']['id'];
         final orgName = responseData['data']['user']['organization_name'];
         final orgAddress = responseData['data']['user']['organization_address'];
-
+        print("token $token");
         await saveToken(token);
         await saveUserName(userName);
         await saveUserEmail(userEmail);

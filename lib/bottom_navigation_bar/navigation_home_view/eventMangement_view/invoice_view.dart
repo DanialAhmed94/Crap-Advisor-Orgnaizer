@@ -60,7 +60,10 @@ class _InvoiceViewState extends State<InvoiceView> {
       body: Stack(
         children: [
           // Background Image
-          Positioned.fill(
+          // Background image
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
             child: Image.asset(
               AppConstants.planBackground,
               fit: BoxFit.fill,

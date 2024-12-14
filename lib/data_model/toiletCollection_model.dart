@@ -32,7 +32,7 @@ class ToiletData {
   String latitude;
   String longitude;
   String? what3Words;
-  String image;
+  String? image;
   String createdAt;
   String updatedAt;
   Festival festival;

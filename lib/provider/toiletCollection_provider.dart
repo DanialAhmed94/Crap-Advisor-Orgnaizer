@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api/deleteToilet_api.dart';
 import '../api/getToiletCollection_api.dart';
 import '../data_model/toiletCollection_model.dart';
 
@@ -17,6 +18,13 @@ class ToiletProvider extends ChangeNotifier {
       _toilets = response.data;
       _totalToilets = response.data.length; // Assuming total is the length of the data array
       notifyListeners(); // Notify listeners when data is updated
+    }
+  }
+
+  Future<void> deleteToilet(BuildContext context, String toiletId) async {
+    final response = await deleteSelectedToilet(context, toiletId);
+    if (response) {
+      notifyListeners();
     }
   }
 }
