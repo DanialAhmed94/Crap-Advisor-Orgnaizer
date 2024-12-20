@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api/deleteActivity_api.dart';
 import '../api/getActivitiesCollection_api.dart';
 import '../api/getBulletinCollection.dart';
 import '../api/getPerformanceCollection.dart';
@@ -16,6 +17,13 @@ class ActivityProvider extends ChangeNotifier {
     if (response != null) {
       _activities = response.data;
 
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteActivity(BuildContext context, String activitytId) async {
+    final response = await deleteSelectedActivity(context, activitytId);
+    if (response) {
       notifyListeners();
     }
   }

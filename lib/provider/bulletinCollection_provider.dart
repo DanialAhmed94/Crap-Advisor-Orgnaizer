@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api/deleteBulletin_api.dart';
 import '../api/getBulletinCollection.dart';
 import '../api/getPerformanceCollection.dart';
 import '../data_model/bulletinCollection_model.dart';
@@ -16,6 +17,12 @@ class BulletinProvider extends ChangeNotifier {
     if (response != null) {
       _bulletins = response.data;
 
+      notifyListeners();
+    }
+  }
+  Future<void> deleteBulletin(BuildContext context, String bulletintId) async {
+    final response = await deleteSelectedBulletin(context, bulletintId);
+    if (response) {
       notifyListeners();
     }
   }

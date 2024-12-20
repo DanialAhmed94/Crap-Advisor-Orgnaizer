@@ -185,15 +185,7 @@ class _ToiletDetailViewState extends State<ToiletDetailView> {
           _what3WordsController.text.trim(),
         );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Toilet details updated successfully.',
-              style: TextStyle(fontFamily: "Ubuntu"),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+
 
         setState(() {
           _isEditMode = false;

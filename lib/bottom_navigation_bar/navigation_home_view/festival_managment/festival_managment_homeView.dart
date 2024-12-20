@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart'; // Import provider
 import '../../../constants/AppConstants.dart';
 import '../../../provider/festivalCollection_provider.dart';
+import '../Navigation_HomeView.dart';
 import 'addFestivalView.dart';
 import 'festivalDetailView.dart';
 
@@ -67,7 +68,10 @@ class _AddFestivalHomeState extends State<AddFestivalHome> {
                   leading: IconButton(
                     icon: SvgPicture.asset(AppConstants.greenBackIcon),
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(
+                        context,
+                        FadePageRouteBuilder(widget: NavigationHomeview()), // Replace PreviousScreen with your actual widget
+                      );
                     },
                   ),
                   backgroundColor: Colors.transparent,

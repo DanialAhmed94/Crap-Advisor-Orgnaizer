@@ -32,7 +32,7 @@ class Bulletin {
   final int? id;
   final String? title;
   final String? content;
-  final String? userId;
+  final int? userId;
   final String? publishNow;
   final String? date;
   final String? time;
