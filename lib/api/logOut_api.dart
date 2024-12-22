@@ -32,6 +32,7 @@ Future<void> LogoutApi(BuildContext context) async {
         // Handle successful logout
 
         await saveToken("");
+        await saveFcmTokenToPrefs(""); //fcm token
         await saveUserName("");
         await saveUserEmail("");
         await saveUserPhone("");

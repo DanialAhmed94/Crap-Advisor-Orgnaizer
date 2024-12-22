@@ -2,6 +2,7 @@ import 'package:crap_advisor_orgnaizer/homw_view/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:crap_advisor_orgnaizer/constants/AppConstants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
 import '../annim/transition.dart';
@@ -12,9 +13,14 @@ import '../utilities/utilities.dart';
 Future<void> LogInApi(
     BuildContext context, String email, String password) async {
   final url = Uri.parse("${AppConstants.baseUrl}/authin");
+
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? deviceId= await prefs.getString("fcm_token");
+
   final Map<String, dynamic> logInData = {
     'email': email,
     'password': password,
+    'device_token': deviceId,
     'app_type':"organizer",
 
   };

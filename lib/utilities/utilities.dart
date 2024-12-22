@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../annim/transition.dart';
 import '../auth_view/login_view.dart';
 
+
+
 void showErrorDialog(
     BuildContext context, String message, List<dynamic> errors) {
   showDialog(
@@ -193,7 +195,10 @@ Future<String?> getOrgAddress() async {
   return prefs.getString('user_orgAddress');
 }
 
-
+Future<void> saveFcmTokenToPrefs(String? token) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('fcm_token', token ?? "");
+}
 
 Future<String> convertImageToBase64(XFile? imageFile) async {
   if (imageFile == null) {

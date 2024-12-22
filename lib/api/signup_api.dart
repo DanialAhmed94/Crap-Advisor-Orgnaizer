@@ -4,6 +4,7 @@ import 'package:crap_advisor_orgnaizer/auth_view/login_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:crap_advisor_orgnaizer/constants/AppConstants.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../annim/transition.dart';
 import '../utilities/utilities.dart';
@@ -18,6 +19,10 @@ Future<void> signUp(
     String organization_address,
     String password) async {
   final url = Uri.parse("${AppConstants.baseUrl}/authup");
+
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? deviceId= await prefs.getString("fcm_token");
+
   List<String> uploadedImages = await images;
   final Map<String, dynamic> signUpData = {
     'name': fullName,
@@ -30,6 +35,8 @@ Future<void> signUp(
     'image2': uploadedImages.length > 1 ? uploadedImages[1] : null,
     'image3': uploadedImages.length > 2 ? uploadedImages[2] : null,
     'app_type':"organizer",
+    'device_token': deviceId,
+
   };
 
   try {
