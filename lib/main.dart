@@ -5,6 +5,7 @@ import 'package:crap_advisor_orgnaizer/provider/bulletinCollection_provider.dart
 import 'package:crap_advisor_orgnaizer/provider/eventCollection_provider.dart';
 import 'package:crap_advisor_orgnaizer/provider/festivalCollection_provider.dart';
 import 'package:crap_advisor_orgnaizer/provider/invoiceCOLLECTION-provider.dart';
+import 'package:crap_advisor_orgnaizer/provider/notificationProvider.dart';
 import 'package:crap_advisor_orgnaizer/provider/performanceCollection_provider.dart';
 import 'package:crap_advisor_orgnaizer/provider/toiletCollection_provider.dart';
 import 'package:crap_advisor_orgnaizer/provider/toiletTypeCollection_provider.dart';
@@ -129,6 +130,7 @@ void main() async {
     ChangeNotifierProvider(create: (_) =>ToiletTypeProvider()),
     ChangeNotifierProvider(create: (_) =>ToiletProvider()),
     ChangeNotifierProvider(create: (_) =>NotificationProvider()),
+    ChangeNotifierProvider(create: (_) =>NotificationsCollectionProvider()),
   ], child: const MyApp()));
 }
 

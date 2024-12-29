@@ -775,8 +775,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                     ),
                     if (!isEditable)
                       Positioned(
-                        top: 10,
-                        right: 0,
+                        top: 3,
+                        right: 22,
                         child: GestureDetector(
                           onTap: _toggleEditMode,
                           child: Container(

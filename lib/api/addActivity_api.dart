@@ -25,6 +25,7 @@ Future<void> addActivity(BuildContext context, String? festId, String title,
   };
   try {
     final bearerToken = await getToken();
+    print(" token $bearerToken  token end");
     final response = await http
         .post(
           url,

@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import '../bottom_navigation_bar/PremiumView/bottomPremiumView.dart';
 import '../bottom_navigation_bar/profileView/profileHomeView.dart';
 import '../bottom_navigation_bar/socialMedia/socialMediaHomeView.dart';
+import '../bottom_navigation_bar/socialMedia/socialpstview.dart';
 import '../constants/AppConstants.dart';
 
 class HomeView extends StatefulWidget {

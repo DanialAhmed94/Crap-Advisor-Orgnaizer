@@ -785,8 +785,8 @@ class _EventDetailViewState extends State<EventDetailView>
                     // Edit Button
                     if (!_isEditMode)
                       Positioned(
-                        top: 20,
-                        right: 16,
+                        top: 10,
+                        right: 20,
                         child: GestureDetector(
                           onTap: _toggleEditMode,
                           child: Container(

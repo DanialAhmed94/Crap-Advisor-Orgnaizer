@@ -679,7 +679,7 @@ class _ToiletDetailViewState extends State<ToiletDetailView> {
                     if (!_isEditMode)
                       Positioned(
                         top: 10,
-                        right: 0,
+                        right: 22,
                         child: GestureDetector(
                           onTap: _toggleEditMode,
                           child: Container(

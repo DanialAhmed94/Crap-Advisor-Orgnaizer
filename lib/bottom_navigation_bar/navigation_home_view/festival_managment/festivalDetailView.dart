@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:geocoding/geocoding.dart';
+import '../../../Maps/googleMap.dart';
 import '../../../annim/transition.dart';
 import '../../../api/addFestival_api.dart';
 import '../../../api/updateFestival_api.dart';
@@ -112,8 +113,6 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
     });
   }
 
-
-
   Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
       // Check if there's an original image or a new one
@@ -164,7 +163,6 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
           _endDateControler.text,
           _descriptionControler.text,
         );
-
       } finally {
         setState(() {
           isLoading = false;
@@ -391,10 +389,12 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
                                 ),
                               ),
                             SizedBox(height: 15),
+
+                            // >>>>>>>>>>>>>> LOCATION ROW REPLACED HERE <<<<<<<<<<<<<<
                             Row(
                               children: [
                                 Text(
-                                  "View Location",
+                                  _isEditMode ? "Edit Location" : "View Location",
                                   style: TextStyle(
                                       fontFamily: "UbuntuMedium", fontSize: 15),
                                 ),
@@ -406,17 +406,26 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
                                 ),
                                 SizedBox(width: 8),
                                 GestureDetector(
-                                  onTap: () {
-                                    // Show a snackbar that location cannot be edited
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          "Location cannot be edited.",
-                                          style: TextStyle(fontFamily: "Ubuntu"),
+                                  onTap: () async {
+                                    if (_isEditMode) {
+                                      // In edit mode, open the GoogleMapView to pick a new location
+                                      final result = await Navigator.push(
+                                        context,
+                                        FadePageRouteBuilder(
+                                          widget: GoogleMapView(isFromFestival: true),
                                         ),
-                                        backgroundColor: Colors.redAccent,
-                                      ),
-                                    );
+                                      );
+                                      if (result != null) {
+                                        setState(() {
+                                          _latitudeControler.text = result['latitude'];
+                                          _longitudeControler.text = result['longitude'];
+                                          _addressControler.text = result['address'];
+                                        });
+                                      }
+                                    } else {
+                                      // Not in edit mode
+                                      // (Optionally open a detail map or do nothing)
+                                    }
                                   },
                                   child: Image.asset(AppConstants.mapPreview),
                                 ),
@@ -429,23 +438,23 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
                                   fontFamily: "UbuntuMedium", fontSize: 15),
                             ),
                             SizedBox(height: 10),
-                            // Latitude, Longitude, and Address are never editable
+                            // Latitude, Longitude, and Address (Now editable if _isEditMode)
                             buildTextField(
                               label: "Latitude",
                               controller: _latitudeControler,
-                              readOnly: true,
+                              readOnly: !_isEditMode,
                             ),
                             SizedBox(height: 10),
                             buildTextField(
                               label: "Longitude",
                               controller: _longitudeControler,
-                              readOnly: true,
+                              readOnly: !_isEditMode,
                             ),
                             SizedBox(height: 10),
                             buildTextField(
                               label: "Address",
                               controller: _addressControler,
-                              readOnly: true,
+                              readOnly: true, // Typically derived from lat/lng
                             ),
                             SizedBox(height: 10),
                             Text(
@@ -570,7 +579,7 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
                         // Edit button positioned at top-right corner
                         if (!_isEditMode)
                           Positioned(
-                            top: 20,
+                            top: 0, // Changed from 20 to 10
                             right: 0,
                             child: GestureDetector(
                               onTap: _toggleEditMode,
@@ -714,6 +723,3 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
     );
   }
 }
-
-
-

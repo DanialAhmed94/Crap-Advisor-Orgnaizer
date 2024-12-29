@@ -1,4 +1,3 @@
-
 import 'package:crap_advisor_orgnaizer/annim/transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,8 +21,10 @@ class AddEventview extends StatefulWidget {
 class _AddEventviewState extends State<AddEventview> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedFestivalId;
-
   bool _isEmpty = true;
+
+  // Add this:
+  bool isLoading = false; // For the circular progress indicator
 
   final TextEditingController _dobControler = TextEditingController();
   final TextEditingController _contentControler = TextEditingController();
@@ -49,7 +50,6 @@ class _AddEventviewState extends State<AddEventview> {
   void initState() {
     super.initState();
     _dobControler.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
     _priceController.addListener(_updateTotalAmount);
     _crowdCapicityController.addListener(_updateTotalAmount);
 
@@ -230,22 +230,25 @@ class _AddEventviewState extends State<AddEventview> {
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            prefixIconConstraints: BoxConstraints(
-                              minWidth: 30.0,
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 0,
                               minHeight: 30.0,
                             ),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: SvgPicture.asset(
-                                AppConstants.bulletinTitleIcon,
-                                color: Color(0xFF628C61),
-                              ),
+                            prefixIcon: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  AppConstants.bulletinTitleIcon,
+                                  color: const Color(0xFF628C61),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25.0),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 32.0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 32.0),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -528,21 +531,30 @@ class _AddEventviewState extends State<AddEventview> {
                         SizedBox(height: 20),
                         // Submit button
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             if (_formKey.currentState!.validate()) {
-                              addEvent(
-                                context,
-                                _titleControler.text,
-                                _selectedFestivalId,
-                                _contentControler.text,
-                                _crowdCapicityController.text,
-                                _priceController.text,
-                                _totalController.text,
-                                _taxController.text,
-                                _startTimeController.text,
-                                _endTimeController.text,
-                                _dobControler.text,
-                              );
+                              setState(() {
+                                isLoading = true; // Show loader
+                              });
+                              try {
+                                await addEvent(
+                                  context,
+                                  _titleControler.text,
+                                  _selectedFestivalId,
+                                  _contentControler.text,
+                                  _crowdCapicityController.text,
+                                  _priceController.text,
+                                  _totalController.text,
+                                  _taxController.text,
+                                  _startTimeController.text,
+                                  _endTimeController.text,
+                                  _dobControler.text,
+                                );
+                              } finally {
+                                setState(() {
+                                  isLoading = false; // Hide loader
+                                });
+                              }
                             }
                           },
                           child: Container(
@@ -572,6 +584,16 @@ class _AddEventviewState extends State<AddEventview> {
               ],
             ),
           ),
+          // Add the loader overlay here
+          if (isLoading)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black54,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -721,6 +743,7 @@ class _AddEventviewState extends State<AddEventview> {
     );
   }
 }
+
 
 // import 'package:crap_advisor_orgnaizer/annim/transition.dart';
 // import 'package:flutter/material.dart';

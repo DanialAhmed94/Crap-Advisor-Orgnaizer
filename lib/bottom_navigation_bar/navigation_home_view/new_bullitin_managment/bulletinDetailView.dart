@@ -535,8 +535,8 @@ class _BulletinDetailViewState extends State<BulletinDetailView> {
                     ),
                     if (!isEditable)
                       Positioned(
-                        top: 20,
-                        right: 16,
+                        top: 3,
+                        right: 22,
                         child: GestureDetector(
                           onTap: _toggleEditMode,
                           child: Container(

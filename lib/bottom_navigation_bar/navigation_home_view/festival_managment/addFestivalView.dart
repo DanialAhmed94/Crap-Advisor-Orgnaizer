@@ -569,7 +569,7 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                 });
                                 try {
                                   String base64img = await convertImageToBase64(_selectedImage);
-                                  addFestival(
+                                await  addFestival(
                                     context,
                                     _festivalNameControler.text,
                                     base64img,
@@ -580,7 +580,9 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                     _descriptionControler.text,
                                   );
                                 } finally {
-                                  // isLoading handled by addFestival success/failure
+                                  setState(() {
+                                    isLoading = false;
+                                  });
                                 }
                               }
                             }
