@@ -83,7 +83,9 @@ Future<void> addPerformance(
         } else if (message ==
             "You have comsumed your limit of an Standard Account! Please Buy Premium Account to Proceed Further")
         {
-          showSuccessDialog(context, message??"", "Attention",  BotomPremiumView());
+          showSuccessDialog(context, message??"", "Attention",   AddPerformanceHome());
+
+          // showSuccessDialog(context, message??"", "Attention",  BotomPremiumView());
         } else {
           showErrorDialog(context, message??"", []);
         }

@@ -30,11 +30,18 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
   static const int _postsPageSize = 10;
 
+  // ADDED: Track the timestamp of the most recent post we have
+  // so we only listen for truly new posts that come in after that time.
+  Timestamp _mostRecentPostTimestamp = Timestamp(0, 0);
+
   @override
   void initState() {
     super.initState();
     loadToken();
-    _fetchPosts();
+    // After we finish initial pagination fetch, we start listening for new posts
+    _fetchPosts().then((_) {
+      _listenForNewPosts();
+    });
   }
 
   Future<void> loadToken() async {
@@ -67,6 +74,15 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
     if (snap.docs.isNotEmpty) {
       _lastPostDoc = snap.docs.last;
       _postDocs.addAll(snap.docs);
+
+      // Update _mostRecentPostTimestamp if these fetched docs are newer
+      // (the first doc in snap.docs is the newest because we order desc)
+      final newestDoc = snap.docs.first;
+      final newestData = newestDoc.data() as Map<String, dynamic>;
+      final newestCreatedAt = newestData['createdAt'] as Timestamp;
+      if (newestCreatedAt.compareTo(_mostRecentPostTimestamp) > 0) {
+        _mostRecentPostTimestamp = newestCreatedAt;
+      }
     }
 
     if (snap.docs.length < _postsPageSize) {
@@ -78,12 +94,44 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
     });
   }
 
+  /// ADDED: Listen for newly created posts in real time (createdAt > the newest we know).
+  /// Inserts them at index 0 so they appear at the top of the feed.
+  void _listenForNewPosts() {
+    // If we never fetched anything, _mostRecentPostTimestamp is (0,0).
+    // That means we'll pick up *all* posts, so let's handle that logic:
+    // if we truly fetched some docs, we have a real timestamp; if not, we keep 0,0 as is.
+    FirebaseFirestore.instance
+        .collection('posts')
+        .where('createdAt', isGreaterThan: _mostRecentPostTimestamp)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      for (var change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.added) {
+          final newPostDoc = change.doc;
+          setState(() {
+            _postDocs.insert(0, newPostDoc);
+          });
+
+          // Update _mostRecentPostTimestamp if this newly added doc is the newest
+          final newData = newPostDoc.data() as Map<String, dynamic>;
+          final newCreatedAt = newData['createdAt'] as Timestamp;
+          if (newCreatedAt.compareTo(_mostRecentPostTimestamp) > 0) {
+            _mostRecentPostTimestamp = newCreatedAt;
+          }
+        }
+      }
+    });
+  }
+
   /// Refresh posts (used for pull-to-refresh and after adding a new post)
   Future<void> _refreshPosts() async {
     setState(() {
       _postDocs.clear();
       _lastPostDoc = null;
       _hasMorePosts = true;
+      // Reset so that _listenForNewPosts can pick from scratch
+      _mostRecentPostTimestamp = Timestamp(0, 0);
     });
     await _fetchPosts();
   }
@@ -206,15 +254,15 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                 child: _isLoadingPosts
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
-                        onPressed: _fetchPosts,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        child: const Text("Load More Posts"),
-                      ),
+                  onPressed: _fetchPosts,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  child: const Text("Load More Posts"),
+                ),
               ),
             );
           } else {
@@ -246,10 +294,10 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
   // Methods below are called by PostItemWidget (for building post UI, etc.)
   // -------------------------------------------------------------------------
   Widget buildPostItemUI(
-    BuildContext context,
-    Map<String, dynamic> postData,
-    String postId,
-  ) {
+      BuildContext context,
+      Map<String, dynamic> postData,
+      String postId,
+      ) {
     final String description = postData['description'] ?? '';
     final List images = postData['images'] ?? []; // base64 strings
     final int likesCount = postData['likesCount'] ?? 0; // still read once
@@ -273,7 +321,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
           children: [
             // User Info + Time
             ListTile(
-              leading:  CircleAvatar(
+              leading: CircleAvatar(
                 backgroundImage: AssetImage(AppConstants.logo),
               ),
               title: Text(
@@ -304,7 +352,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                           borderRadius: BorderRadius.circular(15.0),
                           child: Image.memory(
                             decodedBytes,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                             width: MediaQuery.of(context).size.width * 0.8,
                             height: MediaQuery.of(context).size.height * 0.3,
                           ),
@@ -334,7 +382,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
             // Like and Comment Row (REPLACED with LikeSectionWidget to see real-time likes)
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: LikeSectionWidget(
                 postId: postId,
                 bearerToken: bearerToken,
@@ -344,8 +392,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
             // Comments inside an ExpansionTile with customized divider
             Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 title: const Text(
                   'View/Add Comments',
@@ -364,10 +411,10 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
   /// Like / Unlike logic (updated to prevent spam-tapping and ensure >= 0)
   Future<void> handleLike(
-    BuildContext context,
-    String postId,
-    List likes,
-  ) async {
+      BuildContext context,
+      String postId,
+      List likes,
+      ) async {
     String? currentUserId = bearerToken;
     if (currentUserId == null) {
       // Optionally, prompt user to log in
@@ -394,7 +441,6 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
       if (currentLikes.contains(currentUserId)) {
         // Unlike
-        // likesCount should not go below zero:
         final newCount = currentLikesCount > 0 ? currentLikesCount - 1 : 0;
         transaction.update(postRef, {
           'likes': FieldValue.arrayRemove([currentUserId]),
@@ -461,7 +507,7 @@ class PostItemWidget extends StatelessWidget {
 }
 
 // -------------------------------------------------------------------
-// CommentSectionWidget: Paginates comments, 10 at a time (unchanged)
+// CommentSectionWidget: Combined real-time + load-more pagination
 // -------------------------------------------------------------------
 class CommentSectionWidget extends StatefulWidget {
   final String postId;
@@ -474,7 +520,7 @@ class CommentSectionWidget extends StatefulWidget {
 }
 
 class _CommentSectionWidgetState extends State<CommentSectionWidget> {
-  // Pagination state for comments
+  // Pagination state for comments (from the original code)
   final List<DocumentSnapshot> _commentDocs = [];
   DocumentSnapshot? _lastCommentDoc;
   bool _isLoadingComments = false;
@@ -484,16 +530,22 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
 
   final TextEditingController _commentController = TextEditingController();
 
-  // NEW: Prevent multiple identical comment submissions if tapped repeatedly
+  // Prevent multiple identical comment submissions if tapped repeatedly
   bool _isAddingComment = false;
+
+  // NEW: Real-time pagination
+  int _currentLimit = 10; // Start with 10 comments
+  // (We keep _fetchComments(), etc., from the original code,
+  // but rely on the stream below for the actual UI display.)
 
   @override
   void initState() {
     super.initState();
+    // We keep the original fetch, but the UI will come from the stream.
     _fetchComments();
   }
 
-  /// Fetch a page of comments for this post
+  /// Fetch a page of comments (from the original code)
   Future<void> _fetchComments() async {
     if (_isLoadingComments || !_hasMoreComments) return;
     setState(() {
@@ -538,7 +590,8 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
     final token = await getToken();
     final userName = await getUserName();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? deviceId = await prefs.getString("fcm_token");
+    String? deviceId = prefs.getString("fcm_token");
+
     await FirebaseFirestore.instance
         .collection('posts')
         .doc(widget.postId)
@@ -552,7 +605,7 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
     });
 
     _commentController.clear();
-    // Refresh comments to include the new one
+    // We keep the original refresh to keep everything else consistent
     await _refreshComments();
 
     // Allow next comment
@@ -569,14 +622,20 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
     await _fetchComments();
   }
 
+  /// Increase the limit to load more real-time comments
+  void _loadMoreComments() {
+    setState(() {
+      _currentLimit += 10; // fetch 10 more in the real-time stream
+    });
+  }
+
+  /// Builds the entire Comments section UI
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Comments List
+        // Real-time list with pagination limit
         _buildCommentsList(),
-        // "Load More Comments" or "No more comments."
-        if (_commentDocs.isNotEmpty) _buildLoadMoreCommentsBtn(),
         const SizedBox(height: 8),
         // Styled TextField to add comment
         _buildAddCommentField(),
@@ -584,93 +643,130 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
     );
   }
 
+  /// Real-time + pagination in the same stream
   Widget _buildCommentsList() {
-    if (_commentDocs.isEmpty && _isLoadingComments) {
-      return const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-    if (_commentDocs.isEmpty && !_isLoadingComments) {
-      return const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Text('No comments yet. Be the first to comment!'),
-      );
-    }
+    // Instead of showing `_commentDocs`, we show a StreamBuilder
+    // that includes `.limit(_currentLimit)`.
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.postId)
+          .collection('comments')
+          .orderBy('createdAt', descending: true)
+          .limit(_currentLimit)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Center(child: Text('Something went wrong.')),
+          );
+        }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _commentDocs.length,
-      itemBuilder: (context, index) {
-        final doc = _commentDocs[index];
-        final data = doc.data() as Map<String, dynamic>;
-        final commentText = data['commentText'] ?? '';
-        final userName = data['userName'] ?? 'Anonymous';
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Center(child: Text('No comments yet. Be the first to comment!')),
+          );
+        }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // User Avatar or Placeholder
-              const CircleAvatar(
-                radius: 12,
-                backgroundImage: AssetImage('assets/images/user.png'),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
+        final commentDocs = snapshot.data!.docs;
+        if (commentDocs.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text('No comments yet. Be the first to comment!'),
+          );
+        }
+
+        return Column(
+          children: [
+            // The list of loaded comments
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: commentDocs.length,
+              itemBuilder: (context, index) {
+                final doc = commentDocs[index];
+                final data = doc.data() as Map<String, dynamic>;
+                final commentText = data['commentText'] ?? '';
+                final userName = data['userName'] ?? 'Anonymous';
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 4.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Optionally, display the username
-                      Text('$userName:'),
-                      const SizedBox(width: 4),
-                      // NEW: Wrap commentText in Expanded to allow large text to wrap
+                      // User Avatar or Placeholder
+                      const CircleAvatar(
+                        radius: 12,
+                        backgroundImage: AssetImage('assets/images/user.png'),
+                      ),
+                      const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          commentText,
-                          softWrap: true,
+                        child: Container(
+                          padding: const EdgeInsets.all(12.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('$userName:'),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  commentText,
+                                  softWrap: true,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
+                );
+              },
+            ),
+
+            // "Load More" or "No more comments"
+            _buildLoadMoreCommentsBtn(commentDocs.length),
+          ],
         );
       },
     );
   }
 
-  Widget _buildLoadMoreCommentsBtn() {
-    if (_hasMoreComments) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _isLoadingComments
-            ? const CircularProgressIndicator()
-            : ElevatedButton(
-                onPressed: _fetchComments,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                ),
-                child: const Text("Load More Comments"),
-              ),
-      );
-    } else {
+  /// Show a load-more button if the count equals the current limit,
+  /// otherwise show "No more comments."
+  Widget _buildLoadMoreCommentsBtn(int fetchedCount) {
+    final noMoreToLoad = fetchedCount < _currentLimit;
+    if (noMoreToLoad) {
       return const Padding(
         padding: EdgeInsets.all(8.0),
         child: Center(child: Text("No more comments.")),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          onPressed: _loadMoreComments,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blueAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+          ),
+          child: const Text("Load More Comments"),
+        ),
       );
     }
   }
@@ -690,11 +786,11 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
               ),
               child: TextField(
                 controller: _commentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Add a comment...',
                   border: InputBorder.none,
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
@@ -721,9 +817,11 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
 }
 
 // -------------------------------------------------------------------
-// LikeSectionWidget: Streams only 'likes' and 'likesCount' in real time
 // -------------------------------------------------------------------
-class LikeSectionWidget extends StatelessWidget {
+// LikeSectionWidget: Streams only 'likes' and 'likesCount' in real time
+// with OPTIMISTIC UI updates and NO "setState during build" error
+// -------------------------------------------------------------------
+class LikeSectionWidget extends StatefulWidget {
   final String postId;
   final String? bearerToken;
   final _SocialMediaHomeViewState parentState;
@@ -736,37 +834,128 @@ class LikeSectionWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _LikeSectionWidgetState createState() => _LikeSectionWidgetState();
+}
+
+class _LikeSectionWidgetState extends State<LikeSectionWidget> {
+  /// Whether we're currently processing a like/unlike transaction.
+  bool _pendingLikeTransaction = false;
+
+  /// Local "isLiked" state, used for optimistic updates.
+  bool _isLiked = false;
+
+  /// Local "likesCount" state, used for optimistic updates.
+  int _likesCount = 0;
+
+  /// Backup old states in case the transaction fails.
+  bool _oldIsLiked = false;
+  int _oldLikesCount = 0;
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('posts')
-          .doc(postId)
+          .doc(widget.postId)
           .snapshots(),
       builder: (context, snapshot) {
+        // If the doc doesn't exist or there's no data, just return nothing.
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const SizedBox.shrink();
         }
 
         final postData = snapshot.data!.data() as Map<String, dynamic>;
-        final int likesCount = postData['likesCount'] ?? 0;
-        final List likes = postData['likes'] ?? [];
+        final firestoreLikesCount = postData['likesCount'] ?? 0;
+        final List firestoreLikes = postData['likes'] ?? [];
+        final firestoreIsLiked =
+        firestoreLikes.contains(widget.bearerToken);
+
+        // We’ll display these ephemeral values in the UI,
+        // so we don't do setState() *during* the build method.
+        bool isLikedForUI = _isLiked;
+        int likesCountForUI = _likesCount;
+
+        // If we are NOT in the middle of an optimistic transaction,
+        // show the live Firestore data directly.
+        // (i.e., user hasn't just tapped "Like" or "Unlike").
+        if (!_pendingLikeTransaction) {
+          isLikedForUI = firestoreIsLiked;
+          likesCountForUI = firestoreLikesCount;
+        }
+        // ELSE if we *are* pending, we keep showing our optimistic state
+        // but we also check if Firestore has "caught up":
+        else {
+          // If Firestore now matches our optimistic state, we know the update
+          // made it to Firestore, so we can stop ignoring new snapshots.
+          final transactionHasArrived =
+          (firestoreIsLiked == _isLiked &&
+              firestoreLikesCount == _likesCount);
+
+          if (transactionHasArrived) {
+            // Instead of calling setState() here,
+            // use a post-frame callback to safely mark it false.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              setState(() {
+                _pendingLikeTransaction = false;
+              });
+            });
+          }
+        }
 
         return Row(
           children: [
-            // The same like button logic from your original code
+            // Like button with optimistic update
             InkWell(
-              onTap: () => parentState.handleLike(context, postId, likes),
+              onTap: () async {
+                // Prevent double-tapping while transaction is in progress
+                if (_pendingLikeTransaction) return;
+
+                // Save old values so we can revert if the transaction fails
+                _oldIsLiked = isLikedForUI;
+                _oldLikesCount = likesCountForUI;
+
+                // Now do an optimistic update
+                setState(() {
+                  _pendingLikeTransaction = true;
+                  if (isLikedForUI) {
+                    _isLiked = false;
+                    _likesCount = likesCountForUI > 0
+                        ? (likesCountForUI - 1)
+                        : 0;
+                  } else {
+                    _isLiked = true;
+                    _likesCount = likesCountForUI + 1;
+                  }
+                });
+
+                // Run the Firestore transaction in the background
+                try {
+                  await widget.parentState.handleLike(
+                    context,
+                    widget.postId,
+                    [], // current likes array not needed
+                  );
+                  // If success, do nothing: we wait for Firestore’s snapshot
+                  // to catch up. Once it does, we set _pendingLikeTransaction
+                  // to false in a post-frame callback.
+                } catch (e) {
+                  // If transaction fails, revert immediately
+                  setState(() {
+                    _isLiked = _oldIsLiked;
+                    _likesCount = _oldLikesCount;
+                    _pendingLikeTransaction = false;
+                  });
+                }
+              },
               child: Row(
                 children: [
                   Icon(
-                    likes.contains(bearerToken)
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    color:
-                        likes.contains(bearerToken) ? Colors.red : Colors.grey,
+                    isLikedForUI ? Icons.favorite : Icons.favorite_border,
+                    color: isLikedForUI ? Colors.red : Colors.grey,
                   ),
                   const SizedBox(width: 4),
-                  Text(likesCount.toString()),
+                  Text(likesCountForUI.toString()),
                 ],
               ),
             ),
@@ -787,314 +976,68 @@ class LikeSectionWidget extends StatelessWidget {
   }
 }
 
-// ****** images were shown using Storgae
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
+// -------------------------------------------------------------------
+// class LikeSectionWidget extends StatelessWidget {
+//   final String postId;
+//   final String? bearerToken;
+//   final _SocialMediaHomeViewState parentState;
 //
-// import '../../annim/transition.dart';
-// import '../../utilities/utilities.dart';
-// import 'createPost.dart';
+//   const LikeSectionWidget({
+//     Key? key,
+//     required this.postId,
+//     required this.bearerToken,
+//     required this.parentState,
+//   }) : super(key: key);
 //
-// class SocialMediaHomeView extends StatefulWidget {
-//   const SocialMediaHomeView({Key? key}) : super(key: key);
-//
-//   @override
-//   _SocialMediaHomeViewState createState() => _SocialMediaHomeViewState();
-// }
-//
-// class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
-//   String? bearerToken;
-//   @override
-//   void initState() {
-//     // TODO: implement initState
-//     super.initState();
-//     loadToken();
-//
-//   }
-//   Future<void> loadToken()async{
-//    bearerToken = await getToken(); // Fetch the bearer token
-//
-//   }
 //   @override
 //   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Stack(
-//         children: [
-//           // Any background or AppBar widgets can go here...
-//
-//           // Positioned Fill - show list of posts
-//           Positioned.fill(
-//             top: MediaQuery.of(context).size.height * 0.11,
-//             child: StreamBuilder<QuerySnapshot>(
-//               stream: FirebaseFirestore.instance
-//                   .collection('posts')
-//                   .orderBy('createdAt', descending: true)
-//                   .snapshots(),
-//               builder: (context, snapshot) {
-//                 if (!snapshot.hasData) {
-//                   return const Center(child: CircularProgressIndicator());
-//                 }
-//
-//                 final posts = snapshot.data!.docs;
-//                 return ListView.builder(
-//                   padding: const EdgeInsets.all(16.0),
-//                   itemCount: posts.length,
-//                   itemBuilder: (context, index) {
-//                     final postDoc = posts[index];
-//                     final postData = postDoc.data() as Map<String, dynamic>;
-//                     final postId = postDoc.id;
-//
-//                     return _buildPostItem(context, postData, postId);
-//                   },
-//                 );
-//               },
-//             ),
-//           ),
-//         ],
-//       ),
-//       // FloatingActionButton to create new post
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: () {
-//           Navigator.push(context, FadePageRouteBuilder(widget: CreatePostPage()));
-//         },
-//         child: const Icon(Icons.add, color: Colors.white),
-//       ),
-//     );
-//   }
-//
-//   /// Builds each individual post card.
-//   Widget _buildPostItem(BuildContext context, Map<String, dynamic> postData, String postId) {
-//     final String description = postData['description'] ?? '';
-//     final List images = postData['images'] ?? [];
-//     final int likesCount = postData['likesCount'] ?? 0;
-//     final List likes = postData['likes'] ?? [];
-//
-//     return Card(
-//       color: Colors.white,
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-//       elevation: 4,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           // User Info + Time
-//           ListTile(
-//             leading: const CircleAvatar(
-//               backgroundImage: AssetImage('assets/images/user.png'),
-//             ),
-//             title: const Text('James'),  // Demo only; consider dynamic user data
-//             subtitle: const Text('London, UK'),
-//             trailing: const Text('2 Hr ago'),  // Demo only; consider using createdAt
-//           ),
-//
-//           // Post Images (Horizontal List if multiple images)
-//           if (images.isNotEmpty)
-//             SingleChildScrollView(
-//               scrollDirection: Axis.horizontal,
-//               child: Row(
-//                 children: images.map((imageUrl) {
-//                   return Padding(
-//                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-//                     child: ClipRRect(
-//                       borderRadius: BorderRadius.circular(15.0),
-//                       child: Image.network(
-//                         imageUrl,
-//                         fit: BoxFit.cover,
-//                         width: MediaQuery.of(context).size.width * 0.8,
-//                         height: MediaQuery.of(context).size.height * 0.3,
-//                       ),
-//                     ),
-//                   );
-//                 }).toList(),
-//               ),
-//             ),
-//
-//           // Description
-//           if (description.isNotEmpty)
-//             Padding(
-//               padding: const EdgeInsets.all(16.0),
-//               child: Text(
-//                 description,
-//                 style: const TextStyle(
-//                   fontFamily: "Ubuntu",
-//                   fontSize: 16,
-//                 ),
-//               ),
-//             ),
-//
-//           // Like and Comment Row
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-//             child: Row(
-//               children: [
-//                 // Like Button
-//                 InkWell(
-//                   onTap: () => _handleLike(context, postId, likes),
-//                   child: Row(
-//                     children: [
-//                       Icon(
-//                         likes.contains(bearerToken)
-//                             ? Icons.favorite
-//                             : Icons.favorite_border,
-//                         color: likes.contains(bearerToken)
-//                             ? Colors.red
-//                             : Colors.grey,
-//                       ),
-//                       const SizedBox(width: 4),
-//                       Text(likesCount.toString()),
-//                     ],
-//                   ),
-//                 ),
-//                 const SizedBox(width: 16),
-//
-//                 // A simple comment icon or label
-//                 Row(
-//                   children: const [
-//                     Icon(Icons.comment, color: Colors.grey),
-//                     SizedBox(width: 4),
-//                     Text('Comments'),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//
-//           // ExpansionTile to show + add comments
-//           ExpansionTile(
-//             title: const Text(
-//               'View/Add Comments',
-//               style: TextStyle(fontWeight: FontWeight.w600),
-//             ),
-//             children: [
-//               // 1) Comments List
-//               _buildCommentsList(postId),
-//
-//               // 2) TextField to Add a Comment
-//               _buildAddCommentField(postId),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   /// Real-time comments list for a given post
-//   Widget _buildCommentsList(String postId) {
-//     return StreamBuilder<QuerySnapshot>(
+//     return StreamBuilder<DocumentSnapshot>(
 //       stream: FirebaseFirestore.instance
 //           .collection('posts')
 //           .doc(postId)
-//           .collection('comments')
-//           .orderBy('createdAt', descending: true)
 //           .snapshots(),
 //       builder: (context, snapshot) {
-//         if (!snapshot.hasData) {
-//           return const Padding(
-//             padding: EdgeInsets.all(8.0),
-//             child: Center(child: CircularProgressIndicator()),
-//           );
+//         if (!snapshot.hasData || !snapshot.data!.exists) {
+//           return const SizedBox.shrink();
 //         }
 //
-//         final comments = snapshot.data!.docs;
-//         if (comments.isEmpty) {
-//           return const Padding(
-//             padding: EdgeInsets.all(8.0),
-//             child: Text('No comments yet. Be the first to comment!'),
-//           );
-//         }
+//         final postData = snapshot.data!.data() as Map<String, dynamic>;
+//         final int likesCount = postData['likesCount'] ?? 0;
+//         final List likes = postData['likes'] ?? [];
 //
-//         return ListView.builder(
-//           // Use shrinkWrap + no scrolling to avoid conflict with the main ListView
-//           shrinkWrap: true,
-//           physics: const NeverScrollableScrollPhysics(),
-//           itemCount: comments.length,
-//           itemBuilder: (context, index) {
-//             final commentDoc = comments[index];
-//             final commentData = commentDoc.data() as Map<String, dynamic>;
-//             final commentText = commentData['commentText'] ?? '';
-//             final commentUserId = commentData['userId'] ?? 'Unknown';
+//         return Row(
+//           children: [
+//             // The same like button logic from your original code
+//             InkWell(
+//               onTap: () => parentState.handleLike(context, postId, likes),
+//               child: Row(
+//                 children: [
+//                   Icon(
+//                     likes.contains(bearerToken)
+//                         ? Icons.favorite
+//                         : Icons.favorite_border,
+//                     color: likes.contains(bearerToken) ? Colors.red : Colors.grey,
+//                   ),
+//                   const SizedBox(width: 4),
+//                   Text(likesCount.toString()),
+//                 ],
+//               ),
+//             ),
+//             const SizedBox(width: 16),
 //
-//             return ListTile(
-//               title: Text(commentText),
-//               subtitle: Text('User: $commentUserId'),
-//             );
-//           },
+//             // Comment icon is static
+//             Row(
+//               children: const [
+//                 Icon(Icons.comment, color: Colors.grey),
+//                 SizedBox(width: 4),
+//                 Text('Comments'),
+//               ],
+//             ),
+//           ],
 //         );
 //       },
 //     );
 //   }
-//
-//   /// A row with a TextField + send button to add a comment
-//   Widget _buildAddCommentField(String postId) {
-//     final TextEditingController _commentController = TextEditingController();
-//
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-//       child: Row(
-//         children: [
-//           // Text field for typing comment
-//           Expanded(
-//             child: TextField(
-//               controller: _commentController,
-//               decoration: const InputDecoration(
-//                 labelText: 'Add a comment...',
-//                 border: OutlineInputBorder(),
-//               ),
-//             ),
-//           ),
-//           const SizedBox(width: 8),
-//
-//           // Send button
-//           IconButton(
-//             icon: const Icon(Icons.send, color: Colors.blue),
-//             onPressed: () async {
-//               final commentText = _commentController.text.trim();
-//               if (commentText.isNotEmpty) {
-//                 await _addComment(postId, commentText);
-//                 _commentController.clear();
-//               }
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   /// Helper to add a new comment document to the post's sub-collection
-//   Future<void> _addComment(String postId, String commentText) async {
-//     if (commentText.isEmpty) return;
-//
-//     final CollectionReference commentsRef = FirebaseFirestore.instance
-//         .collection('posts')
-//         .doc(postId)
-//         .collection('comments');
-//
-//     final bearerToken = await getToken(); // Fetch the bearer token
-//
-//     // Replace 'exampleUserId' with the real UID from FirebaseAuth.currentUser
-//     await commentsRef.add({
-//       'userId': bearerToken,
-//       'commentText': commentText,
-//       'createdAt': FieldValue.serverTimestamp(),
-//     });
-//   }
-//
-//   /// Like / Unlike logic
-//   Future<void> _handleLike(BuildContext context, String postId, List likes) async {
-//     String? currentUserId = bearerToken; // Replace with your actual userId
-//     DocumentReference postRef = FirebaseFirestore.instance.collection('posts').doc(postId);
-//
-//     if (likes.contains(currentUserId)) {
-//       // Unlike
-//       await postRef.update({
-//         'likes': FieldValue.arrayRemove([currentUserId]),
-//         'likesCount': FieldValue.increment(-1),
-//       });
-//     } else {
-//       // Like
-//       await postRef.update({
-//         'likes': FieldValue.arrayUnion([currentUserId]),
-//         'likesCount': FieldValue.increment(1),
-//       });
-//     }
-//   }
 // }
+
+

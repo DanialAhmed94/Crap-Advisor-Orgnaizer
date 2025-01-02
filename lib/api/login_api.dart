@@ -60,7 +60,9 @@ Future<void> LogInApi(
 
         print("api hit ${token}");
         Navigator.pushReplacement(
-            context, FadePageRouteBuilder(widget: PremiumView()));
+
+            context, FadePageRouteBuilder(widget:  HomeView(),));
+           // context, FadePageRouteBuilder(widget: PremiumView()));
       } else {
         // Server-side validation or other errors
         showErrorDialog(
@@ -107,18 +109,18 @@ void showExpiredAccountErrorDialog(
           ],
         ),
         actions: <Widget>[
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          TextButton(
-            child: Text('Upgrade'),
-            onPressed: () {
-             Navigator.push(context, FadePageRouteBuilder(widget:  BotomPremiumView(),));
-            },
-          ),
+          // TextButton(
+          //   child: Text('Cancel'),
+          //   onPressed: () {
+          //     Navigator.of(context).pop();
+          //   },
+          // ),
+          // TextButton(
+          //   child: Text('Upgrade'),
+          //   onPressed: () {
+          //    Navigator.push(context, FadePageRouteBuilder(widget:  BotomPremiumView(),));
+          //   },
+          // ),
         ],
       );
     },

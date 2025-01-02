@@ -5,7 +5,6 @@ import 'package:flutter_svg/svg.dart';
 
 import '../bottom_navigation_bar/PremiumView/bottomPremiumView.dart';
 import '../bottom_navigation_bar/profileView/profileHomeView.dart';
-import '../bottom_navigation_bar/socialMedia/socialMediaHomeView.dart';
 import '../bottom_navigation_bar/socialMedia/socialpstview.dart';
 import '../constants/AppConstants.dart';
 
@@ -31,7 +30,7 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 NavigationHomeview(),
                 SocialMediaHomeView(),
-                BotomPremiumView(),
+               // BotomPremiumView(),
                 ProfileHomeview(),
                 // Add other views here for different tabs
               ],
@@ -73,11 +72,11 @@ class _HomeViewState extends State<HomeView> {
             activeIcon: SvgPicture.asset(AppConstants.feedSelected,color: const Color(0xFF8AC85A),),
             label: "",
           ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(AppConstants.proUnselected),
-            activeIcon: SvgPicture.asset(AppConstants.proSelected,color: const Color(0xFF8AC85A),),
-            label: "",
-          ),
+          // BottomNavigationBarItem(
+          //   icon: SvgPicture.asset(AppConstants.proUnselected),
+          //   activeIcon: SvgPicture.asset(AppConstants.proSelected,color: const Color(0xFF8AC85A),),
+          //   label: "",
+          // ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(AppConstants.profileUnselected),
             activeIcon: SvgPicture.asset(AppConstants.profileSelected,color: const Color(0xFF8AC85A),),

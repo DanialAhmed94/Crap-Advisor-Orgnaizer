@@ -67,24 +67,24 @@ void showExpiredAccountErrorDialog(
           ],
         ),
         actions: <Widget>[
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          TextButton(
-            child: Text('Upgrade'),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                FadePageRouteBuilder(
-                  widget: BotomPremiumView(),
-                ),
-                (Route<dynamic> route) => false,
-              );
-            },
-          ),
+          // TextButton(
+          //   child: Text('Cancel'),
+          //   onPressed: () {
+          //     Navigator.of(context).pop();
+          //   },
+          // ),
+          // TextButton(
+          //   child: Text('Upgrade'),
+          //   onPressed: () {
+          //     Navigator.pushAndRemoveUntil(
+          //       context,
+          //       FadePageRouteBuilder(
+          //         widget: BotomPremiumView(),
+          //       ),
+          //       (Route<dynamic> route) => false,
+          //     );
+          //   },
+          // ),
         ],
       );
     },

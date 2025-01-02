@@ -13,6 +13,7 @@ import '../../annim/transition.dart';
 import '../../constants/AppConstants.dart';
 import '../../premium_view/premium_view.dart';
 import '../../provider/festivalCollection_provider.dart';
+import '../../provider/notificationProvider.dart';
 import 'eventMangement_view/eventManagement_homeView.dart';
 import 'festival_managment/festival_managment_homeView.dart';
 import 'kidsManagement_view/k=kidsManagement_homeView.dart';
@@ -75,8 +76,8 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                 ),
                 SizedBox(height: 8),
                 _buildUserRow(context),
-                SizedBox(height: 20),
-                _buildPremiumCard(context),
+                // SizedBox(height: 20),
+                // _buildPremiumCard(context),
                 SizedBox(height: 20),
                 _buildGrid(tiles),
                 SizedBox(height: 20),
@@ -92,7 +93,7 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
 
   Widget _buildUserRow(BuildContext context) {
     if (_isUsernameLoading) {
-      return Center(child: const CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Row(
@@ -108,22 +109,51 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
         const Spacer(),
         GestureDetector(
           onTap: () {
-            Navigator.push(context, FadePageRouteBuilder(widget: NotificationView()));
+            Navigator.push(
+              context,
+              FadePageRouteBuilder(widget: NotificationView()),
+            );
           },
-          child: SvgPicture.asset(
-            AppConstants.bellIcon,
-            color: const Color(0xFF788595),
+          child: Stack(
+            alignment: Alignment.topRight, // Position badge on top-right
+            children: [
+              SvgPicture.asset(
+                AppConstants.bellIcon,
+                color: const Color(0xFF788595),
+              ),
+              Consumer<NotificationsCollectionProvider>(
+                builder: (context, provider, child) {
+                  return Container(
+                    padding: provider.totalNotificationCount > 0
+                        ? const EdgeInsets.all(4)
+                        : const EdgeInsets.all(6), // Slightly larger for empty badge
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: provider.totalNotificationCount > 0
+                        ? Text(
+                      provider.totalNotificationCount.toString(),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                        : const SizedBox.shrink(), // Empty badge when count is 0
+                  );
+                },
+              ),
+            ],
           ),
         ),
         const SizedBox(width: 4),
       ],
     );
-  }
-
-  Widget _buildPremiumCard(BuildContext context) {
+  }  Widget _buildPremiumCard(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, FadePageRouteBuilder(widget: PremiumView()));
+        //Navigator.push(context, FadePageRouteBuilder(widget: PremiumView()));
       },
       child: Card(
         elevation: 2,
@@ -233,16 +263,11 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                       count: festivalProvider.totalFestivals.toString(),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, FadePageRouteBuilder(widget: AddEventManagementView()));
-                    },
-                    child: _buildTotalCard(
-                      icon: AppConstants.totalAttendees,
-                      title: "Total Attendees",
-                      count: festivalProvider.totalAttendees.toString(),
-                      countWidth: 70,
-                    ),
+                  _buildTotalCard(
+                    icon: AppConstants.totalAttendees,
+                    title: "Total Attendees",
+                    count: festivalProvider.totalAttendees.toString(),
+                    countWidth: 70,
                   ),
                 ],
               );

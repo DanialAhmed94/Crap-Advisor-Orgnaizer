@@ -156,7 +156,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     } on TimeoutException catch (e) {
       // Handle timeout exception
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Network timeout. Please try again.")),
+        const SnackBar(content: Text("The image should be less than 1 MB. Network timeout. Please try again")),
       );
     } catch (e) {
       // Handle any other exceptions
@@ -201,7 +201,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   ),
                 ),
                 leading: IconButton(
-                  icon: Image.asset(AppConstants.logo),
+                  icon:  CircleAvatar(
+                    backgroundImage: AssetImage('${AppConstants.logo}'),
+                  ),
                   onPressed: null,
                 ),
                 backgroundColor: Colors.transparent,
