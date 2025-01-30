@@ -69,6 +69,7 @@ dependencies:
   pool: ^1.5.1
   visibility_detector: ^0.4.0+2
   better_player: ^0.0.84
+  intl_phone_number_input: ^0.7.4
 
 
 

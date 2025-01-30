@@ -59,36 +59,15 @@ class _GoogleMapViewState extends State<GoogleMapView>
   }
 
   Future<void> _loadCustomMarkerIcon() async {
-    // Get the device pixel ratio to adjust the image size
-    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
-
-    // For iOS, we can reduce the size of the marker
-    double markerSize =
-    devicePixelRatio > 2.0 ? 0.5 : 0.7; // Adjust the size factor for iOS
-
     currentLocationMarker = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(devicePixelRatio: devicePixelRatio),
-      AppConstants.currentLocationMarker, // Path to your custom marker
+      ImageConfiguration(devicePixelRatio: 2.5),
+      AppConstants.currentLocationMarker,
     );
 
     customMarkerIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(devicePixelRatio: devicePixelRatio),
-      AppConstants.customMarker, // Path to your custom marker
+      ImageConfiguration(devicePixelRatio: 2.5),
+      AppConstants.customMarker,
     );
-
-    // Adjust the size for iOS (optional: scale down further for iOS)
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      customMarkerIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: devicePixelRatio),
-        AppConstants.customMarker, // Path to your custom marker
-      );
-
-      // Scale down the custom marker for iOS by modifying the pixel ratio
-      customMarkerIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: markerSize),
-        AppConstants.customMarker, // Path to your custom marker
-      );
-    }
   }
 
   // App lifecycle changes handling
