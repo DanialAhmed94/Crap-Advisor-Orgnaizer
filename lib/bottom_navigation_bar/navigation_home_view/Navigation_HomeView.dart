@@ -14,6 +14,7 @@ import '../../constants/AppConstants.dart';
 import '../../premium_view/premium_view.dart';
 import '../../provider/festivalCollection_provider.dart';
 import '../../provider/notificationProvider.dart';
+import '../socialMedia/socialpstview.dart';
 import 'eventMangement_view/eventManagement_homeView.dart';
 import 'festival_managment/festival_managment_homeView.dart';
 import 'kidsManagement_view/k=kidsManagement_homeView.dart';
@@ -78,7 +79,17 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                 _buildUserRow(context),
                 // SizedBox(height: 20),
                 // _buildPremiumCard(context),
-                SizedBox(height: 20),
+                SizedBox(height: 20,),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.push(context, FadePageRouteBuilder(widget: SocialMediaHomeView()));
+                  },
+                  child: Image(
+                    image: AssetImage(AppConstants.crapChat),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
                 _buildGrid(tiles),
                 SizedBox(height: 20),
                 _buildTotals(context),
@@ -150,7 +161,8 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
         const SizedBox(width: 4),
       ],
     );
-  }  Widget _buildPremiumCard(BuildContext context) {
+  }
+  Widget _buildPremiumCard(BuildContext context) {
     return GestureDetector(
       onTap: () {
         //Navigator.push(context, FadePageRouteBuilder(widget: PremiumView()));
@@ -207,33 +219,53 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
       ),
     );
   }
-
+  // code for staggered grid view
+  // Widget _buildGrid(List<Widget> tiles) {
+  //   return GridView.custom(
+  //     shrinkWrap: true,
+  //     physics: const NeverScrollableScrollPhysics(),
+  //     gridDelegate: SliverWovenGridDelegate.count(
+  //       crossAxisCount: 2,
+  //       mainAxisSpacing: 0,
+  //       crossAxisSpacing: 2,
+  //       pattern: const [
+  //         WovenGridTile(1),
+  //         WovenGridTile(
+  //           2 / 1.5,
+  //           crossAxisRatio: 0.99,
+  //           alignment: AlignmentDirectional.centerEnd,
+  //         ),
+  //       ],
+  //     ),
+  //     childrenDelegate: SliverChildBuilderDelegate(
+  //           (context, index) {
+  //         return ClipRRect(
+  //           borderRadius: BorderRadius.circular(8),
+  //           child: tiles[index],
+  //         );
+  //       },
+  //       childCount: tiles.length,
+  //     ),
+  //   );
+  // }
   Widget _buildGrid(List<Widget> tiles) {
-    return GridView.custom(
+    return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverWovenGridDelegate.count(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 2,
-        pattern: const [
-          WovenGridTile(1),
-          WovenGridTile(
-            2 / 1.5,
-            crossAxisRatio: 0.99,
-            alignment: AlignmentDirectional.centerEnd,
-          ),
-        ],
+        mainAxisSpacing: 5,
+        crossAxisSpacing: 5,
+        // Setting this to 1 makes each cell a square.
+        childAspectRatio: 1.1,
       ),
-      childrenDelegate: SliverChildBuilderDelegate(
-            (context, index) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: tiles[index],
-          );
-        },
-        childCount: tiles.length,
-      ),
+      itemCount: tiles.length,
+      itemBuilder: (context, index) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: tiles[index],
+        );
+      },
     );
   }
 
@@ -411,7 +443,7 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
 
       // Tile 7: Registered Users
       _buildTile(
-        background: AppConstants.tile6Background,
+        background: AppConstants.tile2Background,
         // Reusing tile6Background for consistency as in original code
         icon: null, // Using an Image asset here instead of SVG for tile 7 top
         imageIcon: AppConstants.tile7Top,

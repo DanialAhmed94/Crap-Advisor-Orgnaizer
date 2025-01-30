@@ -6,13 +6,14 @@
 
     <!-- For Android versions below 13 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <!-- For Android versions below 33 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- for user current location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:enableOnBackInvokedCallback="true"
-        android:label="Organizer Toolkit"
+        android:label="Organiser Toolkit"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         >

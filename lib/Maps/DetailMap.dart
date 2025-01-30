@@ -71,9 +71,29 @@ class _GoogleMapViewState extends State<MapDetailView>
   @override
   @override
   Widget build(BuildContext context) {
+    final padding = MediaQuery.of(context).padding;
     return Scaffold(
       body: Stack(
         children: [
+          Positioned(
+            top: padding.top + 10, // Adjust as needed
+            left: 10, // Adjust as needed
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7), // Semi-transparent background
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: SvgPicture.asset(
+                  AppConstants.backIcon,
+                  // Optionally, set the color or other properties
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ),
           Positioned.fill(
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
@@ -90,6 +110,20 @@ class _GoogleMapViewState extends State<MapDetailView>
               compassEnabled: false,
             ),
           ),
+          Positioned(
+            top: padding.top + 10, // Adjust as needed
+            left: 10, // Adjust as needed
+            child: IconButton(
+              icon: SvgPicture.asset(
+                AppConstants.backIcon,
+                // Optionally, set the color or other properties
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+
           Positioned(
             bottom: 20,
             right: 15,

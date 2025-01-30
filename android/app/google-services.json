@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "204396454546",
-    "project_id": "crap-advisor-822cc",
-    "storage_bucket": "crap-advisor-822cc.firebasestorage.app"
+    "project_number": "7789770188",
+    "project_id": "crapapps-65472",
+    "storage_bucket": "crapapps-65472.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:204396454546:android:04ec62099dfca26e50fc4b",
+        "mobilesdk_app_id": "1:7789770188:android:a330636eecb5738611d969",
         "android_client_info": {
-          "package_name": "com.crapadviser.orgnaizer"
+          "package_name": "com.crapadvior.orgnaisertoolkit"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDIQdd1ahXPDEaEe80ZpPK2mKT8f2c5Xro"
+          "current_key": "AIzaSyBTR8ZK1TfP5OPSJnJf6l-pDs9AVeiJGLA"
         }
       ],
       "services": {
@@ -26,15 +26,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:204396454546:android:7496b76c07379fcc50fc4b",
+        "mobilesdk_app_id": "1:7789770188:android:2abb3f7e3fddd87711d969",
         "android_client_info": {
-          "package_name": "com.crapadviser.user"
+          "package_name": "com.crapadviser.orgnaizer"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDIQdd1ahXPDEaEe80ZpPK2mKT8f2c5Xro"
+          "current_key": "AIzaSyBTR8ZK1TfP5OPSJnJf6l-pDs9AVeiJGLA"
         }
       ],
       "services": {

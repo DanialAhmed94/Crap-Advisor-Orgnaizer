@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:geocoding/geocoding.dart';
+import '../../../Maps/DetailMap.dart';
 import '../../../Maps/googleMap.dart';
 import '../../../annim/transition.dart';
 import '../../../api/addFestival_api.dart';
@@ -111,6 +113,20 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
     setState(() {
       _isEditMode = true;
     });
+  }
+  Future<void> _openMap() async {
+    await Navigator.push(
+      context,
+      FadePageRouteBuilder(
+        widget: MapDetailView(
+          isFromFestival: false,
+          initialPosition: LatLng(
+            double.parse(_latitudeControler.text),
+            double.parse(_longitudeControler.text),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _handleSubmit() async {
@@ -423,8 +439,7 @@ class _FestivalDetailViewState extends State<FestivalDetailView> {
                                         });
                                       }
                                     } else {
-                                      // Not in edit mode
-                                      // (Optionally open a detail map or do nothing)
+                                      await _openMap();
                                     }
                                   },
                                   child: Image.asset(AppConstants.mapPreview),

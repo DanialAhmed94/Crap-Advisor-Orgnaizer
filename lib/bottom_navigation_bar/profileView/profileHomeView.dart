@@ -158,14 +158,14 @@ class _ProfileHomeviewState extends State<ProfileHomeview> {
                      _sendFeedback(context);
                   },
                 ),
-                const Divider(),
-                ProfileTile(
-                  title: "Invoices",
-                  leadingImage: AppConstants.feedBack,
-                  onTap: () {
-                  Navigator.push(context, FadePageRouteBuilder(widget: RecieptsView()));
-                  },
-                ),
+                // const Divider(),
+                // ProfileTile(
+                //   title: "Invoices",
+                //   leadingImage: AppConstants.feedBack,
+                //   onTap: () {
+                //   Navigator.push(context, FadePageRouteBuilder(widget: RecieptsView()));
+                //   },
+                // ),
                 const Divider(),
                 ListTile(
                   title: Text(

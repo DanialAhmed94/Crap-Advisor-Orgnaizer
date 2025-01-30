@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../annim/transition.dart';
+import '../bottom_navigation_bar/navigation_home_view/eventMangement_view/eventManagement_homeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/eventMangement_view/invoice_view.dart';
 import '../constants/AppConstants.dart';
 
@@ -51,16 +52,22 @@ Future<void> addEvent(
       if (responseData['status'] == 200) {
         await saveEventId(responseData['data']['id']);
 
-        showSuccessDialog1(
+      //   showSuccessDialog1(
+      //       context,
+      //       responseData['message'],
+      //       null,
+      //       InvoiceView(
+      //           eventId: await getEventId(),
+      //           crowdCapacity: capacity,
+      //           pricePerPerson: price,
+      //           total: total,
+      //           tax: tax));
+      // }
+        showSuccessDialog2(
             context,
             responseData['message'],
             null,
-            InvoiceView(
-                eventId: await getEventId(),
-                crowdCapacity: capacity,
-                pricePerPerson: price,
-                total: total,
-                tax: tax));
+            AddEventManagementView());
       }
     } else if (response.statusCode == 400) {
       // Handle validation errors
@@ -81,7 +88,47 @@ Future<void> addEvent(
     print("error123: $error");
   }
 }
-
+void showSuccessDialog2<T>(
+    BuildContext context,
+    String message,
+    String? choice,
+    T navigateTo,
+    ) {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: choice != null
+            ? Text(
+          'Failure',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        )
+            : Text(
+          'Success',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                FadePageRouteBuilder(widget: navigateTo as Widget), (route) => route.isFirst,
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 void showSuccessDialog1<T>(
   BuildContext context,
   String message,

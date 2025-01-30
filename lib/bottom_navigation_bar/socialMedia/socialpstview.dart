@@ -1,7 +1,17 @@
+import 'dart:async';
 import 'dart:convert'; // For decoding base64
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// ADDED: Minimal change to support video playback with caching
+import 'package:video_player/video_player.dart';
+import 'package:better_player/better_player.dart'; // NEW: Import better_player
+import 'package:cached_network_image/cached_network_image.dart'; // For caching network images
+import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // For caching videos
+import 'package:carousel_slider/carousel_slider.dart'; // For media slider
 
 // Import your custom transition and utilities
 import '../../annim/transition.dart';
@@ -10,6 +20,7 @@ import '../../utilities/utilities.dart';
 import 'createPost.dart';
 
 class SocialMediaHomeView extends StatefulWidget {
+
   const SocialMediaHomeView({Key? key}) : super(key: key);
 
   @override
@@ -33,6 +44,9 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
   // ADDED: Track the timestamp of the most recent post we have
   // so we only listen for truly new posts that come in after that time.
   Timestamp _mostRecentPostTimestamp = Timestamp(0, 0);
+
+  // ADDED: Track current carousel index for each post
+  final Map<String, int> _currentCarouselIndices = {};
 
   @override
   void initState() {
@@ -111,6 +125,8 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
           final newPostDoc = change.doc;
           setState(() {
             _postDocs.insert(0, newPostDoc);
+            // Initialize carousel index for the new post
+            _currentCarouselIndices[newPostDoc.id] = 0;
           });
 
           // Update _mostRecentPostTimestamp if this newly added doc is the newest
@@ -132,6 +148,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
       _hasMorePosts = true;
       // Reset so that _listenForNewPosts can pick from scratch
       _mostRecentPostTimestamp = Timestamp(0, 0);
+      _currentCarouselIndices.clear();
     });
     await _fetchPosts();
   }
@@ -261,7 +278,10 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  child: const Text("Load More Posts"),
+                  child: const Text(
+                    "Load More Posts",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             );
@@ -299,20 +319,52 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
       String postId,
       ) {
     final String description = postData['description'] ?? '';
-    final List images = postData['images'] ?? []; // base64 strings
-    final int likesCount = postData['likesCount'] ?? 0; // still read once
-    final List likes = postData['likes'] ?? []; // still read once
+
+    // CHANGED: Now reading 'imageUrls', 'videoUrls', 'imageThumbnailUrls', & 'videoThumbnailUrls' from Firestore
+    final List imageUrls = postData['imageUrls'] ?? [];
+    final List videoUrls = postData['videoUrls'] ?? [];
+    final List imageThumbnailUrls = postData['imageThumbnailUrls'] ?? [];
+    final List videoThumbnailUrls = postData['videoThumbnailUrls'] ?? [];
+
+    final int likesCount = postData['likesCount'] ?? 0;
+    final List likes = postData['likes'] ?? [];
     final String userName = postData['userName'].toString();
 
     // Ensure 'createdAt' is a Timestamp and convert to DateTime
     final Timestamp timestamp = postData['createdAt'] as Timestamp;
     final DateTime createdAt = timestamp.toDate();
 
+    // CHANGED: Combine imageUrls and videoUrls with their respective thumbnail URLs
+    final List<Map<String, String>> mediaList = [];
+
+    for (int i = 0; i < imageUrls.length; i++) {
+      mediaList.add({
+        'type': 'image',
+        'thumbnailUrl':
+        imageThumbnailUrls.length > i ? imageThumbnailUrls[i] : imageUrls[i],
+        'fullUrl': imageUrls[i],
+      });
+    }
+
+    for (int i = 0; i < videoUrls.length; i++) {
+      mediaList.add({
+        'type': 'video',
+        'thumbnailUrl':
+        videoThumbnailUrls.length > i ? videoThumbnailUrls[i] : videoUrls[i],
+        'fullUrl': videoUrls[i],
+      });
+    }
+
+    // Initialize carousel index for the post if not already
+    if (!_currentCarouselIndices.containsKey(postId)) {
+      _currentCarouselIndices[postId] = 0;
+    }
+
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+     // margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Padding(
         // Some padding to give breathing room on all screens
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -338,32 +390,117 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
               ),
             ),
 
-            // Post Images (Horizontal List if multiple images)
-            if (images.isNotEmpty)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: images.map((base64Str) {
-                    try {
-                      final decodedBytes = base64Decode(base64Str);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15.0),
-                          child: Image.memory(
-                            decodedBytes,
-                            fit: BoxFit.fill,
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            height: MediaQuery.of(context).size.height * 0.3,
+            // CHANGED: Show media (images/videos) using CarouselSlider with caching
+            if (mediaList.isNotEmpty)
+              Column(
+                children: [
+                  CarouselSlider(
+                    items: mediaList.map((media) {
+                      if (media['type'] == 'image') {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              FadePageRouteBuilder(
+                                widget: FullScreenView(
+                                  url: media['fullUrl']!,
+                                  isVideo: false,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding:
+                            const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: CachedNetworkImage(
+                              imageUrl: media['thumbnailUrl']!,
+                              fit: BoxFit.contain,
+                              width: MediaQuery.of(context).size.width,
+                              height:
+                              MediaQuery.of(context).size.height * 0.3,
+                              placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                            ),
                           ),
+                        );
+                      } else if (media['type'] == 'video') {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              FadePageRouteBuilder(
+                                widget: FullScreenView(
+                                  url: media['fullUrl']!,
+                                  isVideo: true,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding:
+                            const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Stack(
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: media['thumbnailUrl']!,
+                                  fit: BoxFit.cover,
+                                  width: MediaQuery.of(context).size.width,
+                                  height:
+                                  MediaQuery.of(context).size.height * 0.3,
+                                  placeholder: (context, url) => const Center(
+                                      child: CircularProgressIndicator()),
+                                  errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                                ),
+                                const Center(
+                                  child: Icon(
+                                    Icons.play_circle_fill,
+                                    color: Colors.lightGreenAccent,
+                                    size: 60,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }).toList(),
+                    options: CarouselOptions(
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      enableInfiniteScroll: false,
+                      enlargeCenterPage: true,
+                      viewportFraction: 1.0, // Added to ensure full visibility
+
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentCarouselIndices[postId] = index;
+                        });
+                      },
+                    ),
+                  ),
+                  // Dot Indicators
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(mediaList.length, (index) {
+                      return Container(
+                        width: 8.0,
+                        height: 8.0,
+                        margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _currentCarouselIndices[postId] == index
+                              ? Colors.blueAccent
+                              : Colors.grey,
                         ),
                       );
-                    } catch (e) {
-                      // Handle decoding error
-                      return const SizedBox.shrink();
-                    }
-                  }).toList(),
-                ),
+                    }),
+                  ),
+                ],
               ),
 
             // Description
@@ -392,7 +529,8 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
             // Comments inside an ExpansionTile with customized divider
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data: Theme.of(context)
+                  .copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 title: const Text(
                   'View/Add Comments',
@@ -419,7 +557,8 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
     if (currentUserId == null) {
       // Optionally, prompt user to log in
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must be logged in to like posts.')),
+        const SnackBar(
+            content: Text('You must be logged in to like posts.')),
       );
       return;
     }
@@ -428,7 +567,8 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
     if (_likeInProgressMap[postId] == true) return;
     _likeInProgressMap[postId] = true;
 
-    final postRef = FirebaseFirestore.instance.collection('posts').doc(postId);
+    final postRef =
+    FirebaseFirestore.instance.collection('posts').doc(postId);
 
     // Use a Firestore transaction to handle concurrency and avoid negative counts
     await FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -441,7 +581,8 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
       if (currentLikes.contains(currentUserId)) {
         // Unlike
-        final newCount = currentLikesCount > 0 ? currentLikesCount - 1 : 0;
+        final newCount =
+        currentLikesCount > 0 ? currentLikesCount - 1 : 0;
         transaction.update(postRef, {
           'likes': FieldValue.arrayRemove([currentUserId]),
           'likesCount': newCount,
@@ -516,7 +657,8 @@ class CommentSectionWidget extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<CommentSectionWidget> createState() => _CommentSectionWidgetState();
+  State<CommentSectionWidget> createState() =>
+      _CommentSectionWidgetState();
 }
 
 class _CommentSectionWidgetState extends State<CommentSectionWidget> {
@@ -672,7 +814,8 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
         if (!snapshot.hasData || snapshot.data == null) {
           return const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Center(child: Text('No comments yet. Be the first to comment!')),
+            child:
+            Center(child: Text('No comments yet. Be the first to comment!')),
           );
         }
 
@@ -706,7 +849,8 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
                       // User Avatar or Placeholder
                       const CircleAvatar(
                         radius: 12,
-                        backgroundImage: AssetImage('assets/images/user.png'),
+                        backgroundImage:
+                        AssetImage('assets/images/user.png'),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -765,7 +909,7 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
               borderRadius: BorderRadius.circular(20.0),
             ),
           ),
-          child: const Text("Load More Comments"),
+          child: const Text("Load More Comments",style: TextStyle(color: Colors.white),),
         ),
       );
     }
@@ -816,7 +960,6 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
   }
 }
 
-// -------------------------------------------------------------------
 // -------------------------------------------------------------------
 // LikeSectionWidget: Streams only 'likes' and 'likesCount' in real time
 // with OPTIMISTIC UI updates and NO "setState during build" error
@@ -877,23 +1020,16 @@ class _LikeSectionWidgetState extends State<LikeSectionWidget> {
 
         // If we are NOT in the middle of an optimistic transaction,
         // show the live Firestore data directly.
-        // (i.e., user hasn't just tapped "Like" or "Unlike").
         if (!_pendingLikeTransaction) {
           isLikedForUI = firestoreIsLiked;
           likesCountForUI = firestoreLikesCount;
-        }
-        // ELSE if we *are* pending, we keep showing our optimistic state
-        // but we also check if Firestore has "caught up":
-        else {
+        } else {
           // If Firestore now matches our optimistic state, we know the update
           // made it to Firestore, so we can stop ignoring new snapshots.
-          final transactionHasArrived =
-          (firestoreIsLiked == _isLiked &&
+          final transactionHasArrived = (firestoreIsLiked == _isLiked &&
               firestoreLikesCount == _likesCount);
 
           if (transactionHasArrived) {
-            // Instead of calling setState() here,
-            // use a post-frame callback to safely mark it false.
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
               setState(() {
@@ -920,9 +1056,8 @@ class _LikeSectionWidgetState extends State<LikeSectionWidget> {
                   _pendingLikeTransaction = true;
                   if (isLikedForUI) {
                     _isLiked = false;
-                    _likesCount = likesCountForUI > 0
-                        ? (likesCountForUI - 1)
-                        : 0;
+                    _likesCount =
+                    likesCountForUI > 0 ? (likesCountForUI - 1) : 0;
                   } else {
                     _isLiked = true;
                     _likesCount = likesCountForUI + 1;
@@ -976,68 +1111,143 @@ class _LikeSectionWidgetState extends State<LikeSectionWidget> {
   }
 }
 
+
 // -------------------------------------------------------------------
-// class LikeSectionWidget extends StatelessWidget {
-//   final String postId;
-//   final String? bearerToken;
-//   final _SocialMediaHomeViewState parentState;
-//
-//   const LikeSectionWidget({
-//     Key? key,
-//     required this.postId,
-//     required this.bearerToken,
-//     required this.parentState,
-//   }) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return StreamBuilder<DocumentSnapshot>(
-//       stream: FirebaseFirestore.instance
-//           .collection('posts')
-//           .doc(postId)
-//           .snapshots(),
-//       builder: (context, snapshot) {
-//         if (!snapshot.hasData || !snapshot.data!.exists) {
-//           return const SizedBox.shrink();
-//         }
-//
-//         final postData = snapshot.data!.data() as Map<String, dynamic>;
-//         final int likesCount = postData['likesCount'] ?? 0;
-//         final List likes = postData['likes'] ?? [];
-//
-//         return Row(
-//           children: [
-//             // The same like button logic from your original code
-//             InkWell(
-//               onTap: () => parentState.handleLike(context, postId, likes),
-//               child: Row(
-//                 children: [
-//                   Icon(
-//                     likes.contains(bearerToken)
-//                         ? Icons.favorite
-//                         : Icons.favorite_border,
-//                     color: likes.contains(bearerToken) ? Colors.red : Colors.grey,
-//                   ),
-//                   const SizedBox(width: 4),
-//                   Text(likesCount.toString()),
-//                 ],
-//               ),
-//             ),
-//             const SizedBox(width: 16),
-//
-//             // Comment icon is static
-//             Row(
-//               children: const [
-//                 Icon(Icons.comment, color: Colors.grey),
-//                 SizedBox(width: 4),
-//                 Text('Comments'),
-//               ],
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
+// Modified FullScreenView: Now a StatefulWidget with dynamic aspect ratio
+// -------------------------------------------------------------------
+class FullScreenView extends StatefulWidget {
+  final String url;
+  final bool isVideo;
 
+  const FullScreenView({Key? key, required this.url, required this.isVideo})
+      : super(key: key);
 
+  @override
+  _FullScreenViewState createState() => _FullScreenViewState();
+}
+
+class _FullScreenViewState extends State<FullScreenView> {
+  double? _aspectRatio;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isVideo) {
+      _fetchVideoMetadata();
+    }
+  }
+
+  Future<void> _fetchVideoMetadata() async {
+    VideoPlayerController controller = VideoPlayerController.network(widget.url);
+    try {
+      await controller.initialize();
+      final size = controller.value.size;
+      controller.dispose();
+      setState(() {
+        _aspectRatio = size.width / size.height;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Handle errors if any (e.g., network issues)
+      controller.dispose();
+      setState(() {
+        _aspectRatio = 16 / 9; // Fallback aspect ratio
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.isVideo) {
+      if (_isLoading) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            centerTitle: true,
+            leading: IconButton(
+              icon: SvgPicture.asset(AppConstants.backIcon),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      } else {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            centerTitle: true,
+            leading: IconButton(
+              icon: SvgPicture.asset(AppConstants.backIcon),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
+          body: Center(
+            child: AspectRatio(
+              aspectRatio: _aspectRatio!,
+              child: BetterPlayer(
+                controller: BetterPlayerController(
+                  BetterPlayerConfiguration(
+                    aspectRatio: _aspectRatio,
+                    autoPlay: true,
+                    fit: BoxFit.cover, // Adjust BoxFit as needed
+                    controlsConfiguration: BetterPlayerControlsConfiguration(
+                      enablePlaybackSpeed: false,
+                      enableProgressBar: true,
+                      enableFullscreen: true,
+                      enableSkips: false,
+                      enableMute: false,
+                    ),
+                  ),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                    BetterPlayerDataSourceType.network,
+                    widget.url,
+                    cacheConfiguration: BetterPlayerCacheConfiguration(
+                      useCache: true,
+                      key: widget.url,
+                      maxCacheSize: 100 * 1024 * 1024, // 100 MB
+                      maxCacheFileSize: 10 * 1024 * 1024, // 10 MB per file
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    } else {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            icon: SvgPicture.asset(AppConstants.backIcon),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Center(
+          child: CachedNetworkImage(
+            imageUrl: widget.url,
+            fit: BoxFit.cover,
+            placeholder: (context, url) =>
+            const Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+        ),
+      );
+    }
+  }
+}
