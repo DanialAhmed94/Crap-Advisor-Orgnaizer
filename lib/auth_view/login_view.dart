@@ -268,7 +268,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                   context,
                                   FadePageRouteBuilder(
                                       widget: ForgotPasswordView()));

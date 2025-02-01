@@ -62,7 +62,7 @@ class _NotificationViewState extends State<NotificationView> {
                 "There is nothing to show here",
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
             )

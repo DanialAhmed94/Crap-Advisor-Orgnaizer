@@ -120,7 +120,7 @@ class _AddEventManagementViewState extends State<AddEventManagementView> {
                               color: Colors.white),
                         ),
                         Text(
-                           "Attraction",
+                           "Event",
                           style: TextStyle(
                               height: 1.0,
                               fontFamily: "UbuntuBold",

@@ -474,10 +474,12 @@ class _SignupViewState extends State<SignupView> {
                                   ),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          FadePageRouteBuilder(
-                                              widget: LoginView()));
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        FadePageRouteBuilder(widget: LoginView()),
+                                            (Route<dynamic> route) => false, // This removes all previous routes.
+                                      );
+
                                     },
                                 ),
                               ],

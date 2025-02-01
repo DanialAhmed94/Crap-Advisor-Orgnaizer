@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../annim/transition.dart';
+import '../bottom_navigation_bar/navigation_home_view/eventMangement_view/eventManagement_homeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/eventMangement_view/invoice_view.dart';
 import '../constants/AppConstants.dart';
 import 'addEvent_api.dart'; // Ensure this import includes necessary utility functions
@@ -65,17 +66,23 @@ Future<void> updateEvent(
         // Assuming the response contains the updated event data
     //    await saveEventId(responseData['data']['id']);
 
-        showSuccessDialog1(
+        // showSuccessDialog1(
+        //   context,
+        //   responseData['message'],
+        //   null,
+        //   InvoiceView(
+        //     eventId: int.parse(eventId),
+        //     crowdCapacity: capacity,
+        //     pricePerPerson: price,
+        //     total: total,
+        //     tax: tax,
+        //   ),
+        // );
+        showSuccessDialog2(
           context,
           responseData['message'],
           null,
-          InvoiceView(
-            eventId: int.parse(eventId),
-            crowdCapacity: capacity,
-            pricePerPerson: price,
-            total: total,
-            tax: tax,
-          ),
+            AddEventManagementView(),
         );
       } else {
         // Handle cases where statusCode is 200 but 'status' is not 200

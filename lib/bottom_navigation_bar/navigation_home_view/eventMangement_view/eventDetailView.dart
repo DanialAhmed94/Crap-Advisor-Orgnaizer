@@ -561,170 +561,170 @@ class _EventDetailViewState extends State<EventDetailView>
                             ),
                             SizedBox(height: 10),
 
-                            // Price Per Person Field
-                            Text(
-                              "Price Per Person",
-                              style: TextStyle(
-                                fontFamily: "UbuntuMedium",
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            TextFormField(
-                              readOnly:
-                              !_isEditMode, // Editable in edit mode
-                              textInputAction:
-                              TextInputAction.next,
-                              controller: _priceController,
-                              focusNode: _priceFocusNode,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              validator: (value) {
-                                if (value == null ||
-                                    value.isEmpty) {
-                                  return 'Please enter a valid number';
-                                }
-                                return null;
-                              },
-                              onFieldSubmitted: (_) {
-                                FocusScope.of(context)
-                                    .requestFocus(_taxFocusNode);
-                              },
-                              decoration: InputDecoration(
-                                prefixIcon: Padding(
-                                  padding:
-                                  const EdgeInsets.all(8.0),
-                                  child: SvgPicture.asset(
-                                    AppConstants.person,
-                                    color: Color(0xFF628C61),
-                                  ),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: "0",
-                                hintStyle: TextStyle(
-                                  color: Color(0xFFA0A0A0),
-                                  fontFamily: "UbuntuMedium",
-                                  fontSize: 15,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(25.0),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-
-                            // Total Amount Field
-                            Text(
-                              "Total Amount",
-                              style: TextStyle(
-                                fontFamily: "UbuntuMedium",
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            TextFormField(
-                              readOnly: true,
-                              controller: _totalController,
-                              decoration: InputDecoration(
-                                prefixIcon: Padding(
-                                  padding:
-                                  const EdgeInsets.all(8.0),
-                                  child: SvgPicture.asset(
-                                    AppConstants.totalAmount,
-                                    color: Color(0xFF628C61),
-                                  ),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: "0",
-                                hintStyle: TextStyle(
-                                  color: Color(0xFFA0A0A0),
-                                  fontFamily: "UbuntuMedium",
-                                  fontSize: 15,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(25.0),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-
-                            // Tax Field
-                            Text(
-                              "Tax",
-                              style: TextStyle(
-                                fontFamily: "UbuntuMedium",
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            TextFormField(
-                              readOnly:
-                              !_isEditMode, // Editable in edit mode
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              validator: (value) {
-                                double total =
-                                    double.tryParse(_totalController.text) ??
-                                        0;
-                                double tax =
-                                    double.tryParse(value ?? '') ?? 0;
-
-                                if (value == null ||
-                                    value.isEmpty) {
-                                  return 'Please enter a tax amount';
-                                } else if (tax > total) {
-                                  return 'Tax must be less than or equal to total amount';
-                                }
-                                return null;
-                              },
-                              textInputAction: TextInputAction.next,
-                              focusNode: _taxFocusNode,
-                              controller: _taxController,
-                              onFieldSubmitted: (_) {
-                                FocusScope.of(context)
-                                    .requestFocus(_startTimeFocusNode);
-                              },
-                              decoration: InputDecoration(
-                                prefixIcon: Padding(
-                                  padding:
-                                  const EdgeInsets.all(8.0),
-                                  child: SvgPicture.asset(
-                                    AppConstants.tax,
-                                    color: Color(0xFF628C61),
-                                  ),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: "0",
-                                hintStyle: TextStyle(
-                                  color: Color(0xFFA0A0A0),
-                                  fontFamily: "UbuntuMedium",
-                                  fontSize: 15,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(25.0),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
+                            // // Price Per Person Field
+                            // Text(
+                            //   "Price Per Person",
+                            //   style: TextStyle(
+                            //     fontFamily: "UbuntuMedium",
+                            //     fontSize: 15,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
+                            // TextFormField(
+                            //   readOnly:
+                            //   !_isEditMode, // Editable in edit mode
+                            //   textInputAction:
+                            //   TextInputAction.next,
+                            //   controller: _priceController,
+                            //   focusNode: _priceFocusNode,
+                            //   keyboardType: TextInputType.number,
+                            //   inputFormatters: [
+                            //     FilteringTextInputFormatter.digitsOnly
+                            //   ],
+                            //   validator: (value) {
+                            //     if (value == null ||
+                            //         value.isEmpty) {
+                            //       return 'Please enter a valid number';
+                            //     }
+                            //     return null;
+                            //   },
+                            //   onFieldSubmitted: (_) {
+                            //     FocusScope.of(context)
+                            //         .requestFocus(_taxFocusNode);
+                            //   },
+                            //   decoration: InputDecoration(
+                            //     prefixIcon: Padding(
+                            //       padding:
+                            //       const EdgeInsets.all(8.0),
+                            //       child: SvgPicture.asset(
+                            //         AppConstants.person,
+                            //         color: Color(0xFF628C61),
+                            //       ),
+                            //     ),
+                            //     filled: true,
+                            //     fillColor: Colors.white,
+                            //     hintText: "0",
+                            //     hintStyle: TextStyle(
+                            //       color: Color(0xFFA0A0A0),
+                            //       fontFamily: "UbuntuMedium",
+                            //       fontSize: 15,
+                            //     ),
+                            //     border: OutlineInputBorder(
+                            //       borderRadius:
+                            //       BorderRadius.circular(25.0),
+                            //       borderSide: BorderSide.none,
+                            //     ),
+                            //     contentPadding:
+                            //     EdgeInsets.symmetric(horizontal: 16.0),
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
+                            //
+                            // // Total Amount Field
+                            // Text(
+                            //   "Total Amount",
+                            //   style: TextStyle(
+                            //     fontFamily: "UbuntuMedium",
+                            //     fontSize: 15,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
+                            // TextFormField(
+                            //   readOnly: true,
+                            //   controller: _totalController,
+                            //   decoration: InputDecoration(
+                            //     prefixIcon: Padding(
+                            //       padding:
+                            //       const EdgeInsets.all(8.0),
+                            //       child: SvgPicture.asset(
+                            //         AppConstants.totalAmount,
+                            //         color: Color(0xFF628C61),
+                            //       ),
+                            //     ),
+                            //     filled: true,
+                            //     fillColor: Colors.white,
+                            //     hintText: "0",
+                            //     hintStyle: TextStyle(
+                            //       color: Color(0xFFA0A0A0),
+                            //       fontFamily: "UbuntuMedium",
+                            //       fontSize: 15,
+                            //     ),
+                            //     border: OutlineInputBorder(
+                            //       borderRadius:
+                            //       BorderRadius.circular(25.0),
+                            //       borderSide: BorderSide.none,
+                            //     ),
+                            //     contentPadding:
+                            //     EdgeInsets.symmetric(horizontal: 16.0),
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
+                            //
+                            // // Tax Field
+                            // Text(
+                            //   "Tax",
+                            //   style: TextStyle(
+                            //     fontFamily: "UbuntuMedium",
+                            //     fontSize: 15,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
+                            // TextFormField(
+                            //   readOnly:
+                            //   !_isEditMode, // Editable in edit mode
+                            //   keyboardType: TextInputType.number,
+                            //   inputFormatters: [
+                            //     FilteringTextInputFormatter.digitsOnly
+                            //   ],
+                            //   validator: (value) {
+                            //     double total =
+                            //         double.tryParse(_totalController.text) ??
+                            //             0;
+                            //     double tax =
+                            //         double.tryParse(value ?? '') ?? 0;
+                            //
+                            //     if (value == null ||
+                            //         value.isEmpty) {
+                            //       return 'Please enter a tax amount';
+                            //     } else if (tax > total) {
+                            //       return 'Tax must be less than or equal to total amount';
+                            //     }
+                            //     return null;
+                            //   },
+                            //   textInputAction: TextInputAction.next,
+                            //   focusNode: _taxFocusNode,
+                            //   controller: _taxController,
+                            //   onFieldSubmitted: (_) {
+                            //     FocusScope.of(context)
+                            //         .requestFocus(_startTimeFocusNode);
+                            //   },
+                            //   decoration: InputDecoration(
+                            //     prefixIcon: Padding(
+                            //       padding:
+                            //       const EdgeInsets.all(8.0),
+                            //       child: SvgPicture.asset(
+                            //         AppConstants.tax,
+                            //         color: Color(0xFF628C61),
+                            //       ),
+                            //     ),
+                            //     filled: true,
+                            //     fillColor: Colors.white,
+                            //     hintText: "0",
+                            //     hintStyle: TextStyle(
+                            //       color: Color(0xFFA0A0A0),
+                            //       fontFamily: "UbuntuMedium",
+                            //       fontSize: 15,
+                            //     ),
+                            //     border: OutlineInputBorder(
+                            //       borderRadius:
+                            //       BorderRadius.circular(25.0),
+                            //       borderSide: BorderSide.none,
+                            //     ),
+                            //     contentPadding:
+                            //     EdgeInsets.symmetric(horizontal: 16.0),
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
 
                             // Start and End Time Fields
                             Row(
