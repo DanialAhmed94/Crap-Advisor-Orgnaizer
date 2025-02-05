@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -5,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geocoding/geocoding.dart'; // Import the geocoding package
-
 import '../constants/AppConstants.dart';
 
 class GoogleMapView extends StatefulWidget {
@@ -25,7 +25,7 @@ class _GoogleMapViewState extends State<GoogleMapView>
   String? selectedAddress;
   BitmapDescriptor? customMarkerIcon;
   BitmapDescriptor? currentLocationMarker;
-
+  bool _mapLoaded = false;bool _isFetchingAddress = false;
   @override
   void initState() {
     // Register the observer
@@ -34,29 +34,53 @@ class _GoogleMapViewState extends State<GoogleMapView>
     _loadCustomMarkerIcon();
     super.initState();
   }
+  bool _isDisposed = false;
 
   @override
-  void dispose() {
-    // Unregister the observer
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  void dispose() {_isDisposed = true;
+  // Unregister the observer
+  WidgetsBinding.instance.removeObserver(this);
+  super.dispose();
   }
 
-  Future<String> _getAddressFromLatLng(
-      double latitude, double longitude) async {
+  // Future<String> _getAddressFromLatLng(
+  //     double latitude, double longitude) async {
+  //   try {
+  //     List<Placemark> placemarks =
+  //     await placemarkFromCoordinates(latitude, longitude);
+  //     if (placemarks.isNotEmpty) {
+  //       Placemark place = placemarks.first;
+  //       // Format the address according to UK standard
+  //       return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     return "Address not found";
+  //   }
+  //   return "Unknown Address";
+  // }
+  Future<void> _getAddressAndUpdateUI(double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
-        // Format the address according to UK standard
-        return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+        String address = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+        setState(() {
+          selectedAddress = address; // Update the state with the fetched address
+        });
+      } else {
+        setState(() {
+          selectedAddress = "Address not found";
+        });
       }
     } catch (e) {
-      print(e);
+      setState(() {
+        selectedAddress = "Address retrieval failed";
+      });
     }
-    return "Unknown Address";
   }
+
+
 
   Future<void> _loadCustomMarkerIcon() async {
     currentLocationMarker = await BitmapDescriptor.fromAssetImage(
@@ -252,11 +276,16 @@ class _GoogleMapViewState extends State<GoogleMapView>
               markers: _markers,
               onMapCreated: (GoogleMapController controller) {
                 _mapController = controller;
-                print("GoogleMap controller created.");
+                setState(() => _mapLoaded = true);
               },
               onTap: (LatLng tappedLocation) async {
+                if (!_mapLoaded) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Map is still loading, please wait.')),
+                  );
+                  return;
+                }
                 setState(() {
-                  // Remove the marker for the selected location, not the user location
                   _markers.removeWhere((marker) =>
                   marker.markerId == MarkerId('tappedLocation'));
                   _markers.add(
@@ -264,24 +293,20 @@ class _GoogleMapViewState extends State<GoogleMapView>
                       icon: customMarkerIcon ?? BitmapDescriptor.defaultMarker,
                       markerId: MarkerId('tappedLocation'),
                       position: tappedLocation,
-                      infoWindow: InfoWindow(
-                        title: 'Selected Location',
-                      ),
+                      infoWindow: InfoWindow(title: 'Selected Location'),
                     ),
                   );
-                  // Save the tapped location in variables
                   selectedLatitude = tappedLocation.latitude.toString();
                   selectedLongitude = tappedLocation.longitude.toString();
+                  _isFetchingAddress = true;
                 });
-                // Fetch the address asynchronously and then update the state with the address
-                _getAddressFromLatLng(
-                    tappedLocation.latitude, tappedLocation.longitude)
-                    .then((address) {
-                  setState(() {
-                    selectedAddress =
-                        address; // Update the address once it's fetched
-                  });
-                });
+
+                await _getAddressAndUpdateUI(
+                    tappedLocation.latitude, tappedLocation.longitude);
+
+                if (!_isDisposed) {
+                  setState(() => _isFetchingAddress = false);
+                }
               },
               myLocationButtonEnabled: true,
               zoomControlsEnabled: false,
@@ -295,55 +320,51 @@ class _GoogleMapViewState extends State<GoogleMapView>
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               onPressed: () async {
-                // Fetch the current location of the user
                 Position position = await Geolocator.getCurrentPosition(
                   desiredAccuracy: LocationAccuracy.high,
                 );
-
-                // Move the camera to the user's current location
-                LatLng currentLocation =
-                LatLng(position.latitude, position.longitude);
+                LatLng currentLocation = LatLng(position.latitude, position.longitude);
                 _mapController.animateCamera(
-                  CameraUpdate.newLatLngZoom(
-                    currentLocation,
-                    14.0, // Zoom level
-                  ),
+                  CameraUpdate.newLatLngZoom(currentLocation, 14.0),
                 );
               },
-              child: Icon(
-                Icons.my_location,
-                color: Colors.black,
-              ),
+              child: Icon(Icons.my_location, color: Colors.black),
             ),
           ),
           Positioned(
             bottom: 29,
             left: 100,
             right: 100,
-            child: GestureDetector(
-              onTap: () {
-                if (selectedLatitude != null && selectedLongitude != null) {
-                  Navigator.of(context).pop({
-                    'latitude': selectedLatitude.toString(),
-                    'longitude': selectedLongitude.toString(),
-                    'address': selectedAddress.toString(),
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'Please select a location by tapping on the map.'),
+            child: AbsorbPointer(
+              absorbing: _isFetchingAddress || selectedAddress == null,
+              child: Opacity(
+                opacity: (_isFetchingAddress || selectedAddress == null) ? 0.5 : 1.0,
+                child: GestureDetector(
+                  onTap: () {
+                    if (selectedLatitude != null &&
+                        selectedLongitude != null &&
+                        selectedAddress != null) {
+                      Navigator.of(context).pop({
+                        'latitude': selectedLatitude!,
+                        'longitude': selectedLongitude!,
+                        'address': selectedAddress!,
+                      });
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.lightGreen,
                     ),
-                  );
-                }
-              },
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.lightGreen,
+                    height: 50,
+                    child: Center(
+                      child: _isFetchingAddress
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text('Save Location'),
+                    ),
                   ),
-                  height: 50,
-                  child: Center(child: Text('Save Location'))),
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -355,31 +376,24 @@ class _GoogleMapViewState extends State<GoogleMapView>
               child: AppBar(
                 centerTitle: true,
                 title: widget.isFromFestival
-                    ? Text(
-                  "Add Festival's Location",
-                  style: TextStyle(
-                    fontFamily: "Ubuntu",
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-                    : Text(
-                  "Add Activity's Location",
-                  style: TextStyle(
-                    fontFamily: "Ubuntu",
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                    ? Text("Add Festival's Location",
+                    style: TextStyle(
+                      fontFamily: "Ubuntu",
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ))
+                    : Text("Add Activity's Location",
+                    style: TextStyle(
+                      fontFamily: "Ubuntu",
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    )),
                 leading: IconButton(
                   icon: SvgPicture.asset(AppConstants.greenBackIcon),
-                  // Replace with your custom icon
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: () => Navigator.pop(context),
                 ),
                 backgroundColor: Colors.transparent,
-                elevation: 0, // Remove shadow
+                elevation: 0,
               ),
             ),
           ),
@@ -387,7 +401,13 @@ class _GoogleMapViewState extends State<GoogleMapView>
       ),
     );
   }
+
 }
+
+
+// before handling null in address
+
+
 // import 'package:flutter/cupertino.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_svg/svg.dart';
@@ -432,9 +452,11 @@ class _GoogleMapViewState extends State<GoogleMapView>
 //     super.dispose();
 //   }
 //
-//   Future<String> _getAddressFromLatLng(double latitude, double longitude) async {
+//   Future<String> _getAddressFromLatLng(
+//       double latitude, double longitude) async {
 //     try {
-//       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+//       List<Placemark> placemarks =
+//       await placemarkFromCoordinates(latitude, longitude);
 //       if (placemarks.isNotEmpty) {
 //         Placemark place = placemarks.first;
 //         // Format the address according to UK standard
@@ -446,22 +468,18 @@ class _GoogleMapViewState extends State<GoogleMapView>
 //     return "Unknown Address";
 //   }
 //
-//   // Method to load the custom marker icon
 //   Future<void> _loadCustomMarkerIcon() async {
+//     currentLocationMarker = await BitmapDescriptor.fromAssetImage(
+//       ImageConfiguration(devicePixelRatio: 2.5),
+//       AppConstants.currentLocationMarker,
+//     );
 //
-//       currentLocationMarker = await BitmapDescriptor.fromAssetImage(
-//         ImageConfiguration(devicePixelRatio: 2.5),
-//         AppConstants.currentLocationMarker, // Path to your custom marker
-//       );
-//
-//
-//       customMarkerIcon = await BitmapDescriptor.fromAssetImage(
-//         ImageConfiguration(devicePixelRatio: 2.5),
-//         AppConstants.customMarker, // Path to your custom marker
-//       );
-//
-//
+//     customMarkerIcon = await BitmapDescriptor.fromAssetImage(
+//       ImageConfiguration(devicePixelRatio: 2.5),
+//       AppConstants.customMarker,
+//     );
 //   }
+//
 //   // App lifecycle changes handling
 //   @override
 //   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -480,26 +498,19 @@ class _GoogleMapViewState extends State<GoogleMapView>
 //       return;
 //     }
 //
-//     // Check permission status
-//     PermissionStatus status = await Permission.location.status;
+//     // Request location permission
+//     LocationPermission permission = await Geolocator.requestPermission();
 //
-//     if (status.isGranted) {
+//     if (permission == LocationPermission.always ||
+//         permission == LocationPermission.whileInUse) {
 //       // If permission is granted, fetch the current location
 //       _getCurrentLocation();
-//     } else if (status.isDenied) {
-//       // If permission is denied, request it again
-//       var newStatus = await Permission.location.request();
-//       if (newStatus.isGranted) {
-//         _getCurrentLocation();
-//       } else if (newStatus.isDenied) {
-//         _showPermissionDeniedDialog();
-//       }
-//     } else if (status.isPermanentlyDenied) {
-//       // If permission is permanently denied, show settings option
+//     } else if (permission == LocationPermission.denied) {
+//       // Permission is denied, show a dialog or try again
+//       _showPermissionDeniedDialog();
+//     } else if (permission == LocationPermission.deniedForever) {
+//       // If permission is permanently denied, show a settings dialog
 //       _showPermissionPermanentlyDeniedDialog();
-//     } else if (status.isRestricted) {
-//       // Handle restricted permission case (mostly iOS)
-//       _showPermissionRestrictedDialog();
 //     }
 //   }
 //
@@ -511,11 +522,12 @@ class _GoogleMapViewState extends State<GoogleMapView>
 //       _initialPosition = LatLng(position.latitude, position.longitude);
 //
 //       // Add or update the marker for the user's current location
-//       _markers.removeWhere((marker) => marker.markerId == MarkerId('userLocation'));
+//       _markers
+//           .removeWhere((marker) => marker.markerId == MarkerId('userLocation'));
 //       _markers.add(
 //         Marker(
 //           markerId: MarkerId('userLocation'),
-//           icon:  currentLocationMarker ?? BitmapDescriptor.defaultMarker,
+//           icon: currentLocationMarker ?? BitmapDescriptor.defaultMarker,
 //           position: _initialPosition,
 //           infoWindow: InfoWindow(
 //             title: 'Your Location',
@@ -650,14 +662,16 @@ class _GoogleMapViewState extends State<GoogleMapView>
 //               markers: _markers,
 //               onMapCreated: (GoogleMapController controller) {
 //                 _mapController = controller;
+//                 print("GoogleMap controller created.");
 //               },
-//               onTap: (LatLng tappedLocation)async {
+//               onTap: (LatLng tappedLocation) async {
 //                 setState(() {
 //                   // Remove the marker for the selected location, not the user location
-//                   _markers.removeWhere((marker) => marker.markerId == MarkerId('tappedLocation'));
+//                   _markers.removeWhere((marker) =>
+//                   marker.markerId == MarkerId('tappedLocation'));
 //                   _markers.add(
 //                     Marker(
-//                       icon:  customMarkerIcon ?? BitmapDescriptor.defaultMarker,
+//                       icon: customMarkerIcon ?? BitmapDescriptor.defaultMarker,
 //                       markerId: MarkerId('tappedLocation'),
 //                       position: tappedLocation,
 //                       infoWindow: InfoWindow(
@@ -670,13 +684,15 @@ class _GoogleMapViewState extends State<GoogleMapView>
 //                   selectedLongitude = tappedLocation.longitude.toString();
 //                 });
 //                 // Fetch the address asynchronously and then update the state with the address
-//                 _getAddressFromLatLng(tappedLocation.latitude, tappedLocation.longitude).then((address) {
+//                 _getAddressFromLatLng(
+//                     tappedLocation.latitude, tappedLocation.longitude)
+//                     .then((address) {
 //                   setState(() {
-//                     selectedAddress = address;  // Update the address once it's fetched
+//                     selectedAddress =
+//                         address; // Update the address once it's fetched
 //                   });
 //                 });
 //               },
-//
 //               myLocationButtonEnabled: true,
 //               zoomControlsEnabled: false,
 //               mapToolbarEnabled: false,
@@ -782,3 +798,4 @@ class _GoogleMapViewState extends State<GoogleMapView>
 //     );
 //   }
 // }
+//

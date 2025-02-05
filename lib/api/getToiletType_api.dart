@@ -37,12 +37,8 @@ Future<ToiletTypeResponse?> getToiletTypeCollection(BuildContext context) async 
         showErrorDialog(context, "Failed to parse error response for toilet types.", []);
       }
     }
-  } on TimeoutException {
-    showErrorDialog(context, "Request timed out. Please try again later.", []);
-  } on SocketException {
-    showErrorDialog(context, "No internet connection. Please check your network and try again.", []);
-  } catch (error) {
-    showErrorDialog(context, "Failed to load toilet types. Error", []);
+  }  catch (error) {
+    // showErrorDialog(context, "Failed to load toilet types. Error", []);
     print("Error: $error");
   }
   return null;

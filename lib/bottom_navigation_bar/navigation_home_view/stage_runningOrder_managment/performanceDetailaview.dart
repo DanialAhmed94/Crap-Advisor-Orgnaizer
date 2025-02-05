@@ -724,7 +724,7 @@ class _PerformanceDetailViewState extends State<PerformanceDetailView> {
           _stageSetupController.text,
           _transitionController.text,
           _specialNotesController.text,
-          widget.performance.event!.id.toString()
+         // widget.performance.event!.id.toString()
         );
 
 

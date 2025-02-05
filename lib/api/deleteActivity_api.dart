@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io'; // For SocketException
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../constants/AppConstants.dart';
@@ -32,7 +33,19 @@ Future<bool> deleteSelectedActivity(BuildContext context, String activityId) asy
       );
     }
   } on TimeoutException catch (_) {
-    showErrorDialog(context, "Request timed out. Please try again later.", []);
+    final connectivity = await Connectivity().checkConnectivity();
+    final hasConnection = connectivity != ConnectivityResult.none;
+
+    if (hasConnection) {
+      final isInternetSlow = !(await _hasGoodConnection());
+      if (isInternetSlow) {
+        showErrorDialog(context, "Slow internet connection detected. Try again?", []);
+      } else {
+        showErrorDialog(context, "Server is taking too long to respond.", []);
+      }
+    } else {
+      showErrorDialog(context, "No internet connection.", []);
+    }
   } on SocketException catch (_) {
     showErrorDialog(context, "No internet connection. Please check your connection and try again.", []);
   } catch (error) {
@@ -45,4 +58,16 @@ Future<bool> deleteSelectedActivity(BuildContext context, String activityId) asy
   }
 
   return false;
+}
+Future<bool> _hasGoodConnection() async {
+  try {
+    final response = await http
+        .get(
+      Uri.parse('https://www.google.com'),
+    )
+        .timeout(Duration(seconds: 2));
+    return true;
+  } catch (_) {
+    return false;
+  }
 }

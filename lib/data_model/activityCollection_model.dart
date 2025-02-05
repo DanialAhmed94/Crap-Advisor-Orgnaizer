@@ -33,6 +33,8 @@ class Activity {
   final String? longitude;
   final String startTime;
   final String endTime;
+  final String startDate;
+  final String endDate;
   final DateTime createdAt;
   final DateTime updatedAt;
   final Festival? festival;
@@ -47,6 +49,8 @@ class Activity {
     required this.longitude,
     required this.startTime,
     required this.endTime,
+    required this.endDate,
+    required this.startDate,
     required this.createdAt,
     required this.updatedAt,
     required this.festival,
@@ -63,6 +67,8 @@ class Activity {
       latitude: json['latitude'],
       longitude: json['longitude'],
       startTime: json['start_time'],
+      endDate: json['end_date'],
+      startDate: json['start_date'],
       endTime: json['end_time'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),

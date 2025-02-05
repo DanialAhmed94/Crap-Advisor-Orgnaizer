@@ -27,7 +27,7 @@ Future<void> updatePerformance(
     String stageSetup,
     String transitionDetail,
     String specialNotes,
-    String? event_id,
+    //String? event_id,
     ) async {
   // Define the API endpoint. Adjust if your API uses a different path or method.
   final url = Uri.parse("${AppConstants.baseUrl}/update_performance/$performanceId");
@@ -45,7 +45,7 @@ Future<void> updatePerformance(
     'start_date': startDate,
     'end_date': endDate,
     'performance_title': title,
-    'event_id': event_id,
+  //  'event_id': event_id,
   };
 
   try {

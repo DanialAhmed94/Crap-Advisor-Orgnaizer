@@ -113,6 +113,7 @@ class _LoginViewState extends State<LoginView> {
                 width: MediaQuery.of(context).size.width,
               ),
             ),
+
             Positioned(
               top: MediaQuery.of(context).size.height * 0.3,
               child: Padding(

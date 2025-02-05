@@ -249,7 +249,13 @@ class _AddFestivalViewState extends State<AddFestivalView> {
                                   setState(() {
                                     latitudeControler.text = result['latitude'];
                                     longitudeControler.text = result['longitude'];
-                                    _addressControler.text = result['address'];
+                                    if(_addressControler.text == null){
+                                      _addressControler.text = "address not found";
+                                    }
+                                    else{
+                                      _addressControler.text = result['address'];
+
+                                    }
                                   });
                                 }
                               },

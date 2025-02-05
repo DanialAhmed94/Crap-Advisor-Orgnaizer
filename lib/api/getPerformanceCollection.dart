@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,10 +29,37 @@ Future<Performances?> getPerformanceCollection(BuildContext context) async {
       showErrorDialog(context, data['message'], data['errors']); // Show error dialog
     }
   } on TimeoutException catch (_) {
-    showErrorDialog(context, "Request timed out. Please try again later.", []);
-  } catch (error) {
+    final connectivity = await Connectivity().checkConnectivity();
+    final hasConnection = connectivity != ConnectivityResult.none;
+
+    if (hasConnection) {
+      final isInternetSlow = !(await _hasGoodConnection());
+      if (isInternetSlow) {
+        showErrorDialog(context, "Slow internet connection detected.", []);
+      } else {
+        showErrorDialog(context, "Server is taking too long to respond.", []);
+      }
+    } else {
+      showErrorDialog(context, "No internet connection.", []);
+    }
+  }
+  on SocketException catch (_) {
+    showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
+
+  }
+  catch (error) {
     showErrorDialog(context, "Operation failed with while fetching performances: $error", []);
     print("error: $error"); // Print the error for debugging
   }
   return null; // Return null in case of an error
+}
+Future<bool> _hasGoodConnection() async {
+  try {
+    final response = await http.get(
+      Uri.parse('https://www.google.com'),
+    ).timeout(Duration(seconds: 2));
+    return true;
+  } catch (_) {
+    return false;
+  }
 }

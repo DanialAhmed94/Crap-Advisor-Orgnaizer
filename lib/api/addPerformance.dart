@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +31,8 @@ Future<void> addPerformance(
     String stageSetup,
     String transitionDetail,
     String specialNotes,
-    String? event_id) async {
+    String? event_id
+    ) async {
   final url = Uri.parse("${AppConstants.baseUrl}/store_performance");
 
   final Map<String, dynamic> performance = {
@@ -63,8 +66,7 @@ Future<void> addPerformance(
         'Authorization': 'Bearer $bearerToken',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode(performance),);
-    // ).timeout(Duration(seconds: 30));
+      body: jsonEncode(performance),).timeout(Duration(seconds: 30));
 
     print("Response status: ${response.statusCode}");
     print("Response body: ${response.body}");
@@ -97,9 +99,24 @@ Future<void> addPerformance(
       showErrorDialog(context, "Error: ${response.statusCode}", []);
     }
   }
-  // on TimeoutException catch (_) {
-  //   showErrorDialog(context, "Request timed out. Please try again later.", []);
-  // }
+  on TimeoutException catch (_) {
+    final connectivity = await Connectivity().checkConnectivity();
+    final hasConnection = connectivity != ConnectivityResult.none;
+
+    if (hasConnection) {
+      final isInternetSlow = !(await _hasGoodConnection());
+      if (isInternetSlow) {
+        showErrorDialog(context, "Slow internet connection detected.", []);
+      } else {
+        showErrorDialog(context, "Server is taking too long to respond.", []);
+      }
+    } else {
+      showErrorDialog(context, "No internet connection.", []);
+    }
+  }on SocketException catch (_) {
+    showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
+
+  }
   catch (error) {
     print("Error: $error"); // Debugging error
     showErrorDialog(context,
@@ -107,3 +124,15 @@ Future<void> addPerformance(
   }
 }
 
+Future<bool> _hasGoodConnection() async {
+  try {
+    final response = await http
+        .get(
+      Uri.parse('https://www.google.com'),
+    )
+        .timeout(Duration(seconds: 2));
+    return true;
+  } catch (_) {
+    return false;
+  }
+}

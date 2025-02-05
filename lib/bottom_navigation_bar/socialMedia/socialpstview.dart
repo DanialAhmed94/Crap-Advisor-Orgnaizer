@@ -1097,13 +1097,13 @@ class _LikeSectionWidgetState extends State<LikeSectionWidget> {
             const SizedBox(width: 16),
 
             // Comment icon is static
-            Row(
-              children: const [
-                Icon(Icons.comment, color: Colors.grey),
-                SizedBox(width: 4),
-                Text('Comments'),
-              ],
-            ),
+            // Row(
+            //   children: const [
+            //     Icon(Icons.comment, color: Colors.grey),
+            //     SizedBox(width: 4),
+            //     Text('Comments'),
+            //   ],
+            // ),
           ],
         );
       },

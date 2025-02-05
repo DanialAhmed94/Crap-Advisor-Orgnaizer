@@ -256,6 +256,25 @@ class _SignupViewState extends State<SignupView> {
               fit: BoxFit.fill,
             ),
           ),
+          Positioned(
+            top: 10,
+            left: 0,
+            right: 0,
+            child: PreferredSize(
+              preferredSize: Size.fromHeight(kToolbarHeight),
+              child: AppBar(
+
+                leading: IconButton(
+                  icon: SvgPicture.asset(AppConstants.backIcon),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+              ),
+            ),
+          ),
 
           // Positioned SVGs
           Positioned(

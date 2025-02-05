@@ -37,6 +37,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
   late TextEditingController _contentController;
   late TextEditingController _endTimeController;
   late TextEditingController _startTimeController;
+  late TextEditingController _startDateController;
+  late TextEditingController _endDateController;
   late TextEditingController _titleController;
   late TextEditingController _festivalNameController;
   late TextEditingController _latitudeController;
@@ -48,13 +50,24 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
   @override
   void initState() {
     super.initState();
-    _contentController = TextEditingController(text: widget.activity.description ?? "");
-    _latitudeController = TextEditingController(text: widget.activity.latitude ?? "");
-    _longitudeController = TextEditingController(text: widget.activity.longitude ?? "");
-    _endTimeController = TextEditingController(text: widget.activity.endTime ?? "");
-    _startTimeController = TextEditingController(text: widget.activity.startTime ?? "");
-    _titleController = TextEditingController(text: widget.activity.activityTitle ?? "");
-    _festivalNameController = TextEditingController(text: widget.activity.festival?.nameOrganizer ?? "");
+    _contentController =
+        TextEditingController(text: widget.activity.description ?? "");
+    _latitudeController =
+        TextEditingController(text: widget.activity.latitude ?? "");
+    _longitudeController =
+        TextEditingController(text: widget.activity.longitude ?? "");
+    _endTimeController =
+        TextEditingController(text: widget.activity.endTime ?? "");
+    _endDateController =
+        TextEditingController(text: widget.activity.endDate ?? "");
+    _startDateController =
+        TextEditingController(text: widget.activity.startDate ?? "");
+    _startTimeController =
+        TextEditingController(text: widget.activity.startTime ?? "");
+    _titleController =
+        TextEditingController(text: widget.activity.activityTitle ?? "");
+    _festivalNameController = TextEditingController(
+        text: widget.activity.festival?.nameOrganizer ?? "");
     _addressController = TextEditingController(text: "");
 
     _fetchAndSetAddress();
@@ -69,6 +82,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
   @override
   void dispose() {
     _contentController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
     _startTimeController.dispose();
     _endTimeController.dispose();
     _titleController.dispose();
@@ -88,9 +103,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
     });
   }
 
-  Future<String> _getAddressFromLatLng(double latitude, double longitude) async {
+  Future<String> _getAddressFromLatLng(
+      double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
@@ -105,7 +122,6 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
     setState(() {
       _isEditMode = true;
     });
-
   }
 
   Future<void> _pickImage() async {
@@ -135,7 +151,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
       try {
         // Check if existing image is available
         String? originalImage = widget.activity.image?.trim();
-        bool hasOriginalImage = (originalImage != null && originalImage.isNotEmpty);
+        bool hasOriginalImage =
+            (originalImage != null && originalImage.isNotEmpty);
 
         // If no new image selected and no original image
         if (!_isNewImageSelected && !hasOriginalImage) {
@@ -183,22 +200,20 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
           }
         }
 
-
         await updateActivity(
-          context, widget.activity.id.toString(),
+          context,
+          widget.activity.id.toString(),
           widget.activity.festivalId.toString(),
-        _titleController.text.trim(),
-            base64img,
-         _contentController.text.trim(),
+          _titleController.text.trim(),
+          base64img,
+          _contentController.text.trim(),
           _latitudeController.text.trim(),
-           _longitudeController.text.trim(),
+          _longitudeController.text.trim(),
           _startTimeController.text.trim(),
           _endTimeController.text.trim(),
-
+          _startDateController.text.trim(),
+          _endDateController.text.trim(),
         );
-
-
-
 
         setState(() {
           _isEditMode = false;
@@ -209,8 +224,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
           _latitudeController.text = widget.activity.latitude ?? "";
           _longitudeController.text = widget.activity.longitude ?? "";
           _startTimeController.text = widget.activity.startTime ?? "";
+          _startTimeController.text = widget.activity.startDate ?? "";
+          _startTimeController.text = widget.activity.endDate ?? "";
           _endTimeController.text = widget.activity.endTime ?? "";
-          _festivalNameController.text = widget.activity.festival?.nameOrganizer ?? "";
+          _festivalNameController.text =
+              widget.activity.festival?.nameOrganizer ?? "";
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -254,6 +272,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
       ),
     );
   }
+
   Future<void> _pickStartTime() async {
     if (!_isEditMode) return;
     TimeOfDay? picked = await showTimePicker(
@@ -262,7 +281,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
     );
     if (picked != null) {
       final now = DateTime.now();
-      final selectedDateTime = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+      final selectedDateTime =
+          DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
       _startTimeController.text = DateFormat('h.mm a').format(selectedDateTime);
     }
   }
@@ -275,11 +295,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
     );
     if (picked != null) {
       final now = DateTime.now();
-      final selectedDateTime = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+      final selectedDateTime =
+          DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
       _endTimeController.text = DateFormat('h.mm a').format(selectedDateTime);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -330,7 +350,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                             color: Colors.black.withOpacity(0.04),
                             blurRadius: 80.0,
                             spreadRadius: 0,
-                            offset: Offset(0,4),
+                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
@@ -358,9 +378,10 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                   ),
                                 ),
                               ),
-                            if (isEditable)
-                              SizedBox(height: 10),
-                            Text("Festival Name", style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15)),
+                            if (isEditable) SizedBox(height: 10),
+                            Text("Festival Name",
+                                style: TextStyle(
+                                    fontFamily: "UbuntuMedium", fontSize: 15)),
                             SizedBox(height: 10),
                             TextFormField(
                               readOnly: true,
@@ -368,9 +389,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.white,
-                                prefixIconConstraints: BoxConstraints(minWidth: 30.0, minHeight: 30.0),
+                                prefixIconConstraints: BoxConstraints(
+                                    minWidth: 30.0, minHeight: 30.0),
                                 prefixIcon: Padding(
-                                  padding: const EdgeInsets.only(left: 8, right: 8),
+                                  padding:
+                                      const EdgeInsets.only(left: 8, right: 8),
                                   child: SvgPicture.asset(
                                     AppConstants.dropDownPrefixIcon,
                                     color: Color(0xFFAEDB4E),
@@ -388,11 +411,14 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 16.0),
                               ),
                             ),
                             SizedBox(height: 10),
-                            Text("Title", style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15)),
+                            Text("Title",
+                                style: TextStyle(
+                                    fontFamily: "UbuntuMedium", fontSize: 15)),
                             SizedBox(height: 10),
                             TextFormField(
                               readOnly: !isEditable,
@@ -406,9 +432,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.white,
-                                prefixIconConstraints: BoxConstraints(minWidth: 10.0, minHeight: 10.0),
+                                prefixIconConstraints: BoxConstraints(
+                                    minWidth: 10.0, minHeight: 10.0),
                                 prefixIcon: Padding(
-                                  padding: const EdgeInsets.only(left: 8, right: 8),
+                                  padding:
+                                      const EdgeInsets.only(left: 8, right: 8),
                                   child: SvgPicture.asset(
                                     AppConstants.bulletinTitleIcon,
                                     color: Color(0xFFAEDB4E),
@@ -426,11 +454,14 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 32.0),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 32.0),
                               ),
                             ),
                             SizedBox(height: 10),
-                            Text("Image", style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15)),
+                            Text("Image",
+                                style: TextStyle(
+                                    fontFamily: "UbuntuMedium", fontSize: 15)),
                             SizedBox(height: 10),
                             GestureDetector(
                               onTap: () {
@@ -439,7 +470,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                 }
                               },
                               child: Container(
-                                height: MediaQuery.of(context).size.height * 0.2,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.2,
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -455,36 +487,49 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
-                                  child: _isNewImageSelected && _selectedImage != null
+                                  child: _isNewImageSelected &&
+                                          _selectedImage != null
                                       ? Image.file(
-                                    File(_selectedImage!.path),
-                                    fit: BoxFit.cover,
-                                  )
+                                          File(_selectedImage!.path),
+                                          fit: BoxFit.cover,
+                                        )
                                       : Image.network(
-                                    "${AppConstants.imageBaseUrl}${widget.activity.image ?? ""}",
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        "assets/icons/logo.png",
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress.expectedTotalBytes != null
-                                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                              : null,
+                                          "${AppConstants.imageBaseUrl}${widget.activity.image ?? ""}",
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                              "assets/icons/logo.png",
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
+                                          loadingBuilder: (BuildContext context,
+                                              Widget child,
+                                              ImageChunkEvent?
+                                                  loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
                                 ),
                               ),
                             ),
                             SizedBox(height: 10),
-                            Text("Content", style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15)),
+                            Text("Content",
+                                style: TextStyle(
+                                    fontFamily: "UbuntuMedium", fontSize: 15)),
                             SizedBox(height: 10),
                             Container(
                               height: MediaQuery.of(context).size.height * 0.25,
@@ -512,9 +557,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                     textAlignVertical: TextAlignVertical.top,
                                     decoration: InputDecoration(
                                       hintText: 'enter more about activity...',
-                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 16.0),
+                                      hintStyle: TextStyle(
+                                          color: Colors.grey, fontSize: 16.0),
                                       border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10.0),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
                                         borderSide: BorderSide.none,
                                       ),
                                       contentPadding: EdgeInsets.all(16.0),
@@ -522,7 +569,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                       fillColor: Colors.white,
                                     ),
                                     validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
                                         return 'Please enter a description';
                                       }
                                       return null;
@@ -541,9 +589,18 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                             SizedBox(height: 10),
                             Row(
                               children: [
-                                Text(isEditable ? "Edit Location" : "View Location", style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15)),
+                                Text(
+                                    isEditable
+                                        ? "Edit Location"
+                                        : "View Location",
+                                    style: TextStyle(
+                                        fontFamily: "UbuntuMedium",
+                                        fontSize: 15)),
                                 Spacer(),
-                                Text("Open Map", style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15)),
+                                Text("Open Map",
+                                    style: TextStyle(
+                                        fontFamily: "UbuntuMedium",
+                                        fontSize: 15)),
                                 SizedBox(width: 8),
                                 GestureDetector(
                                   onTap: () async {
@@ -552,14 +609,18 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                       final result = await Navigator.push(
                                         context,
                                         FadePageRouteBuilder(
-                                          widget: GoogleMapView(isFromFestival: false),
+                                          widget: GoogleMapView(
+                                              isFromFestival: false),
                                         ),
                                       );
                                       if (result != null) {
                                         setState(() {
-                                          _latitudeController.text = result['latitude'];
-                                          _longitudeController.text = result['longitude'];
-                                          _addressController.text = result['address'];
+                                          _latitudeController.text =
+                                              result['latitude'];
+                                          _longitudeController.text =
+                                              result['longitude'];
+                                          _addressController.text =
+                                              result['address'];
                                         });
                                       }
                                     } else {
@@ -568,10 +629,13 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                     }
                                   },
                                   child: Image.asset(AppConstants.mapPreview),
-                                ),                              ],
+                                ),
+                              ],
                             ),
                             SizedBox(height: 20),
-                            Text("Location (Latitude / Longitude / Address)", style: TextStyle(fontFamily: "UbuntuMedium", fontSize: 15)),
+                            Text("Location (Latitude / Longitude / Address)",
+                                style: TextStyle(
+                                    fontFamily: "UbuntuMedium", fontSize: 15)),
                             SizedBox(height: 10),
                             TextFormField(
                               readOnly: !isEditable,
@@ -590,7 +654,10 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                 filled: true,
                                 fillColor: Colors.white,
                                 hintText: "Latitude",
-                                hintStyle: TextStyle(color: Color(0xFFA0A0A0), fontFamily: "UbuntuMedium", fontSize: 15),
+                                hintStyle: TextStyle(
+                                    color: Color(0xFFA0A0A0),
+                                    fontFamily: "UbuntuMedium",
+                                    fontSize: 15),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide: BorderSide.none,
@@ -603,7 +670,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 16.0),
                               ),
                             ),
                             SizedBox(height: 10),
@@ -624,7 +692,10 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                 filled: true,
                                 fillColor: Colors.white,
                                 hintText: "Longitude",
-                                hintStyle: TextStyle(color: Color(0xFFA0A0A0), fontFamily: "UbuntuMedium", fontSize: 15),
+                                hintStyle: TextStyle(
+                                    color: Color(0xFFA0A0A0),
+                                    fontFamily: "UbuntuMedium",
+                                    fontSize: 15),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide: BorderSide.none,
@@ -637,7 +708,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 16.0),
                               ),
                             ),
                             SizedBox(height: 10),
@@ -645,7 +717,9 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                               readOnly: true,
                               controller: _addressController,
                               validator: (value) {
-                                if (value == null || value.isEmpty || value == "Unknown Address") {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value == "Unknown Address") {
                                   return 'Please select a valid location (address unknown)';
                                 }
                                 return null;
@@ -654,7 +728,10 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                 filled: true,
                                 fillColor: Colors.white,
                                 hintText: "Address",
-                                hintStyle: TextStyle(color: Color(0xFFA0A0A0), fontFamily: "UbuntuMedium", fontSize: 15),
+                                hintStyle: TextStyle(
+                                    color: Color(0xFFA0A0A0),
+                                    fontFamily: "UbuntuMedium",
+                                    fontSize: 15),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide: BorderSide.none,
@@ -667,7 +744,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 16.0),
                               ),
                             ),
                             SizedBox(height: 10),
@@ -675,25 +753,33 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text("Start Time", style: TextStyle(color: Color(0xFF0A0909), fontFamily: "UbuntuMedium", fontSize: 15)),
+                                      Text("Start Time",
+                                          style: TextStyle(
+                                              color: Color(0xFF0A0909),
+                                              fontFamily: "UbuntuMedium",
+                                              fontSize: 15)),
                                       SizedBox(height: 10),
                                       TextFormField(
-                                        onTap: _isEditMode ? _pickStartTime : null,
-
+                                        onTap:
+                                            _isEditMode ? _pickStartTime : null,
                                         readOnly: true,
                                         controller: _startTimeController,
                                         validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
                                             return 'Please select a start time';
                                           }
                                           return null;
                                         },
                                         decoration: InputDecoration(
-                                          prefixIconConstraints: BoxConstraints(minWidth: 30.0, minHeight: 30.0),
+                                          prefixIconConstraints: BoxConstraints(
+                                              minWidth: 30.0, minHeight: 30.0),
                                           prefixIcon: Padding(
-                                            padding: const EdgeInsets.only(left: 8, right: 8),
+                                            padding: const EdgeInsets.only(
+                                                left: 8, right: 8),
                                             child: SvgPicture.asset(
                                               AppConstants.timer1Icon,
                                               color: Color(0xFFAEDB4E),
@@ -702,18 +788,22 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(25.0),
+                                            borderRadius:
+                                                BorderRadius.circular(25.0),
                                             borderSide: BorderSide.none,
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30.0),
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
                                             borderSide: BorderSide.none,
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30.0),
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
                                             borderSide: BorderSide.none,
                                           ),
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 16.0),
                                         ),
                                       ),
                                     ],
@@ -722,25 +812,33 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text("End Time", style: TextStyle(color: Color(0xFF0A0909), fontFamily: "UbuntuMedium", fontSize: 15)),
+                                      Text("End Time",
+                                          style: TextStyle(
+                                              color: Color(0xFF0A0909),
+                                              fontFamily: "UbuntuMedium",
+                                              fontSize: 15)),
                                       SizedBox(height: 10),
                                       TextFormField(
-                                        onTap: _isEditMode ? _pickEndTime : null,
-
+                                        onTap:
+                                            _isEditMode ? _pickEndTime : null,
                                         readOnly: true,
                                         controller: _endTimeController,
                                         validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
                                             return 'Please select an end time';
                                           }
                                           return null;
                                         },
                                         decoration: InputDecoration(
-                                          prefixIconConstraints: BoxConstraints(minWidth: 30.0, minHeight: 30.0),
+                                          prefixIconConstraints: BoxConstraints(
+                                              minWidth: 30.0, minHeight: 30.0),
                                           prefixIcon: Padding(
-                                            padding: const EdgeInsets.only(left: 8, right: 8),
+                                            padding: const EdgeInsets.only(
+                                                left: 8, right: 8),
                                             child: SvgPicture.asset(
                                               AppConstants.timerIcon,
                                               color: Color(0xFFAEDB4E),
@@ -749,18 +847,178 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(25.0),
+                                            borderRadius:
+                                                BorderRadius.circular(25.0),
                                             borderSide: BorderSide.none,
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30.0),
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
                                             borderSide: BorderSide.none,
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30.0),
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
                                             borderSide: BorderSide.none,
                                           ),
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Start Date",
+                                          style: TextStyle(
+                                              color: Color(0xFF0A0909),
+                                              fontFamily: "UbuntuMedium",
+                                              fontSize: 15)),
+                                      SizedBox(height: 10),
+                                      TextFormField(
+                                        onTap: _isEditMode
+                                            ? () async {
+                                                final DateTime? pickedDate =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: DateTime.now(),
+                                                  firstDate: DateTime(1900),
+                                                  lastDate: DateTime(2050),
+                                                );
+                                                if (pickedDate != null) {
+                                                  setState(() {
+                                                    _startDateController.text =
+                                                        pickedDate
+                                                            .toString()
+                                                            .substring(0, 11);
+                                                  });
+                                                }
+                                              }
+                                            : null,
+                                        readOnly: true,
+                                        controller: _startDateController,
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
+                                            return 'Please select a start date';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          prefixIconConstraints: BoxConstraints(
+                                              minWidth: 30.0, minHeight: 30.0),
+                                          prefixIcon: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 8, right: 8),
+                                            child: SvgPicture.asset(
+                                              AppConstants.timer1Icon,
+                                              color: Color(0xFFAEDB4E),
+                                            ),
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(25.0),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("End Date",
+                                          style: TextStyle(
+                                              color: Color(0xFF0A0909),
+                                              fontFamily: "UbuntuMedium",
+                                              fontSize: 15)),
+                                      SizedBox(height: 10),
+                                      TextFormField(
+                                        onTap: _isEditMode
+                                            ? () async {
+                                                final DateTime? pickedDate =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: DateTime.now(),
+                                                  firstDate: DateTime(1900),
+                                                  lastDate: DateTime(2050),
+                                                );
+                                                if (pickedDate != null) {
+                                                  setState(() {
+                                                    _endDateController.text =
+                                                        pickedDate
+                                                            .toString()
+                                                            .substring(0, 11);
+                                                  });
+                                                }
+                                              }
+                                            : null,
+                                        readOnly: true,
+                                        controller: _endDateController,
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
+                                            return 'Please select an end date';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          prefixIconConstraints: BoxConstraints(
+                                              minWidth: 30.0, minHeight: 30.0),
+                                          prefixIcon: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 8, right: 8),
+                                            child: SvgPicture.asset(
+                                              AppConstants.timerIcon,
+                                              color: Color(0xFFAEDB4E),
+                                            ),
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(25.0),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 16.0),
                                         ),
                                       ),
                                     ],
@@ -844,5 +1102,3 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
     );
   }
 }
-
-

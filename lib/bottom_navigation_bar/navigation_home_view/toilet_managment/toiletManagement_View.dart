@@ -53,7 +53,7 @@ class _AddToiletHomeState extends State<AddToiletHome> {
             Positioned.fill(
               child: Image.asset(
                 AppConstants.planBackground,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
               ),

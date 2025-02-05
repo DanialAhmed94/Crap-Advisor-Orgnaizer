@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -40,7 +42,23 @@ Future<ToiletResponse?> getToiletCollection(BuildContext context) async {
         showErrorDialog(context, "Failed to parse error response.", []);
       }
     }
-  } on TimeoutException {
+  }
+  on TimeoutException catch (_) {
+    final connectivity = await Connectivity().checkConnectivity();
+    final hasConnection = connectivity != ConnectivityResult.none;
+
+    if (hasConnection) {
+      final isInternetSlow = !(await _hasGoodConnection());
+      if (isInternetSlow) {
+        showErrorDialog(context, "Slow internet connection detected.", []);
+      } else {
+        showErrorDialog(context, "Server is taking too long to respond.", []);
+      }
+    } else {
+      showErrorDialog(context, "No internet connection.", []);
+    }
+  }
+  on TimeoutException {
     showErrorDialog(context, "Request timed out. Please try again later.", []);
   } catch (error) {
     showErrorDialog(context, "Operation failed while fetching toilets", []);
@@ -48,30 +66,13 @@ Future<ToiletResponse?> getToiletCollection(BuildContext context) async {
   }
   return null;
 }
-// Future<ToiletResponse?> getToiletCollection(BuildContext context) async {
-//   final url = Uri.parse("${AppConstants.baseUrl}/toilets"); // Adjust endpoint accordingly
-//   try {
-//     final bearerToken = await getToken(); // Fetch token from utility
-//     final response = await http.get(
-//       url,
-//       headers: {
-//         'Authorization': 'Bearer $bearerToken',
-//         'Content-Type': 'application/json', // Set the content type to JSON
-//       },
-//     ).timeout(Duration(seconds: 30));
-//
-//     if (response.statusCode == 200) {
-//       final data = json.decode(response.body);
-//       return ToiletResponse.fromJson(data); // Parse the response
-//     } else {
-//       final data = json.decode(response.body);
-//       showErrorDialog(context, data['message'], data['errors']);
-//     }
-//   } on TimeoutException catch (_) {
-//     showErrorDialog(context, "Request timed out. Please try again later.", []);
-//   } catch (error) {
-//     showErrorDialog(context, "Operation failed with while fetching toilets: $error", []);
-//     print("error: $error");
-//   }
-//   return null;
-// }
+Future<bool> _hasGoodConnection() async {
+  try {
+    final response = await http.get(
+      Uri.parse('https://www.google.com'),
+    ).timeout(Duration(seconds: 2));
+    return true;
+  } catch (_) {
+    return false;
+  }
+}

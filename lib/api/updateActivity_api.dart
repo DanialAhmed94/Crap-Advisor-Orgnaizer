@@ -19,6 +19,8 @@ Future<void> updateActivity(
     String longitude,
     String startTime,
     String endTime,
+    String startDate,
+    String endDate,
     ) async {
   final url = Uri.parse("${AppConstants.baseUrl}/update_activity/$activityId");
 
@@ -31,6 +33,8 @@ Future<void> updateActivity(
     "longitude": longitude,
     "start_time": startTime,
     "end_time": endTime,
+    "end_date": endDate,
+    "start_date": startDate,
   };
 
   try {

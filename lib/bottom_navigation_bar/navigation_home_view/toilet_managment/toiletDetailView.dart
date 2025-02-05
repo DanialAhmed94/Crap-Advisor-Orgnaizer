@@ -433,51 +433,86 @@ class _ToiletDetailViewState extends State<ToiletDetailView> {
                                 SizedBox(height: 10),
                                 isEditable
                                     ? DropdownButtonFormField<String>(
-                                  value: _selectedToiletId,
-                                  decoration: InputDecoration(
-                                    prefixIcon: SvgPicture.asset(
-                                      AppConstants.dropDownPrefixIcon,
-                                      color: Color(0xFF8AC85A),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(30.0),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                  items: toiletProvider.toiletTypes
-                                      .map((ToiletType toiletType) {
-                                    return DropdownMenuItem<String>(
-                                      value: toiletType.id.toString(),
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                              .size
-                                              .width *
-                                              0.6,
-                                        ),
-                                        child: Text(
-                                          toiletType.name ?? "",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      _selectedToiletId = newValue;
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please select a toilet type';
-                                    }
-                                    return null;
-                                  },
-                                )
+                            isExpanded: true,
+                            dropdownColor: Colors.white,
+                            value: _selectedToiletId,
+                            decoration: InputDecoration(
+                            prefixIcon: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: SvgPicture.asset(
+                            AppConstants.dropDownPrefixIcon,
+                            color: const Color(0xFF8AC85A),
+                            ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                            ),
+                            icon: const Icon(Icons.arrow_drop_down), // Show standard dropdown icon
+                            items: toiletProvider.toiletTypes.map((ToiletType toiletType) {
+                            return DropdownMenuItem<String>(
+                            value: toiletType.id.toString(),
+                            child: Row(
+                            children: [
+                            Padding(
+                            padding: const EdgeInsets.only(top:12,right: 12), // Padding for spacing
+                            child: ClipOval(
+                            child: Container(
+                            height: 50,
+                            width: 50,
+                            child: Image.network(
+                            "https://stagingcrapadvisor.semicolonstech.com/asset/toilet_types/${toiletType.image}",
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                            child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            (loadingProgress.expectedTotalBytes ?? 1)
+                                : null,
+                            ),
+                            );
+                            },
+                            errorBuilder: (context, error, stackTrace) => Image.asset(
+                            "assets/images/test-toiletType.jpeg",
+                            fit: BoxFit.cover,
+                            ),
+                            ),
+                            ),
+                            ),
+                            ),
+                            Expanded(
+                            child: Text(
+                            toiletType.name ?? "",
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            ),
+                            ],
+                            ),
+                            );
+                            }).toList(),
+                            onChanged: (newValue) => setState(() => _selectedToiletId = newValue),
+                            selectedItemBuilder: (BuildContext context) {
+                            // Show only name in the selected item display
+                            return toiletProvider.toiletTypes.map((ToiletType toiletType) {
+                            return Text(
+                            toiletType.name ?? "",
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            );
+                            }).toList();
+                            },
+                            validator: (value) => value == null || value.isEmpty
+                            ? 'Please select a toilet type'
+                                : null,
+                            )
                                     : TextFormField(
                                   readOnly: true,
                                   initialValue:

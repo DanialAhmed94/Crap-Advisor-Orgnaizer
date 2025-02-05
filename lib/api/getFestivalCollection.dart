@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io'; // Import for SocketException
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,15 +18,13 @@ Future<FestivalResponse?> getFestivalCollection(BuildContext context) async {
 
   try {
     final bearerToken = await getToken();
-    final response = await http
-        .get(
+    final response = await http.get(
       url,
       headers: {
         'Authorization': 'Bearer $bearerToken',
         'Content-Type': 'application/json', // Set the content type to JSON
       },
-    )
-        .timeout(timeoutDuration); // Apply timeout to the request
+    ).timeout(timeoutDuration); // Apply timeout to the request
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -40,9 +39,19 @@ Future<FestivalResponse?> getFestivalCollection(BuildContext context) async {
       showErrorDialog(context, data['message'], data['errors']);
     }
   } on TimeoutException catch (_) {
-    // Handle timeout exceptions
-    showErrorDialog(
-        context, "The request timed out. Please try again later.", []);
+    final connectivity = await Connectivity().checkConnectivity();
+    final hasConnection = connectivity != ConnectivityResult.none;
+
+    if (hasConnection) {
+      final isInternetSlow = !(await _hasGoodConnection());
+      if (isInternetSlow) {
+        showErrorDialog(context, "Slow internet connection detected.", []);
+      } else {
+        showErrorDialog(context, "Server is taking too long to respond.", []);
+      }
+    } else {
+      showErrorDialog(context, "No internet connection.", []);
+    }
   } on SocketException catch (_) {
     // Handle internet connectivity issues
     showErrorDialog(context,
@@ -52,6 +61,19 @@ Future<FestivalResponse?> getFestivalCollection(BuildContext context) async {
     showErrorDialog(context,
         "An unexpected error occurred while fetching festivals: $error", []);
     print("Error fetching festivals: $error");
+  }
+}
+
+Future<bool> _hasGoodConnection() async {
+  try {
+    final response = await http
+        .get(
+          Uri.parse('https://www.google.com'),
+        )
+        .timeout(Duration(seconds: 2));
+    return true;
+  } catch (_) {
+    return false;
   }
 }
 
@@ -71,7 +93,7 @@ void showExpiredAccountErrorDialog(
               Column(
                 children: errors
                     .map((error) => Text(error.toString(),
-                    style: TextStyle(color: Colors.red)))
+                        style: TextStyle(color: Colors.red)))
                     .toList(),
               ),
           ],
@@ -101,7 +123,8 @@ void showExpiredAccountErrorDialog(
   );
 }
 
-void showErrorDialog(BuildContext context, String message, List<dynamic> errors) {
+void showErrorDialog(
+    BuildContext context, String message, List<dynamic> errors) {
   showDialog(
     barrierDismissible: false,
     context: context,
@@ -116,7 +139,7 @@ void showErrorDialog(BuildContext context, String message, List<dynamic> errors)
               Column(
                 children: errors
                     .map((error) => Text(error.toString(),
-                    style: TextStyle(color: Colors.red)))
+                        style: TextStyle(color: Colors.red)))
                     .toList(),
               ),
           ],

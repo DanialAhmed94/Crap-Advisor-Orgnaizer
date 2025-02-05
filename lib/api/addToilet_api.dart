@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -58,10 +60,37 @@ Future<void> addToilet(BuildContext context, String? festId,
           ["An unexpected error occurred. Please try again later."]);
     }
   } on TimeoutException catch (_) {
-    showErrorDialog(context, "Request timed out. Please try again later.", []);
+    final connectivity = await Connectivity().checkConnectivity();
+    final hasConnection = connectivity != ConnectivityResult.none;
+
+    if (hasConnection) {
+      final isInternetSlow = !(await _hasGoodConnection());
+      if (isInternetSlow) {
+        showErrorDialog(context, "Slow internet connection detected.", []);
+      } else {
+        showErrorDialog(context, "Server is taking too long to respond.", []);
+      }
+    } else {
+      showErrorDialog(context, "No internet connection.", []);
+    }
+  }on SocketException catch (_) {
+    showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
+
   } catch (error) {
     showErrorDialog(
         context, "Toilet was not added. Operation failed with: $error", []);
     print("error: $error");
+  }
+}
+Future<bool> _hasGoodConnection() async {
+  try {
+    final response = await http
+        .get(
+      Uri.parse('https://www.google.com'),
+    )
+        .timeout(Duration(seconds: 2));
+    return true;
+  } catch (_) {
+    return false;
   }
 }
