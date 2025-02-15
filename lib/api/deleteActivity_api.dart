@@ -4,6 +4,7 @@ import 'dart:io'; // For SocketException
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import '../constants/AppConstants.dart';
 import '../utilities/utilities.dart';
 
@@ -48,7 +49,26 @@ Future<bool> deleteSelectedActivity(BuildContext context, String activityId) asy
     }
   } on SocketException catch (_) {
     showErrorDialog(context, "No internet connection. Please check your connection and try again.", []);
-  } catch (error) {
+  } on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
+  }catch (error) {
     showErrorDialog(
       context,
       "Operation failed while deleting activity: $error",

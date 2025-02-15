@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
@@ -83,7 +84,27 @@ Future<void> addFestival(
   }on SocketException catch (_) {
     showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
 
-  } catch (error) {
+  } on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
+  }
+  catch (error) {
     showErrorDialog(context, "Festival was not added. Operation failed with: $error", []);
     print("error: $error");
   }

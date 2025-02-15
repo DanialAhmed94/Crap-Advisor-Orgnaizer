@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/eventMangement_view/eventManagement_homeView.dart';
@@ -54,6 +56,28 @@ Future<void> addInvoice(
     }
   // } on TimeoutException catch (_) {
   //   showErrorDialog(context, "Request timed out. Please try again later.", []);
+  }on SocketException catch (_) {
+    showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
+
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
   } catch (error) {
     showErrorDialog(
         context, "Invoice was not saved. Operation failed with: $error", []);

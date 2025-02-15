@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../constants/AppConstants.dart';
 import '../data_model/activityCollection_model.dart';
@@ -33,6 +34,25 @@ Future<ActivityResponse?> getActivitiesCollection(BuildContext context) async {
   }on SocketException catch (_) {
     showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
 
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
   }on TimeoutException catch (_) {
     final connectivity = await Connectivity().checkConnectivity();
     final hasConnection = connectivity != ConnectivityResult.none;

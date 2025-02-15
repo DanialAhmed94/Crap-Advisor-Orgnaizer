@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../bottom_navigation_bar/navigation_home_view/stage_runningOrder_managment/stage_management_homeView.dart';
 import '../constants/AppConstants.dart';
@@ -111,7 +112,26 @@ Future<void> updatePerformance(
   } on SocketException {
     // Handles network connectivity issues
     showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
-  } on TimeoutException {
+  } on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
+  }on TimeoutException {
     // Handles request timeout
     showErrorDialog(context, "The request timed out. Please try again later.", []);
   } on FormatException {

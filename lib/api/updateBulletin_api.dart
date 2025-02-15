@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../bottom_navigation_bar/navigation_home_view/new_bullitin_managment/newBulletin_managmentView.dart';
 import '../constants/AppConstants.dart';
@@ -79,7 +80,26 @@ Future<void> updateBulletin(
         context,
         "No internet connection. Please check your network settings and try again.",
         []);
-  } catch (error) {
+  } on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
+  }catch (error) {
     print("Error: $error"); // Debugging error
     showErrorDialog(
         context, "Bulletin was not updated. Operation failed with: $error", []);

@@ -5,6 +5,7 @@ import 'dart:io'; // Import for SocketException
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../annim/transition.dart';
 import '../bottom_navigation_bar/navigation_home_view/eventMangement_view/eventManagement_homeView.dart';
@@ -117,7 +118,26 @@ Future<void> updateEvent(
       "Network error. Please ensure you are connected to the internet and try again.",
       [],
     );
-  } on FormatException catch (_) {
+  } on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
+  }on FormatException catch (_) {
     // Handle JSON format errors
     showErrorDialog(
       context,

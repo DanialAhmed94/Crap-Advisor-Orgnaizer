@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../constants/AppConstants.dart';  // Your app constants file
 import '../data_model/invoiceCollection_model.dart';
@@ -26,6 +27,25 @@ Future<InvoiceResponse?> getInvoiceCollection(BuildContext context) async {
     } else {
       final data = json.decode(response.body);  // Decode error response
       showErrorDialog(context, data['message'], data['errors']);  // Show error dialog if any
+    }
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
     }
   }
   // on TimeoutException catch (_) {

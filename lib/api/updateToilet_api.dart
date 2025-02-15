@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../bottom_navigation_bar/navigation_home_view/toilet_managment/toiletManagement_View.dart';
 import '../constants/AppConstants.dart';
@@ -75,6 +76,25 @@ print("updated toilet $toiletData");
     }
   } on TimeoutException catch (_) {
     showErrorDialog(context, "Request timed out. Please try again later.", []);
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
   } catch (error) {
     showErrorDialog(
       context,

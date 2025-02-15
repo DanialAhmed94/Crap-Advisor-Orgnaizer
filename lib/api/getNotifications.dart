@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io'; // Needed for SocketException
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 // Replace these with your actual imports
 import '../constants/AppConstants.dart';
@@ -47,6 +48,25 @@ Future<NotificationsResponse?> getNotifications(BuildContext context) async {
       "No internet connection. Please try again later.",
       [],
     );
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
   } on TimeoutException catch (_) {
     showErrorDialog(
       context,

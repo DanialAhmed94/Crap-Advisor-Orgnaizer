@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
 import '../bottom_navigation_bar/navigation_home_view/kidsManagement_view/k=kidsManagement_homeView.dart';
@@ -69,9 +71,32 @@ Future<void> addActivity(BuildContext context, String? festId, String title,
     } else {
       showErrorDialog(context, "No internet connection.", []);
     }
-  } catch (error) {
+  }  on SocketException catch (_) {
+    showErrorDialog(context, "Network error", ["No internet connection."]);
+  }
+  on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
+  }
+  catch (error) {
     showErrorDialog(
-        context, "Festival was not added. Operation failed with: $error", []);
+        context, "Activity was not added. Operation failed with: $error", []);
     print("error: $error");
   }
 }

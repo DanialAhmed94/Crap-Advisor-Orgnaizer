@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io'; // For SocketException
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import '../constants/AppConstants.dart';
 import '../utilities/utilities.dart'; // Assume this contains getToken and showErrorDialog
 
@@ -35,6 +36,25 @@ print(" bulletin id $bulletinId");
     showErrorDialog(context, "Request timed out. Please try again later.", []);
   } on SocketException catch (_) {
     showErrorDialog(context, "No internet connection. Please check your connection and try again.", []);
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
   } catch (error) {
     showErrorDialog(
       context,

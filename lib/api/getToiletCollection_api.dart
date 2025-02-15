@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../constants/AppConstants.dart';
 import '../data_model/toiletCollection_model.dart';
@@ -56,6 +57,25 @@ Future<ToiletResponse?> getToiletCollection(BuildContext context) async {
       }
     } else {
       showErrorDialog(context, "No internet connection.", []);
+    }
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
     }
   }
   on TimeoutException {

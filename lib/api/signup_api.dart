@@ -4,6 +4,7 @@ import 'package:crap_advisor_orgnaizer/auth_view/login_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:crap_advisor_orgnaizer/constants/AppConstants.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../annim/transition.dart';
@@ -78,6 +79,25 @@ Future<void> signUp(
     }
   } on TimeoutException catch (_) {
     showErrorDialog(context, "Request timed out. Please try again later.", []);
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
   } catch (error) {
     showErrorDialog(context, "Signup failed with error: $error", []);
   }

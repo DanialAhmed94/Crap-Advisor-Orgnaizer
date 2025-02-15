@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 import '../bottom_navigation_bar/PremiumView/bottomPremiumView.dart';
 import '../bottom_navigation_bar/navigation_home_view/Navigation_HomeView.dart';
@@ -116,6 +117,25 @@ Future<void> addPerformance(
   }on SocketException catch (_) {
     showErrorDialog(context, "No Internet connection. Please check your network and try again.", []);
 
+  }on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
   }
   catch (error) {
     print("Error: $error"); // Debugging error

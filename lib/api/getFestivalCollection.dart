@@ -6,6 +6,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crap_advisor_orgnaizer/utilities/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../annim/transition.dart';
 import '../bottom_navigation_bar/PremiumView/bottomPremiumView.dart';
@@ -56,7 +57,26 @@ Future<FestivalResponse?> getFestivalCollection(BuildContext context) async {
     // Handle internet connectivity issues
     showErrorDialog(context,
         "No Internet connection. Please check your network and try again.", []);
-  } catch (error) {
+  } on ClientException catch (e) {
+    final errorString = e.toString(); // or e.message
+
+    // Check if it contains "SocketException"
+    if (errorString.contains('SocketException')) {
+      // Handle the wrapped SocketException here
+      showErrorDialog(
+        context,
+        "Network error: failed to reach server. Please check your connection.",
+        [],
+      );
+    } else {
+      // Otherwise handle any other client exception
+      showErrorDialog(
+        context,
+        "A client error occurred: ${e.message}",
+        [],
+      );
+    }
+  }catch (error) {
     // Handle any other exceptions
     showErrorDialog(context,
         "An unexpected error occurred while fetching festivals: $error", []);
