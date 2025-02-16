@@ -29,7 +29,7 @@ class _HomeViewState extends State<HomeView> {
               index: _index,
               children: [
                 NavigationHomeview(),
-                SocialMediaHomeView(),
+                SocialMediaHomeView(isFromCard: false,),
                // BotomPremiumView(),
                 ProfileHomeview(),
                 // Add other views here for different tabs

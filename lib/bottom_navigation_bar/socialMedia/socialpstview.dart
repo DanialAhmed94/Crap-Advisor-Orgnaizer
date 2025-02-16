@@ -20,8 +20,9 @@ import '../../utilities/utilities.dart';
 import 'createPost.dart';
 
 class SocialMediaHomeView extends StatefulWidget {
+  SocialMediaHomeView({required this.isFromCard});
 
-  const SocialMediaHomeView({Key? key}) : super(key: key);
+  bool isFromCard = false;
 
   @override
   _SocialMediaHomeViewState createState() => _SocialMediaHomeViewState();
@@ -206,6 +207,29 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
               child: PreferredSize(
                 preferredSize: Size.fromHeight(kToolbarHeight),
                 child: AppBar(
+                  leadingWidth: widget.isFromCard! ? 100 : 50,
+                  // Adjust the width to accommodate both widgets
+                  leading: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      widget.isFromCard!
+                          ? IconButton(
+                              icon: SvgPicture.asset(AppConstants.backIcon),
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                              },
+                            )
+                          : Container(),
+                      // Optional: Add spacing between the back button and avatar
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        child: CircleAvatar(
+                          backgroundImage: AssetImage(AppConstants.logo),
+                          radius: 16, // Adjust the size as needed
+                        ),
+                      ),
+                    ],
+                  ),
                   title: Text(
                     "Feed",
                     style: TextStyle(
@@ -214,12 +238,12 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  leading: IconButton(
-                    icon: CircleAvatar(
-                      backgroundImage: AssetImage('${AppConstants.logo}'),
-                    ),
-                    onPressed: null,
-                  ),
+                  // leading: IconButton(
+                  //   icon: CircleAvatar(
+                  //     backgroundImage: AssetImage('${AppConstants.logo}'),
+                  //   ),
+                  //   onPressed: null,
+                  // ),
                   backgroundColor: Colors.transparent,
                   elevation: 0,
                 ),
@@ -271,18 +295,18 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                 child: _isLoadingPosts
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
-                  onPressed: _fetchPosts,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  ),
-                  child: const Text(
-                    "Load More Posts",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
+                        onPressed: _fetchPosts,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: const Text(
+                          "Load More Posts",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
               ),
             );
           } else {
@@ -314,10 +338,10 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
   // Methods below are called by PostItemWidget (for building post UI, etc.)
   // -------------------------------------------------------------------------
   Widget buildPostItemUI(
-      BuildContext context,
-      Map<String, dynamic> postData,
-      String postId,
-      ) {
+    BuildContext context,
+    Map<String, dynamic> postData,
+    String postId,
+  ) {
     final String description = postData['description'] ?? '';
 
     // CHANGED: Now reading 'imageUrls', 'videoUrls', 'imageThumbnailUrls', & 'videoThumbnailUrls' from Firestore
@@ -340,8 +364,9 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
     for (int i = 0; i < imageUrls.length; i++) {
       mediaList.add({
         'type': 'image',
-        'thumbnailUrl':
-        imageThumbnailUrls.length > i ? imageThumbnailUrls[i] : imageUrls[i],
+        'thumbnailUrl': imageThumbnailUrls.length > i
+            ? imageThumbnailUrls[i]
+            : imageUrls[i],
         'fullUrl': imageUrls[i],
       });
     }
@@ -349,8 +374,9 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
     for (int i = 0; i < videoUrls.length; i++) {
       mediaList.add({
         'type': 'video',
-        'thumbnailUrl':
-        videoThumbnailUrls.length > i ? videoThumbnailUrls[i] : videoUrls[i],
+        'thumbnailUrl': videoThumbnailUrls.length > i
+            ? videoThumbnailUrls[i]
+            : videoUrls[i],
         'fullUrl': videoUrls[i],
       });
     }
@@ -364,7 +390,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       elevation: 4,
-     // margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      // margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Padding(
         // Some padding to give breathing room on all screens
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -411,17 +437,16 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                           },
                           child: Padding(
                             padding:
-                            const EdgeInsets.symmetric(horizontal: 8.0),
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: CachedNetworkImage(
                               imageUrl: media['thumbnailUrl']!,
                               fit: BoxFit.contain,
                               width: MediaQuery.of(context).size.width,
-                              height:
-                              MediaQuery.of(context).size.height * 0.3,
+                              height: MediaQuery.of(context).size.height * 0.3,
                               placeholder: (context, url) => const Center(
                                   child: CircularProgressIndicator()),
                               errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
+                                  const Icon(Icons.error),
                             ),
                           ),
                         );
@@ -440,7 +465,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                           },
                           child: Padding(
                             padding:
-                            const EdgeInsets.symmetric(horizontal: 8.0),
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Stack(
                               children: [
                                 CachedNetworkImage(
@@ -448,11 +473,11 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                                   fit: BoxFit.cover,
                                   width: MediaQuery.of(context).size.width,
                                   height:
-                                  MediaQuery.of(context).size.height * 0.3,
+                                      MediaQuery.of(context).size.height * 0.3,
                                   placeholder: (context, url) => const Center(
                                       child: CircularProgressIndicator()),
                                   errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
+                                      const Icon(Icons.error),
                                 ),
                                 const Center(
                                   child: Icon(
@@ -473,7 +498,8 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
                       height: MediaQuery.of(context).size.height * 0.3,
                       enableInfiniteScroll: false,
                       enlargeCenterPage: true,
-                      viewportFraction: 1.0, // Added to ensure full visibility
+                      viewportFraction: 1.0,
+                      // Added to ensure full visibility
 
                       onPageChanged: (index, reason) {
                         setState(() {
@@ -519,7 +545,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
             // Like and Comment Row (REPLACED with LikeSectionWidget to see real-time likes)
             Padding(
               padding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: LikeSectionWidget(
                 postId: postId,
                 bearerToken: bearerToken,
@@ -529,8 +555,8 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
             // Comments inside an ExpansionTile with customized divider
             Theme(
-              data: Theme.of(context)
-                  .copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 title: const Text(
                   'View/Add Comments',
@@ -549,16 +575,15 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
   /// Like / Unlike logic (updated to prevent spam-tapping and ensure >= 0)
   Future<void> handleLike(
-      BuildContext context,
-      String postId,
-      List likes,
-      ) async {
+    BuildContext context,
+    String postId,
+    List likes,
+  ) async {
     String? currentUserId = bearerToken;
     if (currentUserId == null) {
       // Optionally, prompt user to log in
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('You must be logged in to like posts.')),
+        const SnackBar(content: Text('You must be logged in to like posts.')),
       );
       return;
     }
@@ -567,8 +592,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
     if (_likeInProgressMap[postId] == true) return;
     _likeInProgressMap[postId] = true;
 
-    final postRef =
-    FirebaseFirestore.instance.collection('posts').doc(postId);
+    final postRef = FirebaseFirestore.instance.collection('posts').doc(postId);
 
     // Use a Firestore transaction to handle concurrency and avoid negative counts
     await FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -581,8 +605,7 @@ class _SocialMediaHomeViewState extends State<SocialMediaHomeView> {
 
       if (currentLikes.contains(currentUserId)) {
         // Unlike
-        final newCount =
-        currentLikesCount > 0 ? currentLikesCount - 1 : 0;
+        final newCount = currentLikesCount > 0 ? currentLikesCount - 1 : 0;
         transaction.update(postRef, {
           'likes': FieldValue.arrayRemove([currentUserId]),
           'likesCount': newCount,
@@ -657,8 +680,7 @@ class CommentSectionWidget extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<CommentSectionWidget> createState() =>
-      _CommentSectionWidgetState();
+  State<CommentSectionWidget> createState() => _CommentSectionWidgetState();
 }
 
 class _CommentSectionWidgetState extends State<CommentSectionWidget> {
@@ -814,8 +836,8 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
         if (!snapshot.hasData || snapshot.data == null) {
           return const Padding(
             padding: EdgeInsets.all(8.0),
-            child:
-            Center(child: Text('No comments yet. Be the first to comment!')),
+            child: Center(
+                child: Text('No comments yet. Be the first to comment!')),
           );
         }
 
@@ -849,8 +871,7 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
                       // User Avatar or Placeholder
                       const CircleAvatar(
                         radius: 12,
-                        backgroundImage:
-                        AssetImage('assets/images/user.png'),
+                        backgroundImage: AssetImage('assets/images/user.png'),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -909,7 +930,10 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
               borderRadius: BorderRadius.circular(20.0),
             ),
           ),
-          child: const Text("Load More Comments",style: TextStyle(color: Colors.white),),
+          child: const Text(
+            "Load More Comments",
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       );
     }
@@ -934,7 +958,7 @@ class _CommentSectionWidgetState extends State<CommentSectionWidget> {
                   hintText: 'Add a comment...',
                   border: InputBorder.none,
                   contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
@@ -1010,8 +1034,7 @@ class _LikeSectionWidgetState extends State<LikeSectionWidget> {
         final postData = snapshot.data!.data() as Map<String, dynamic>;
         final firestoreLikesCount = postData['likesCount'] ?? 0;
         final List firestoreLikes = postData['likes'] ?? [];
-        final firestoreIsLiked =
-        firestoreLikes.contains(widget.bearerToken);
+        final firestoreIsLiked = firestoreLikes.contains(widget.bearerToken);
 
         // We’ll display these ephemeral values in the UI,
         // so we don't do setState() *during* the build method.
@@ -1057,7 +1080,7 @@ class _LikeSectionWidgetState extends State<LikeSectionWidget> {
                   if (isLikedForUI) {
                     _isLiked = false;
                     _likesCount =
-                    likesCountForUI > 0 ? (likesCountForUI - 1) : 0;
+                        likesCountForUI > 0 ? (likesCountForUI - 1) : 0;
                   } else {
                     _isLiked = true;
                     _likesCount = likesCountForUI + 1;
@@ -1111,7 +1134,6 @@ class _LikeSectionWidgetState extends State<LikeSectionWidget> {
   }
 }
 
-
 // -------------------------------------------------------------------
 // Modified FullScreenView: Now a StatefulWidget with dynamic aspect ratio
 // -------------------------------------------------------------------
@@ -1139,7 +1161,8 @@ class _FullScreenViewState extends State<FullScreenView> {
   }
 
   Future<void> _fetchVideoMetadata() async {
-    VideoPlayerController controller = VideoPlayerController.network(widget.url);
+    VideoPlayerController controller =
+        VideoPlayerController.network(widget.url);
     try {
       await controller.initialize();
       final size = controller.value.size;
@@ -1243,7 +1266,7 @@ class _FullScreenViewState extends State<FullScreenView> {
             imageUrl: widget.url,
             fit: BoxFit.cover,
             placeholder: (context, url) =>
-            const Center(child: CircularProgressIndicator()),
+                const Center(child: CircularProgressIndicator()),
             errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),

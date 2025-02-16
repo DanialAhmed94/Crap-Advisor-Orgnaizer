@@ -82,7 +82,7 @@ class _NavigationHomeviewState extends State<NavigationHomeview> {
                 SizedBox(height: 20,),
                 GestureDetector(
                   onTap: (){
-                    Navigator.push(context, FadePageRouteBuilder(widget: SocialMediaHomeView()));
+                    Navigator.push(context, FadePageRouteBuilder(widget: SocialMediaHomeView(isFromCard: true,)));
                   },
                   child: Image(
                     image: AssetImage(AppConstants.crapChat),
