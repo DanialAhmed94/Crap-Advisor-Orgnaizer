@@ -24,7 +24,8 @@ import 'homw_view/home_view.dart';
 import 'provider/refreshNotifier_provider.dart';
 import 'utilities/utilities.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
@@ -38,27 +39,29 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     print('Message contains a notification payload. System will display it.');
   } else {
     // If it's a data-only message, you can display a notification manually.
-
   }
 }
+
 Future<void> _showNotification(String title, String body) async {
   const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'organizer_high_importance_channel',
-      'High Importance Notifications',
+      'organizer_high_importance_channel', 'High Importance Notifications',
       importance: Importance.max,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher_user', // <- small icon
-      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher_user'), // Custom large icon
+      largeIcon: DrawableResourceAndroidBitmap(
+          '@mipmap/ic_launcher_user'), // Custom large icon
       styleInformation: BigPictureStyleInformation(
-        DrawableResourceAndroidBitmap('@mipmap/ic_launcher_user'),)
-  );
+        DrawableResourceAndroidBitmap('@mipmap/ic_launcher_user'),
+      ));
 
   const NotificationDetails notificationDetails = NotificationDetails(
     android: androidDetails,
   );
 
-  await flutterLocalNotificationsPlugin.show(0, title, body, notificationDetails);
+  await flutterLocalNotificationsPlugin.show(
+      0, title, body, notificationDetails);
 }
+
 Future<void> _navigateToAppropriateScreen() async {
   bool isLoggedIn = (await getIsLogedIn()) ?? false;
 
@@ -70,18 +73,17 @@ Future<void> _navigateToAppropriateScreen() async {
     notificationProvider.setShouldRefreshHome(true);
     navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => HomeView()),
-          (route) => false,
+      (route) => false,
     );
   } else {
     navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => LoginView()),
-          (route) => false,
+      (route) => false,
     );
   }
 }
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -120,48 +122,58 @@ void main() async {
     ),
   );
 
-
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => FestivalProvider()),
-    ChangeNotifierProvider(create: (_) =>PerformanceProvider()),
-    ChangeNotifierProvider(create: (_) =>BulletinProvider()),
-    ChangeNotifierProvider(create: (_) =>ActivityProvider()),
-    ChangeNotifierProvider(create: (_) =>EventProvider()),
-    ChangeNotifierProvider(create: (_) =>InvoiceProvider()),
-    ChangeNotifierProvider(create: (_) =>ToiletTypeProvider()),
-    ChangeNotifierProvider(create: (_) =>ToiletProvider()),
-    ChangeNotifierProvider(create: (_) =>NotificationProvider()),
-    ChangeNotifierProvider(create: (_) =>NotificationsCollectionProvider()),
+    ChangeNotifierProvider(create: (_) => PerformanceProvider()),
+    ChangeNotifierProvider(create: (_) => BulletinProvider()),
+    ChangeNotifierProvider(create: (_) => ActivityProvider()),
+    ChangeNotifierProvider(create: (_) => EventProvider()),
+    ChangeNotifierProvider(create: (_) => InvoiceProvider()),
+    ChangeNotifierProvider(create: (_) => ToiletTypeProvider()),
+    ChangeNotifierProvider(create: (_) => ToiletProvider()),
+    ChangeNotifierProvider(create: (_) => NotificationProvider()),
+    ChangeNotifierProvider(create: (_) => NotificationsCollectionProvider()),
   ], child: const MyApp()));
 }
 
 Future<void> initializeLocalNotifications() async {
-  const AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings('@mipmap/ic_launcher_user');
+  // Android initialization settings
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('app_icon'); // Replace with your icon name
 
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: androidInitializationSettings,
-  );
-
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse response) async{
-      print("Notification clicked with payload: ${response.payload}");
-// Handle navigation when notification is tapped
-      await _navigateToAppropriateScreen();
+  // iOS/macOS initialization settings using DarwinInitializationSettings
+  final DarwinInitializationSettings initializationSettingsDarwin =
+      DarwinInitializationSettings(
+    requestSoundPermission: true, // Enable/disable sound permissions
+    requestBadgePermission: true, // Enable/disable badge permissions
+    requestAlertPermission: true, // Enable/disable alert permissions
+    onDidReceiveLocalNotification: (id, title, body, payload) async {
+      // Handle foreground notifications on iOS
+      print("iOS Local Notification: $title, $body, $payload");
     },
   );
 
-  // Create notification channel for Android 8.0+
-  const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'organizer_high_importance_channel', // Channel ID
-    'High Importance Notifications', // Channel name
-    description: 'This channel is used for important notifications.',
-    importance: Importance.high,
+  // Linux initialization settings
+  final LinuxInitializationSettings initializationSettingsLinux =
+      LinuxInitializationSettings(
+    defaultActionName: 'Open notification',
   );
 
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
+  // Combined initialization settings
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsDarwin,
+    linux: initializationSettingsLinux,
+  );
+
+  // Initialize the plugin
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) async {
+      // Handle when a notification is tapped
+      print("Notification tapped with payload: ${response.payload}");
+    },
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -181,6 +193,30 @@ class _MyAppState extends State<MyApp> {
   Future<void> setupFCM() async {
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
+    // Request notification permissions for iOS
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted notification permissions.');
+
+      // Fetch the APNs token for iOS
+      if (Platform.isIOS) {
+        String? apnsToken = await messaging.getAPNSToken();
+        print('APNs Token: $apnsToken');
+      }
+
+      // Fetch the FCM token
+      String? fcmToken = await messaging.getToken();
+      print('FCM Token: $fcmToken');
+      await saveFcmTokenToPrefs(fcmToken);
+    } else {
+      print('User denied notification permissions.');
+    }
+
     // Listen for foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Received a foreground message: ${message.messageId}');
@@ -195,18 +231,23 @@ class _MyAppState extends State<MyApp> {
 
     // Handle notification tap when the app is in background or terminated
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Notification opened app from background or terminated state: ${message.messageId}');
+      print(
+          'Notification opened app from background or terminated state: ${message.messageId}');
       _handleNotificationClick(message);
     });
 
     // Handle app launch from a terminated state with a notification
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
       if (message != null) {
-        print('App opened from terminated state with notification: ${message.messageId}');
+        print(
+            'App opened from terminated state with notification: ${message.messageId}');
         _handleNotificationClick(message);
       }
     });
   }
+
   Future<void> _handleNotificationClick(RemoteMessage message) async {
     await _navigateToAppropriateScreen();
   }

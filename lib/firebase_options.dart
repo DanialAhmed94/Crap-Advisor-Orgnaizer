@@ -50,20 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBTR8ZK1TfP5OPSJnJf6l-pDs9AVeiJGLA',
-    appId: '1:7789770188:android:2abb3f7e3fddd87711d969',
-    messagingSenderId: '7789770188',
-    projectId: 'crapapps-65472',
-    storageBucket: 'crapapps-65472.firebasestorage.app',
+    apiKey: 'AIzaSyDIQdd1ahXPDEaEe80ZpPK2mKT8f2c5Xro',
+    appId: '1:204396454546:android:04ec62099dfca26e50fc4b',
+    messagingSenderId: '204396454546',
+    projectId: 'crap-advisor-822cc',
+    storageBucket: 'crap-advisor-822cc.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAZUt1KgBm_OX5apwmO9zK3he4yaXQ7EHA',
-    appId: '1:7789770188:ios:f43a4baaac0a17a811d969',
-    messagingSenderId: '7789770188',
-    projectId: 'crapapps-65472',
-    storageBucket: 'crapapps-65472.firebasestorage.app',
-    iosBundleId: 'com.crapadviser.orgnaizer',
+    apiKey: 'AIzaSyAkk4oLsTIwFcolDswQWvQUx0SMO__26YI',
+    appId: '1:204396454546:ios:0d822e0507c45fe950fc4b',
+    messagingSenderId: '204396454546',
+    projectId: 'crap-advisor-822cc',
+    storageBucket: 'crap-advisor-822cc.firebasestorage.app',
+    iosBundleId: 'com.semicolonstech.crapAdvisorOrgnaizer',
   );
-
 }

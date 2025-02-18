@@ -32,11 +32,21 @@ class _NotificationViewState extends State<NotificationView> {
   Widget build(BuildContext context) {
     // Access the provider
     final notificationsProvider =
-    context.watch<NotificationsCollectionProvider>();
+        context.watch<NotificationsCollectionProvider>();
     final notifications = notificationsProvider.notifications;
     final isLoading = notificationsProvider.isLoading;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.of(context).pop(); // Navigate back
+          },
+        ),
+      ),
       body: Stack(
         children: [
           /// Background Image
@@ -51,12 +61,14 @@ class _NotificationViewState extends State<NotificationView> {
 
           /// Main Content
           if (isLoading)
-          /// Loading indicator
+
+            /// Loading indicator
             const Center(
               child: CircularProgressIndicator(),
             )
           else if (notifications.isEmpty)
-          /// No data
+
+            /// No data
             const Center(
               child: Text(
                 "There is nothing to show here",
@@ -67,7 +79,8 @@ class _NotificationViewState extends State<NotificationView> {
               ),
             )
           else
-          /// Notifications List
+
+            /// Notifications List
             ListView.builder(
               padding: const EdgeInsets.only(top: 40, bottom: 16),
               itemCount: notifications.length,
@@ -76,7 +89,7 @@ class _NotificationViewState extends State<NotificationView> {
                 return SafeArea(
                   child: Padding(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Card(
                       elevation: 5,
                       shape: RoundedRectangleBorder(
@@ -87,7 +100,7 @@ class _NotificationViewState extends State<NotificationView> {
                         leading: Icon(
                           Icons.notifications,
                           color: Colors.blueAccent,
-                          size:  30,
+                          size: 30,
                         ),
                         title: Text(
                           notification.message,

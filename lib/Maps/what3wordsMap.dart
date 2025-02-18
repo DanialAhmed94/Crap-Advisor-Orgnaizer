@@ -49,7 +49,9 @@ class _GoogleMapViewState extends State<What3WodsMapView>
     _loadCustomMarkerIcon();
 
     // If we are in edit mode and have initial coords, use them as starting point
-    if (widget.isEditMode && widget.initialLat != null && widget.initialLng != null) {
+    if (widget.isEditMode &&
+        widget.initialLat != null &&
+        widget.initialLng != null) {
       _initialPosition = LatLng(widget.initialLat!, widget.initialLng!);
       _isMapLoading = false;
 
@@ -98,14 +100,18 @@ class _GoogleMapViewState extends State<What3WodsMapView>
     PermissionStatus status = await Permission.location.status;
 
     if (status.isGranted) {
-      if (!(widget.isEditMode && widget.initialLat != null && widget.initialLng != null)) {
+      if (!(widget.isEditMode &&
+          widget.initialLat != null &&
+          widget.initialLng != null)) {
         // Get current location only if not in edit mode or we don't have initial coords
         _getCurrentLocation();
       }
     } else if (status.isDenied) {
       var newStatus = await Permission.location.request();
       if (newStatus.isGranted) {
-        if (!(widget.isEditMode && widget.initialLat != null && widget.initialLng != null)) {
+        if (!(widget.isEditMode &&
+            widget.initialLat != null &&
+            widget.initialLng != null)) {
           _getCurrentLocation();
         }
       } else if (newStatus.isDenied) {
@@ -124,7 +130,9 @@ class _GoogleMapViewState extends State<What3WodsMapView>
 
     setState(() {
       // If not in edit mode or no initial coords, set initial position to current location
-      if (!(widget.isEditMode && widget.initialLat != null && widget.initialLng != null)) {
+      if (!(widget.isEditMode &&
+          widget.initialLat != null &&
+          widget.initialLng != null)) {
         _initialPosition = LatLng(position.latitude, position.longitude);
       }
 
@@ -177,7 +185,8 @@ class _GoogleMapViewState extends State<What3WodsMapView>
     selectedLatitude = latLng.latitude.toString();
     selectedLongitude = latLng.longitude.toString();
 
-    String? what3Words = await convertToWhat3Words(latLng.latitude, latLng.longitude);
+    String? what3Words =
+        await convertToWhat3Words(latLng.latitude, latLng.longitude);
 
     setState(() {
       _what3WordsAddress = what3Words ?? 'Unable to fetch What3Words address';
@@ -212,9 +221,10 @@ class _GoogleMapViewState extends State<What3WodsMapView>
     _gridLines.clear();
 
     int latLines =
-    ((bounds.northeast.latitude - bounds.southwest.latitude) / step).ceil();
+        ((bounds.northeast.latitude - bounds.southwest.latitude) / step).ceil();
     int lngLines =
-    ((bounds.northeast.longitude - bounds.southwest.longitude) / step).ceil();
+        ((bounds.northeast.longitude - bounds.southwest.longitude) / step)
+            .ceil();
 
     for (int i = 0; i <= latLines; i++) {
       double lat = bounds.southwest.latitude + (step * i);
@@ -256,7 +266,7 @@ class _GoogleMapViewState extends State<What3WodsMapView>
 
     try {
       final response =
-      await http.get(Uri.parse(url)).timeout(Duration(seconds: 30));
+          await http.get(Uri.parse(url)).timeout(Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -406,9 +416,8 @@ class _GoogleMapViewState extends State<What3WodsMapView>
 
   @override
   Widget build(BuildContext context) {
-    final titleText = widget.isEditMode
-        ? "Edit Toilet's Location"
-        : "Add Toilet's Location";
+    final titleText =
+        widget.isEditMode ? "Edit Toilet's Location" : "Add Toilet's Location";
 
     return Scaffold(
       body: Stack(
@@ -450,7 +459,7 @@ class _GoogleMapViewState extends State<What3WodsMapView>
                 );
 
                 LatLng currentLocation =
-                LatLng(position.latitude, position.longitude);
+                    LatLng(position.latitude, position.longitude);
                 _mapController.animateCamera(
                   CameraUpdate.newLatLngZoom(
                     currentLocation,
