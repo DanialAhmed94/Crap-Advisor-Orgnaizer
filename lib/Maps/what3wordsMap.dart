@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -73,12 +75,14 @@ class _GoogleMapViewState extends State<What3WodsMapView>
 
   Future<void> _loadCustomMarkerIcon() async {
     currentLocationMarker = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(devicePixelRatio: 2.5),
+      ImageConfiguration(
+          devicePixelRatio: 3.0), // Adjust for appropriate scaling
       AppConstants.currentLocationMarker,
     );
 
     customMarkerIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(devicePixelRatio: 2.5),
+      ImageConfiguration(
+          devicePixelRatio: 3.0), // Adjust for appropriate scaling
       AppConstants.customMarker,
     );
   }
@@ -128,6 +132,12 @@ class _GoogleMapViewState extends State<What3WodsMapView>
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
+    BitmapDescriptor resizedIcon = await resizeMarkerImage(
+      AppConstants.currentLocationMarker, // Replace with your asset path
+      100, // Width in pixels
+      100, // Height in pixels
+    );
+
     setState(() {
       // If not in edit mode or no initial coords, set initial position to current location
       if (!(widget.isEditMode &&
@@ -137,7 +147,7 @@ class _GoogleMapViewState extends State<What3WodsMapView>
       }
 
       _userLocationMarker = Marker(
-        icon: currentLocationMarker ?? BitmapDescriptor.defaultMarker,
+        icon: resizedIcon,
         markerId: MarkerId('userLocation'),
         position: _initialPosition,
         infoWindow: InfoWindow(
@@ -188,12 +198,18 @@ class _GoogleMapViewState extends State<What3WodsMapView>
     String? what3Words =
         await convertToWhat3Words(latLng.latitude, latLng.longitude);
 
+    BitmapDescriptor resizedIcon = await resizeMarkerImage(
+      AppConstants.customMarker, // Replace with your asset path
+      100, // Width in pixels
+      100, // Height in pixels
+    );
+
     setState(() {
       _what3WordsAddress = what3Words ?? 'Unable to fetch What3Words address';
 
       Marker tappedLocationMarker = Marker(
         markerId: MarkerId('selectedLocation'),
-        icon: customMarkerIcon ?? BitmapDescriptor.defaultMarker,
+        icon: resizedIcon,
         position: latLng,
         infoWindow: InfoWindow(
           title: 'Selected Location',
@@ -214,6 +230,44 @@ class _GoogleMapViewState extends State<What3WodsMapView>
         _markers = {tappedLocationMarker};
       }
     });
+  }
+
+  Future<BitmapDescriptor> resizeMarkerImage(
+      String assetPath, int maxWidth, int maxHeight) async {
+    // Load the image as ByteData
+    ByteData data = await rootBundle.load(assetPath);
+
+    // Decode the image to get its original dimensions
+    final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    final frameInfo = await codec.getNextFrame();
+    final originalImage = frameInfo.image;
+    final originalWidth = originalImage.width;
+    final originalHeight = originalImage.height;
+
+    // Calculate the scaling factor while maintaining the aspect ratio
+    final widthRatio = maxWidth / originalWidth;
+    final heightRatio = maxHeight / originalHeight;
+    final scalingFactor = widthRatio < heightRatio ? widthRatio : heightRatio;
+
+    final scaledWidth = (originalWidth * scalingFactor).toInt();
+    final scaledHeight = (originalHeight * scalingFactor).toInt();
+
+    // Resize the image with the calculated dimensions
+    final resizedCodec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: scaledWidth,
+      targetHeight: scaledHeight,
+    );
+
+    final resizedFrameInfo = await resizedCodec.getNextFrame();
+    final resizedImage =
+        await resizedFrameInfo.image.toByteData(format: ui.ImageByteFormat.png);
+
+    if (resizedImage == null) {
+      throw Exception("Failed to convert image to byte data");
+    }
+
+    return BitmapDescriptor.fromBytes(resizedImage.buffer.asUint8List());
   }
 
   void _generateGrid(LatLngBounds bounds) {
