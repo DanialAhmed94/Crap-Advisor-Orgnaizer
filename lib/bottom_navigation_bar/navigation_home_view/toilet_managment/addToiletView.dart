@@ -121,7 +121,7 @@ class _AddToiletViewState extends State<AddToiletView> {
                         color: Colors.black.withOpacity(0.04),
                         blurRadius: 80.0,
                         spreadRadius: 0,
-                        offset: Offset(0,4),
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
@@ -155,12 +155,15 @@ class _AddToiletViewState extends State<AddToiletView> {
                                   borderSide: BorderSide.none,
                                 ),
                               ),
-                              items: festivalProvider.festivals.map((Festival festival) {
+                              items: festivalProvider.festivals
+                                  .map((Festival festival) {
                                 return DropdownMenuItem<String>(
                                   value: festival.id.toString(),
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
-                                      maxWidth: MediaQuery.of(context).size.width * 0.6,
+                                      maxWidth:
+                                          MediaQuery.of(context).size.width *
+                                              0.6,
                                     ),
                                     child: Text(
                                       festival.nameOrganizer ?? "",
@@ -188,9 +191,7 @@ class _AddToiletViewState extends State<AddToiletView> {
                         Text(
                           "Toilet Category",
                           style: TextStyle(
-                              fontFamily: "UbuntuMedium",
-                              fontSize: 15
-                          ),
+                              fontFamily: "UbuntuMedium", fontSize: 15),
                         ),
                         SizedBox(height: 10),
                         Consumer<ToiletTypeProvider>(
@@ -201,7 +202,8 @@ class _AddToiletViewState extends State<AddToiletView> {
                               value: _selectedToiletId,
                               decoration: InputDecoration(
                                 prefixIcon: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
                                   child: SvgPicture.asset(
                                     AppConstants.dropDownPrefixIcon,
                                     color: const Color(0xFF8AC85A),
@@ -213,16 +215,21 @@ class _AddToiletViewState extends State<AddToiletView> {
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 15, horizontal: 20),
                               ),
-                              icon: const Icon(Icons.arrow_drop_down), // Show standard dropdown icon
-                              items: toiletProvider.toiletTypes.map((ToiletType toiletType) {
+                              icon: const Icon(Icons
+                                  .arrow_drop_down), // Show standard dropdown icon
+                              items: toiletProvider.toiletTypes
+                                  .map((ToiletType toiletType) {
                                 return DropdownMenuItem<String>(
                                   value: toiletType.id.toString(),
                                   child: Row(
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.only(top:12,right: 12), // Padding for spacing
+                                        padding: const EdgeInsets.only(
+                                            top: 12,
+                                            right: 12), // Padding for spacing
                                         child: ClipOval(
                                           child: Container(
                                             height: 50,
@@ -230,18 +237,28 @@ class _AddToiletViewState extends State<AddToiletView> {
                                             child: Image.network(
                                               "https://stagingcrapadvisor.semicolonstech.com/asset/toilet_types/${toiletType.image}",
                                               fit: BoxFit.cover,
-                                              loadingBuilder: (context, child, loadingProgress) {
-                                                if (loadingProgress == null) return child;
+                                              loadingBuilder: (context, child,
+                                                  loadingProgress) {
+                                                if (loadingProgress == null)
+                                                  return child;
                                                 return Center(
-                                                  child: CircularProgressIndicator(
-                                                    value: loadingProgress.expectedTotalBytes != null
-                                                        ? loadingProgress.cumulativeBytesLoaded /
-                                                        (loadingProgress.expectedTotalBytes ?? 1)
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    value: loadingProgress
+                                                                .expectedTotalBytes !=
+                                                            null
+                                                        ? loadingProgress
+                                                                .cumulativeBytesLoaded /
+                                                            (loadingProgress
+                                                                    .expectedTotalBytes ??
+                                                                1)
                                                         : null,
                                                   ),
                                                 );
                                               },
-                                              errorBuilder: (context, error, stackTrace) => Image.asset(
+                                              errorBuilder: (context, error,
+                                                      stackTrace) =>
+                                                  Image.asset(
                                                 "assets/images/test-toiletType.jpeg",
                                                 fit: BoxFit.cover,
                                               ),
@@ -254,27 +271,33 @@ class _AddToiletViewState extends State<AddToiletView> {
                                           toiletType.name ?? "",
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
-                                          style: Theme.of(context).textTheme.bodyMedium,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
                                         ),
                                       ),
                                     ],
                                   ),
                                 );
                               }).toList(),
-                              onChanged: (newValue) => setState(() => _selectedToiletId = newValue),
+                              onChanged: (newValue) =>
+                                  setState(() => _selectedToiletId = newValue),
                               selectedItemBuilder: (BuildContext context) {
                                 // Show only name in the selected item display
-                                return toiletProvider.toiletTypes.map((ToiletType toiletType) {
+                                return toiletProvider.toiletTypes
+                                    .map((ToiletType toiletType) {
                                   return Text(
                                     toiletType.name ?? "",
                                     overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   );
                                 }).toList();
                               },
-                              validator: (value) => value == null || value.isEmpty
-                                  ? 'Please select a toilet type'
-                                  : null,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? 'Please select a toilet type'
+                                      : null,
                             );
                           },
                         ),
@@ -306,18 +329,18 @@ class _AddToiletViewState extends State<AddToiletView> {
                             child: Center(
                               child: _selectedImage == null
                                   ? SvgPicture.asset(
-                                AppConstants.addIcon,
-                                color: Color(0xFF66D265),
-                              )
+                                      AppConstants.addIcon,
+                                      color: Color(0xFF66D265),
+                                    )
                                   : ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.file(
-                                  File(_selectedImage!.path),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                              ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Image.file(
+                                        File(_selectedImage!.path),
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
@@ -348,13 +371,17 @@ class _AddToiletViewState extends State<AddToiletView> {
                               onTap: () async {
                                 final result = await Navigator.push(
                                   context,
-                                  FadePageRouteBuilder(widget: What3WodsMapView()),
+                                  FadePageRouteBuilder(
+                                      widget: What3WodsMapView()),
                                 );
                                 if (result != null) {
                                   setState(() {
-                                    _latitudeController.text = result['latitude'];
-                                    _longitudeController.text = result['longitude'];
-                                    _what3WordsController.text = result['what3Words'];
+                                    _latitudeController.text =
+                                        result['latitude'];
+                                    _longitudeController.text =
+                                        result['longitude'];
+                                    _what3WordsController.text =
+                                        result['what3Words'];
                                   });
                                 }
                               },
@@ -398,7 +425,7 @@ class _AddToiletViewState extends State<AddToiletView> {
                               borderSide: BorderSide.none,
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(height: 20),
@@ -433,7 +460,8 @@ class _AddToiletViewState extends State<AddToiletView> {
                               borderRadius: BorderRadius.circular(30.0),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(height: 20),
@@ -472,7 +500,7 @@ class _AddToiletViewState extends State<AddToiletView> {
                               borderSide: BorderSide.none,
                             ),
                             contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                                EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                         SizedBox(height: 20),
@@ -490,7 +518,8 @@ class _AddToiletViewState extends State<AddToiletView> {
                                   isLoading = true; // Show loading indicator
                                 });
                                 try {
-                                  String base64img = await convertImageToBase64(_selectedImage);
+                                  String base64img = await convertImageToBase64(
+                                      _selectedImage);
                                   await addToilet(
                                     context,
                                     _selectedFestivalId ?? "",
