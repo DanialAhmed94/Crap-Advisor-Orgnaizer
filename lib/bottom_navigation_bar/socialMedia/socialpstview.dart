@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert'; // For decoding base64
 import 'dart:io';
+import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // ADDED: Minimal change to support video playback with caching
 import 'package:video_player/video_player.dart';
-import 'package:better_player/better_player.dart'; // NEW: Import better_player
 import 'package:cached_network_image/cached_network_image.dart'; // For caching network images
 import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // For caching videos
 import 'package:carousel_slider/carousel_slider.dart'; // For media slider
@@ -1149,20 +1149,59 @@ class FullScreenView extends StatefulWidget {
 }
 
 class _FullScreenViewState extends State<FullScreenView> {
-  double? _aspectRatio;
+
+  late VideoPlayerController _videoController; // Add this declaration
+  ChewieController? _chewieController;
   bool _isLoading = true;
 
+  double? _aspectRatio;
+  // bool _isLoading = true;
   @override
   void initState() {
     super.initState();
     if (widget.isVideo) {
-      _fetchVideoMetadata();
+      _initializeVideoPlayer();
     }
   }
 
+  Future<void> _initializeVideoPlayer() async {
+    final cachedFile = await DefaultCacheManager().getSingleFile(widget.url);
+
+    try {
+      _videoController = VideoPlayerController.file(cachedFile);
+      await _videoController.initialize();
+
+      setState(() {
+        _aspectRatio = _videoController.value.aspectRatio;
+        _chewieController = ChewieController(
+          videoPlayerController: _videoController,
+          autoPlay: true,
+          looping: false,
+        );
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Error initializing video player: $e");
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   if (widget.isVideo) {
+  //     _fetchVideoMetadata();
+  //   }
+  // }
+
   Future<void> _fetchVideoMetadata() async {
-    VideoPlayerController controller =
-        VideoPlayerController.network(widget.url);
+    VideoPlayerController controller = VideoPlayerController.network(widget.url);
     try {
       await controller.initialize();
       final size = controller.value.size;
@@ -1190,7 +1229,7 @@ class _FullScreenViewState extends State<FullScreenView> {
           appBar: AppBar(
             centerTitle: true,
             leading: IconButton(
-              icon: SvgPicture.asset(AppConstants.backIcon),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -1206,7 +1245,7 @@ class _FullScreenViewState extends State<FullScreenView> {
           appBar: AppBar(
             centerTitle: true,
             leading: IconButton(
-              icon: SvgPicture.asset(AppConstants.backIcon),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -1217,32 +1256,7 @@ class _FullScreenViewState extends State<FullScreenView> {
           body: Center(
             child: AspectRatio(
               aspectRatio: _aspectRatio!,
-              child: BetterPlayer(
-                controller: BetterPlayerController(
-                  BetterPlayerConfiguration(
-                    aspectRatio: _aspectRatio,
-                    autoPlay: true,
-                    fit: BoxFit.cover, // Adjust BoxFit as needed
-                    controlsConfiguration: BetterPlayerControlsConfiguration(
-                      enablePlaybackSpeed: false,
-                      enableProgressBar: true,
-                      enableFullscreen: true,
-                      enableSkips: false,
-                      enableMute: false,
-                    ),
-                  ),
-                  betterPlayerDataSource: BetterPlayerDataSource(
-                    BetterPlayerDataSourceType.network,
-                    widget.url,
-                    cacheConfiguration: BetterPlayerCacheConfiguration(
-                      useCache: true,
-                      key: widget.url,
-                      maxCacheSize: 100 * 1024 * 1024, // 100 MB
-                      maxCacheFileSize: 10 * 1024 * 1024, // 10 MB per file
-                    ),
-                  ),
-                ),
-              ),
+              child: Chewie(controller: _chewieController!),
             ),
           ),
         );
@@ -1253,7 +1267,7 @@ class _FullScreenViewState extends State<FullScreenView> {
         appBar: AppBar(
           centerTitle: true,
           leading: IconButton(
-            icon: SvgPicture.asset(AppConstants.backIcon),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -1266,7 +1280,7 @@ class _FullScreenViewState extends State<FullScreenView> {
             imageUrl: widget.url,
             fit: BoxFit.cover,
             placeholder: (context, url) =>
-                const Center(child: CircularProgressIndicator()),
+            const Center(child: CircularProgressIndicator()),
             errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),

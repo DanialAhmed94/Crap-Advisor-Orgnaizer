@@ -1,7 +1,7 @@
 import 'dart:async'; // For TimeoutException
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ffmpeg_kit_flutter_min_gpl/session.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,9 +20,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 // Connectivity package
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-// FFmpegKit for video compression
-import 'package:ffmpeg_kit_flutter_min_gpl/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_min_gpl/return_code.dart';
 
 // Import your custom files
 import '../../utilities/utilities.dart';
@@ -289,63 +286,68 @@ class _CreatePostPageState extends State<CreatePostPage> {
     final Directory tempDir = await getTemporaryDirectory();
     String outputPath = '${tempDir.path}/${Uuid().v4()}.mp4';
 
-    // Get video duration using video_compress package
+    // Get video metadata
     MediaInfo? info = await VideoCompress.getMediaInfo(file.path);
-    double duration = info.duration != null ? info.duration! / 1000 : 1.0; // in seconds
-
-    // FFmpeg command for compression with 'ultrafast' preset
-    final String command =
-        '-i "${file.path}" -vcodec libx264 -preset ultrafast -crf 28 -acodec aac -b:a 128k "$outputPath"';
+    double duration = info?.duration != null ? info!.duration! / 1000 : 1.0; // Duration in seconds
+    int videoWidth = info?.width ?? 0;
+    int videoHeight = info?.height ?? 0;
 
     Completer<File> completer = Completer<File>();
 
-    FFmpegKit.executeAsync(
-      command,
-          (session) async {
-        // Execution completed
-        final returnCode = await session.getReturnCode();
-        if (ReturnCode.isSuccess(returnCode)) {
-          File compressedFile = File(outputPath);
-          if (await compressedFile.exists()) {
-            if (mounted) {
-              completer.complete(compressedFile);
-            } else {
-              completer.completeError(Exception("Widget disposed before compression completed."));
-            }
-          } else {
-            if (mounted) {
-              completer.completeError(Exception("Compressed video file does not exist."));
-            } else {
-              completer.completeError(Exception("Widget disposed before compression completed."));
-            }
-          }
-        } else {
-          if (mounted) {
-            completer.completeError(Exception("Video compression failed with return code: $returnCode"));
-          } else {
-            completer.completeError(Exception("Widget disposed before compression completed."));
-          }
-        }
-      },
-          (log) {
-        // Log callback (optional)
-        debugPrint("FFmpeg Log: ${log.getMessage()}");
-      },
-          (statistics) {
-        // Statistics callback for progress
-        double? time = statistics.getTime(); // Current time in milliseconds
+    try {
+      // Start compression with video_compress
+      MediaInfo? compressedVideo = await VideoCompress.compressVideo(
+        file.path,
+        quality: VideoQuality.LowQuality, // Set quality to your preference
+        deleteOrigin: false, // Retain original video
+        includeAudio: true,
+      );
 
-        if (time != null && duration > 0) {
-          double progress = (time / (duration * 1000)); // Convert duration to milliseconds
-          if (progress.isFinite && progress <= 1.0 && mounted) {
-            setState(() {
-              _compressionProgress = progress;
-              _statusMessage = "Compressing... ${(progress * 100).toStringAsFixed(0)}%";
-            });
+      if (compressedVideo != null && compressedVideo.path != null) {
+        File compressedFile = File(compressedVideo.path!);
+
+        // Start tracking progress
+        int startTime = DateTime.now().millisecondsSinceEpoch;
+
+        Timer.periodic(Duration(seconds: 1), (timer) async {
+          int currentTime = DateTime.now().millisecondsSinceEpoch;
+          double elapsedTime = (currentTime - startTime) / 1000; // Elapsed time in seconds
+
+          if (elapsedTime < duration) {
+            double progress = elapsedTime / duration; // Calculate progress based on duration
+
+            if (mounted) {
+              setState(() {
+                _compressionProgress = progress;
+                _statusMessage = "Compressing... ${(progress * 100).toStringAsFixed(0)}%";
+              });
+            }
+          } else {
+            timer.cancel(); // Stop the timer once compression is finished
+
+            if (mounted) {
+              setState(() {
+                _compressionProgress = 1.0; // Set progress to 100% when done
+                _statusMessage = "Compression Complete!";
+              });
+              completer.complete(compressedFile);
+            }
           }
+        });
+      } else {
+        if (mounted) {
+          completer.completeError(Exception("Video compression failed."));
+        } else {
+          completer.completeError(Exception("Widget disposed before compression completed."));
         }
-      },
-    );
+      }
+    } catch (e) {
+      if (mounted) {
+        completer.completeError(Exception("Video compression failed: $e"));
+      } else {
+        completer.completeError(Exception("Widget disposed before compression completed."));
+      }
+    }
 
     return completer.future;
   }
